@@ -101,14 +101,14 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({
                         <Link
                             href={item.href}
                             className={cn(
-                                'group relative px-3 py-2 text-sm font-medium transition-all duration-300',
+                                'group text-md relative px-3 py-2 font-medium transition-all duration-300',
                                 pathname === item.href
                                     ? authState.isAuthenticated
                                         ? 'text-foreground'
                                         : 'text-white'
                                     : authState.isAuthenticated
                                       ? 'text-foreground/60 hover:text-foreground'
-                                      : 'text-gray-300 hover:text-white',
+                                      : 'text-[rgba(106,108,106,1] hover:text-[#94f27f]',
                             )}
                             onMouseEnter={() => setHoveredItem(item.name)}
                             onMouseLeave={() => setHoveredItem(null)}

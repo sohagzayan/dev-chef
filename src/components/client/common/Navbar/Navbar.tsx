@@ -57,13 +57,11 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
             className={cn(
-                'sticky top-0 z-50 w-full border-b backdrop-blur-md transition-all duration-500',
-                authState.isAuthenticated
-                    ? 'border-gray-200 bg-white/90 shadow-sm'
-                    : 'border-gray-700 bg-gradient-to-r from-gray-900 to-gray-800 text-white',
+                'sticky top-0 z-50 w-full backdrop-blur-md transition-all duration-500',
+                authState.isAuthenticated ? 'bg-white/90 shadow-sm' : '',
             )}
         >
-            <div className="container mx-auto flex h-16 items-center">
+            <div className="container mx-auto flex h-20 items-center">
                 <Logo authState={authState} />
 
                 <MobileMenu
