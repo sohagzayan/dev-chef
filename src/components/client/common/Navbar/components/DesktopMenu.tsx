@@ -38,7 +38,7 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({
                                     className={cn(
                                         'group relative flex items-center gap-1',
                                         item.name === 'Store' && authState.isAuthenticated
-                                            ? 'text-amber-500'
+                                            ? 'text-[rgba(0,55,32,1)]'
                                             : '',
                                     )}
                                     onMouseEnter={() => setHoveredItem(item.name)}
@@ -57,8 +57,8 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({
                                         className={cn(
                                             'absolute -bottom-1 left-0 h-0.5 w-0 group-hover:w-full',
                                             authState.isAuthenticated
-                                                ? 'bg-amber-500'
-                                                : 'bg-amber-400',
+                                                ? 'bg-[rgba(0,55,32,1)]'
+                                                : 'bg-[rgba(0,55,32,1)]',
                                         )}
                                         animate={{
                                             width: hoveredItem === item.name ? '100%' : '0%',
@@ -119,7 +119,9 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({
                                     layoutId="active-indicator"
                                     className={cn(
                                         'absolute bottom-0 left-0 h-0.5 w-full',
-                                        authState.isAuthenticated ? 'bg-amber-500' : 'bg-amber-00',
+                                        authState.isAuthenticated
+                                            ? 'bg-[rgba(0,55,32,1)]'
+                                            : 'bg-[rgba(0,55,32,1)]',
                                     )}
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
@@ -130,8 +132,8 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({
                                     className={cn(
                                         'absolute bottom-0 left-0 h-0.5 w-0 group-hover:w-full',
                                         authState.isAuthenticated
-                                            ? 'bg-amber-500/50'
-                                            : 'bg-amber-400/50',
+                                            ? 'bg-[rgba(0,55,32,1)]'
+                                            : 'bg-[rgba(0,55,32,1)]',
                                     )}
                                     animate={{
                                         width: hoveredItem === item.name ? '100%' : '0%',

@@ -1,6 +1,7 @@
 'use client';
 
 import { motion, Variants } from 'framer-motion';
+import HeroButtonGroup from './HeroButtonGroup';
 
 const Hero = () => {
     const containerVariants: Variants = {
@@ -67,39 +68,6 @@ const Hero = () => {
         },
     };
 
-    const buttonVariants: Variants = {
-        hidden: {
-            opacity: 0,
-            y: 20,
-            scale: 0.9,
-        },
-        visible: {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            transition: {
-                duration: 0.7,
-                ease: 'easeOut',
-                type: 'spring',
-                stiffness: 120,
-            },
-        },
-        hover: {
-            scale: 1.02,
-            y: -2,
-            transition: {
-                duration: 0.2,
-                ease: 'easeInOut',
-            },
-        },
-        tap: {
-            scale: 0.98,
-            transition: {
-                duration: 0.1,
-            },
-        },
-    };
-
     const floatingVariants: Variants = {
         animate: {
             y: [-2, 2, -2],
@@ -114,7 +82,7 @@ const Hero = () => {
     return (
         <div>
             <motion.div
-                className="flex flex-col items-center justify-center gap-4 px-6 pt-28 pb-12 md:pt-40 lg:gap-8 lg:pt-40 lg:pb-16"
+                className="bg-glow-radial flex flex-col items-center justify-center gap-4 px-6 pt-28 pb-12 md:pt-40 lg:gap-8 lg:pt-40 lg:pb-16"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
@@ -129,7 +97,7 @@ const Hero = () => {
                     <motion.span variants={floatingVariants} animate="animate">
                         🎉
                     </motion.span>
-                    {" We've raised a $43M Series B"}
+                    {" 1M+ Coders solved today's challenge"}
                     <motion.svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
@@ -153,7 +121,7 @@ const Hero = () => {
                 </motion.a>
 
                 <motion.h1
-                    className="text-center text-4xl leading-[0.9] font-bold tracking-[-0.020em] text-gray-900 md:text-5xl lg:text-7xl"
+                    className="text-center text-4xl leading-[1.2] font-bold tracking-[-0.020em] text-gray-900 md:text-5xl lg:text-7xl"
                     variants={titleVariants}
                 >
                     <motion.span
@@ -165,6 +133,7 @@ const Hero = () => {
                         The
                     </motion.span>
                     <motion.span
+                        className="text-[rgba(0,55,32,1)]"
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{
@@ -174,7 +143,7 @@ const Hero = () => {
                             stiffness: 100,
                         }}
                     >
-                        {' AI notepad '}
+                        {' perfect '}
                     </motion.span>
                     <motion.span
                         className="text-[rgba(175,183,180,1)]"
@@ -182,10 +151,11 @@ const Hero = () => {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.8, delay: 0.9 }}
                     >
-                        for people in
+                        ultimate platform
                     </motion.span>
                     <br className="hidden md:block" />
                     <motion.span
+                        className="text-[rgba(0,55,32,1)]"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{
@@ -195,7 +165,7 @@ const Hero = () => {
                             stiffness: 80,
                         }}
                     >
-                        back-to-back meetings
+                        for coders on the go.
                     </motion.span>
                 </motion.h1>
 
@@ -203,48 +173,10 @@ const Hero = () => {
                     className="w-full max-w-2xl px-14 text-center text-lg leading-tight font-medium text-gray-600 lg:text-2xl"
                     variants={itemVariants}
                 >
-                    Granola takes your raw meeting notes and makes them awesome
+                    Transform your coding challenges into mastered skills with ease
                 </motion.h2>
 
-                <motion.div className="flex flex-col gap-2 md:flex-row" variants={itemVariants}>
-                    <div className="flex flex-col">
-                        <motion.a
-                            href="https://go.granola.so/download?utm_source=landing_page"
-                            className="group lg:text-md relative z-20 flex h-12 flex-none cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-br from-[#94f27f] to-[#79d65e] px-6 pr-6 text-base font-medium text-black shadow-[inset_0px_0.5px_1px_rgb(255_255_255_/_0.5)] transition-all duration-75 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none lg:h-14 lg:pl-5"
-                            variants={buttonVariants}
-                            whileHover="hover"
-                            whileTap="tap"
-                        >
-                            <motion.div
-                                className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10 opacity-0 group-hover:opacity-50"
-                                initial={{ opacity: 0 }}
-                                whileHover={{ opacity: 0.5 }}
-                                transition={{ duration: 0.3 }}
-                            />
-                            <motion.span
-                                className="relative z-10 flex items-center gap-3"
-                                initial={{ x: -5, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                transition={{ duration: 0.5, delay: 1.5 }}
-                            >
-                                <motion.span
-                                    animate={{
-                                        rotate: [0, 10, -10, 0],
-                                    }}
-                                    transition={{
-                                        duration: 2,
-                                        repeat: Infinity,
-                                        repeatDelay: 3,
-                                        ease: 'easeInOut',
-                                    }}
-                                >
-                                    💻
-                                </motion.span>
-                                Download for Mac
-                            </motion.span>
-                        </motion.a>
-                    </div>
-                </motion.div>
+                <HeroButtonGroup />
             </motion.div>
         </div>
     );

@@ -20,6 +20,7 @@ import DesktopMenu from './components/DesktopMenu';
 import MobileMenu from './components/MobileMenu';
 import UserMenu from './components/UserMenu';
 import '@/app/globals.css';
+import { MdOutlineSyncLock } from 'react-icons/md';
 
 export default function Navbar() {
     const [authState, setAuthState] = useAuth();
@@ -93,7 +94,7 @@ export default function Navbar() {
                             size="icon"
                             className={cn(
                                 'rounded-full transition-all duration-300',
-                                searchFocused ? 'bg-amber-500/20' : 'hover:bg-amber-500/10',
+                                searchFocused ? 'bg-[rgb(148,242,127)]' : 'hover:bg-amber-500/10',
                             )}
                             onMouseEnter={() => setSearchFocused(true)}
                             onMouseLeave={() => setSearchFocused(false)}
@@ -204,8 +205,8 @@ export default function Navbar() {
                                             damping: 15,
                                         }}
                                     >
-                                        <span className="hidden items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-sm font-medium text-amber-500 sm:flex">
-                                            <span className="h-2 w-2 animate-pulse rounded-full bg-amber-500" />
+                                        <span className="hidden items-center gap-1 rounded-full bg-[rgb(148,242,127)] px-2 py-1 text-sm font-medium text-white sm:flex">
+                                            <span className="h-2 w-2 animate-pulse rounded-full bg-[rgba(0,55,32,1)]" />
                                             Premium
                                         </span>
                                     </motion.div>
@@ -228,7 +229,7 @@ export default function Navbar() {
                                     <Button
                                         variant="ghost"
                                         onClick={toggleAuth}
-                                        className="text-gray-300 transition-colors duration-300 hover:text-white"
+                                        className="cursor-pointer rounded-full text-[rgba(0,55,32,1)] transition-colors duration-300 hover:bg-[rgb(148,242,127)] hover:text-white"
                                     >
                                         Sign in
                                     </Button>
@@ -236,8 +237,9 @@ export default function Navbar() {
                                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                     <Button
                                         onClick={toggleAuth}
-                                        className="bg-gradient-to-r from-amber-500 to-amber-600 transition-all duration-300 hover:from-amber-600 hover:to-amber-700"
+                                        className="cursor-pointer rounded-full border border-[rgba(106,108,106,0.1)] bg-white font-semibold text-[rgba(0,55,32,1))] transition-all duration-300 hover:bg-[rgb(148,242,127)] hover:from-amber-600 hover:to-amber-700 hover:text-white"
                                     >
+                                        <MdOutlineSyncLock />
                                         Sign up
                                     </Button>
                                 </motion.div>
