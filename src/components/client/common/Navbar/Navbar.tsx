@@ -19,6 +19,7 @@ import Logo from '../Logo';
 import DesktopMenu from './components/DesktopMenu';
 import MobileMenu from './components/MobileMenu';
 import UserMenu from './components/UserMenu';
+import '@/app/globals.css';
 
 export default function Navbar() {
     const [authState, setAuthState] = useAuth();

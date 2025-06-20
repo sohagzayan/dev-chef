@@ -15,7 +15,7 @@ const Logo: React.FC<LogoProps> = ({ authState }) => {
     return (
         <Link href="/" className="group mr-6 flex items-center gap-3">
             <motion.div
-                className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg"
+                className="bg-fresh-lime relative flex h-10 w-10 items-center justify-center rounded-xl shadow-lg"
                 whileHover={{
                     scale: 1.05,
                     rotate: [0, -5, 5, 0],
@@ -76,7 +76,7 @@ const Logo: React.FC<LogoProps> = ({ authState }) => {
                     className="relative text-2xl font-bold tracking-tight"
                     initial={false}
                     animate={{
-                        color: authState.isAuthenticated ? '#065f46' : '#0f172a',
+                        color: authState.isAuthenticated ? '#065f46' : 'rgba(0, 55, 32, 1)',
                     }}
                     transition={{ duration: 0.5 }}
                 >
@@ -84,7 +84,7 @@ const Logo: React.FC<LogoProps> = ({ authState }) => {
                     <motion.span
                         className="relative"
                         animate={{
-                            color: authState.isAuthenticated ? '#10b981' : '#06b6d4',
+                            color: authState.isAuthenticated ? '#10b981' : 'rgba(0, 55, 32, 1)',
                         }}
                         transition={{ duration: 0.5 }}
                     >

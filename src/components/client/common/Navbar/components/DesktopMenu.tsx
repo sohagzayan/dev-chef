@@ -108,7 +108,7 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({
                                         : 'text-white'
                                     : authState.isAuthenticated
                                       ? 'text-foreground/60 hover:text-foreground'
-                                      : 'text-[rgba(106,108,106,1] hover:text-[#94f27f]',
+                                      : 'text-[rgba(106,108,106,1)] hover:text-[rgba(0,55,32,1)]',
                             )}
                             onMouseEnter={() => setHoveredItem(item.name)}
                             onMouseLeave={() => setHoveredItem(null)}
@@ -119,7 +119,7 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({
                                     layoutId="active-indicator"
                                     className={cn(
                                         'absolute bottom-0 left-0 h-0.5 w-full',
-                                        authState.isAuthenticated ? 'bg-amber-500' : 'bg-amber-400',
+                                        authState.isAuthenticated ? 'bg-amber-500' : 'bg-amber-00',
                                     )}
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
