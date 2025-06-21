@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Bell, Search, ShoppingCart } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +28,7 @@ export default function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [hoveredItem, setHoveredItem] = useState<string | null>(null);
     const [searchFocused, setSearchFocused] = useState(false);
+    const router = useRouter();
 
     const toggleAuth = () => {
         if (authState.isAuthenticated) {
@@ -236,7 +237,7 @@ export default function Navbar() {
                                 </motion.div>
                                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                     <Button
-                                        onClick={toggleAuth}
+                                        onClick={() => router.push('/access-account')}
                                         className="cursor-pointer rounded-full border border-[rgba(106,108,106,0.1)] bg-white font-semibold text-[rgba(0,55,32,1))] transition-all duration-300 hover:bg-[rgb(148,242,127)] hover:from-amber-600 hover:to-amber-700 hover:text-white"
                                     >
                                         <MdOutlineSyncLock />

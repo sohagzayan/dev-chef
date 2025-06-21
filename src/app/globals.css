@@ -4,14 +4,14 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-    --color-success-100: rgb(148, 242, 127);
-    --color-success-900: rgba(0, 55, 32, 1);
+    --color-success-100: #94f27f;
+    --color-success-900: #003720;
 
-    --color-dark-900: rgba(14, 15, 12, 1);
+    --color-dark-900: #0e0f0c;
 
-    --color-muted-500: rgba(106, 108, 106, 1);
-    --color-muted-600: rgba(131, 146, 140, 1);
-    --color-muted-700: rgba(69, 71, 69, 1);
+    --color-muted-500: #6a6c6a;
+    --color-muted-600: #83928c;
+    --color-muted-700: #454745;
 
     --color-destructive-100: #f75353;
     --color-destructive-200: #c44141;
@@ -117,12 +117,12 @@
     --color-input: var(--input);
     --color-ring: var(--ring);
 
-    --color-success-100: var(--color-success-100);
-    --color-success-900: var(--color-success-900);
-    --color-muted-500: var(--color-muted-500);
-    --color-muted-600: var(--color-muted-600);
-    --color-muted-700: var(--color-muted-700);
-    --color-dark-900: var(--color-dark-900);
+    /* --color-success-100: var(--color-success-100); */
+    /* --color-success-900: var(--color-success-900); */
+    /* --color-muted-500: var(--color-muted-500); */
+    /* --color-muted-600: var(--color-muted-600); */
+    /* --color-muted-700: var(--color-muted-700); */
+    /* --color-dark-900: #0e0f0c; */
 
     --color-chart-1: var(--chart-1);
     --color-chart-2: var(--chart-2);
@@ -162,6 +162,43 @@
         @apply text-light-100;
     } */
 }
+.gradient-bg {
+    background: linear-gradient(135deg, rgba(14, 15, 12, 0.95) 0%, rgba(69, 71, 69, 0.9) 100%);
+}
+
+.glass-effect {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.floating-animation {
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-glow {
+    from {
+        box-shadow: 0 0 20px rgba(148, 242, 127, 0.3);
+    }
+    to {
+        box-shadow: 0 0 30px rgba(148, 242, 127, 0.6);
+    }
+}
+
 /* 
 @layer components {
     .btn-call {
