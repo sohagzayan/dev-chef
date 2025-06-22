@@ -2,10 +2,27 @@ import { AuthState, NavItem } from '@/types/client/common/navbar-types';
 
 export const getNavItems = (authState: AuthState): NavItem[] => {
     const commonItems = [
-        { name: 'Explore', href: '/explore' },
-        { name: 'Problems', href: '/problems' },
-        { name: 'Contest', href: '/contest' },
-        { name: 'Discuss', href: '/discuss' },
+        {
+            name: 'Product',
+            href: '/explore',
+            dropdown: [
+                { name: 'Interview', href: '/interview/assessment' },
+                { name: 'Engage', href: '/interview/mock' },
+                { name: 'SkillUpp', href: '/interview/mock' },
+            ],
+        },
+        {
+            name: 'Resource',
+            href: '/problems',
+            dropdown: [
+                { name: 'Customer Stories', href: '/interview/assessment' },
+                { name: 'Blog', href: '/interview/mock' },
+                { name: 'Support', href: '/interview/mock' },
+                { name: 'whats-new', href: '/interview/mock' },
+            ],
+        },
+        { name: 'Pricing', href: '/work/pricing' },
+        { name: 'Developer', href: '/discuss' },
     ];
 
     if (!authState.isAuthenticated) {

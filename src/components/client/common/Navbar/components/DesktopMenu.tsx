@@ -105,7 +105,7 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({
                                 pathname === item.href
                                     ? authState.isAuthenticated
                                         ? 'text-foreground'
-                                        : 'text-white'
+                                        : 'text-foreground'
                                     : authState.isAuthenticated
                                       ? 'text-foreground/60 hover:text-foreground'
                                       : 'text-[rgba(106,108,106,1)] hover:text-[rgba(0,55,32,1)]',

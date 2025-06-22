@@ -1,4 +1,3 @@
-import { FooterSection } from '@/components/client/common/Footer/FooterSection';
 import { AchievementsSection } from './components/AchievementsSection';
 import { CommunityStatsSection } from './components/CommunityStatsSection';
 import Hero from './components/Hero';
@@ -17,7 +16,6 @@ export default function Home() {
             <ProjectsSection />
             <LearningPathsSection />
             <CommunityStatsSection />
-            <FooterSection />
         </div>
     );
 }
