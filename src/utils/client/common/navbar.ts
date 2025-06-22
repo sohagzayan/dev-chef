@@ -22,7 +22,7 @@ export const getNavItems = (authState: AuthState): NavItem[] => {
             ],
         },
         { name: 'Pricing', href: '/work/pricing' },
-        { name: 'Developer', href: '/discuss' },
+        { name: 'Developer', href: '/dashboard' },
     ];
 
     if (!authState.isAuthenticated) {
