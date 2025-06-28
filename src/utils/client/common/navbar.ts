@@ -16,7 +16,7 @@ export const getNavItems = (authState: AuthState): NavItem[] => {
             href: '/problems',
             dropdown: [
                 { name: 'Customer Stories', href: '/interview/assessment' },
-                { name: 'Blog', href: '/interview/mock' },
+                { name: 'Blog', href: '/blog' },
                 { name: 'Support', href: '/interview/mock' },
                 { name: 'whats-new', href: '/interview/mock' },
             ],
