@@ -1,16 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import {
-    Calendar,
-    ChevronRight,
-    Eye,
-    Filter,
-    Search,
-    Sparkles,
-    TrendingUp,
-    Users,
-} from 'lucide-react';
+import { Calendar, ChevronRight, Eye, Filter, Search, TrendingUp, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
