@@ -29,12 +29,13 @@ export default function RoleSelection() {
                         transition={{ duration: 0.8, delay: 0.2 }}
                         className="mb-16 text-center"
                     >
-                        <h1 className="mb-6 text-5xl leading-tight font-bold text-gray-900 md:text-7xl">
+                        <h1 className="mt-2 text-4xl leading-none font-bold text-gray-900 md:text-6xl">
                             Choose Your
                             <span className="block bg-gradient-to-r from-[rgb(148,242,127)] to-[rgb(148,242,127)] bg-clip-text text-transparent">
                                 Journey
                             </span>
                         </h1>
+
                         <p className="mx-auto max-w-2xl text-xl leading-relaxed text-gray-600">
                             Whether youre building the next unicorn or crafting elegant code, weve
                             got the perfect platform tailored for your needs.
@@ -216,7 +217,7 @@ export default function RoleSelection() {
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.8 }}
-                        className="mt-16 text-center"
+                        className="mt-16 mb-10 text-center"
                     >
                         <div className="mx-auto grid max-w-2xl grid-cols-2 gap-8 md:grid-cols-4">
                             <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-md">
