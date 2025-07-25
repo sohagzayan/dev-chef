@@ -27,7 +27,7 @@ export function AuthCard({
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay }}
-            className={`mx-auto w-full max-w-sm ${className}`}
+            className={`mx-auto w-full ${className}`}
         >
             <Card className="border border-gray-200 bg-white shadow-xl">
                 <CardHeader className="pt-6 pb-6 text-center">

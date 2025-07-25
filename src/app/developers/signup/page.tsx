@@ -83,8 +83,11 @@ export default function DeveloperSignup() {
                 title="Developer Hub"
                 icon={Code2}
                 rightContent={
-                    <div className="flex items-center space-x-4">
-                        <span className="text-gray-600">Already have an account?</span>
+                    <div className="flex items-center space-x-2 sm:space-x-4">
+                        <span className="hidden text-sm text-gray-600 sm:inline">
+                            Already have an account?
+                        </span>
+                        <span className="text-sm text-gray-600 sm:hidden">Have an account?</span>
                         <Link
                             href="/developers/login"
                             className="font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
@@ -95,8 +98,8 @@ export default function DeveloperSignup() {
                 }
             />
 
-            <div className="relative z-10 flex min-h-[calc(100vh-120px)] items-center justify-center px-6 py-12">
-                <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
+            <div className="relative z-10 flex min-h-[calc(100vh-120px)] items-center justify-center px-4 py-8 sm:px-6 sm:py-12">
+                <div className="mx-auto grid w-full max-w-5xl items-center gap-2 lg:grid-cols-2 lg:gap-4">
                     {/* Left Side - Welcome Message */}
                     <motion.div
                         initial={{ opacity: 0, x: -50 }}
@@ -106,7 +109,7 @@ export default function DeveloperSignup() {
                     >
                         <div className="space-y-8">
                             <div className="space-y-4">
-                                <h1 className="text-5xl leading-tight font-bold text-gray-900">
+                                <h1 className="text-4xl leading-tight font-bold text-gray-900 xl:text-5xl">
                                     Start your
                                     <span className="block bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                                         coding journey
@@ -129,7 +132,14 @@ export default function DeveloperSignup() {
                                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-100 to-teal-100">
                                             <feature.icon className="h-4 w-4 text-emerald-600" />
                                         </div>
-                                        <p className="font-medium text-gray-900">{feature.text}</p>
+                                        <div>
+                                            <p className="font-medium text-gray-900">
+                                                {feature.text}
+                                            </p>
+                                            <p className="text-sm text-gray-600">
+                                                {feature.description}
+                                            </p>
+                                        </div>
                                     </motion.div>
                                 ))}
                             </div>
@@ -147,6 +157,7 @@ export default function DeveloperSignup() {
                         title="Create Account"
                         subtitle="Join our developer community"
                         delay={0.2}
+                        className="mx-auto w-full max-w-4xl"
                     >
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <FormField
@@ -221,20 +232,17 @@ export default function DeveloperSignup() {
                             </FormField>
 
                             <div className="space-y-3">
-                                <div className="flex items-start space-x-3">
+                                <div className="flex items-start gap-3">
                                     <Checkbox
                                         id="terms"
                                         checked={formData.agreeToTerms}
                                         onCheckedChange={(checked) =>
                                             handleFieldChange('agreeToTerms', checked)
                                         }
-                                        className="mt-0.5 border-gray-300 data-[state=checked]:border-emerald-500 data-[state=checked]:bg-emerald-500"
+                                        className="mt-1 border-gray-300 data-[state=checked]:border-emerald-500 data-[state=checked]:bg-emerald-500"
                                         required
                                     />
-                                    <Label
-                                        htmlFor="terms"
-                                        className="text-sm leading-relaxed text-gray-700"
-                                    >
+                                    <p className="max-w-md text-sm text-gray-700">
                                         I agree to the{' '}
                                         <Link
                                             href="#"
@@ -249,24 +257,28 @@ export default function DeveloperSignup() {
                                         >
                                             Privacy Policy
                                         </Link>
-                                    </Label>
+                                    </p>
                                 </div>
+
                                 {errors.agreeToTerms && (
                                     <p className="animate-fade-in text-sm text-red-600">
                                         {errors.agreeToTerms}
                                     </p>
                                 )}
 
-                                <div className="flex items-center space-x-3">
+                                <div className="flex items-start space-x-3">
                                     <Checkbox
                                         id="newsletter"
                                         checked={formData.subscribeNewsletter}
                                         onCheckedChange={(checked) =>
                                             handleFieldChange('subscribeNewsletter', checked)
                                         }
-                                        className="border-gray-300 data-[state=checked]:border-emerald-500 data-[state=checked]:bg-emerald-500"
+                                        className="mt-0.5 border-gray-300 data-[state=checked]:border-emerald-500 data-[state=checked]:bg-emerald-500"
                                     />
-                                    <Label htmlFor="newsletter" className="text-sm text-gray-700">
+                                    <Label
+                                        htmlFor="newsletter"
+                                        className="text-sm leading-relaxed text-gray-700"
+                                    >
                                         Subscribe to our newsletter for coding tips and updates
                                     </Label>
                                 </div>
@@ -277,13 +289,15 @@ export default function DeveloperSignup() {
                                 isLoading={isLoading}
                                 loadingText="Creating account..."
                                 disabled={!formData.agreeToTerms}
-                                className="w-full transform bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:from-emerald-700 hover:to-teal-700"
+                                className="w-full min-w-full transform bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:from-emerald-700 hover:to-teal-700"
                             >
                                 Create Account
                             </LoadingButton>
                         </form>
 
-                        <SocialLogin disabled={isLoading} />
+                        <div className="mt-6">
+                            <SocialLogin disabled={isLoading} />
+                        </div>
                     </AuthCard>
                 </div>
             </div>
