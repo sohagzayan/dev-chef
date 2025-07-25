@@ -4,12 +4,11 @@ import type React from 'react';
 import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Code2, Mail, Sparkles } from 'lucide-react';
+import { Code2, Mail, Shield, Users, Zap } from 'lucide-react';
 import { FormField } from '@/components/client/common/form-field';
 import { LoadingButton } from '@/components/client/common/loading-button';
 import { PasswordInput } from '@/components/client/common/password-input';
 import { SocialLogin } from '@/components/client/common/social-login';
-import { FeatureList } from '@/components/client/features/feature-list';
 import { AuthBackground } from '@/components/client/layout/auth-background';
 import { AuthCard } from '@/components/client/layout/auth-card';
 import { AuthHeader } from '@/components/client/layout/auth-header';
@@ -44,7 +43,6 @@ export default function DeveloperLogin() {
         }
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleFieldChange = (field: keyof DeveloperLoginForm, value: any) => {
         const newData = { ...formData, [field]: value };
         setFormData(newData);
@@ -52,54 +50,89 @@ export default function DeveloperLogin() {
     };
 
     const features = [
-        { text: 'Access to 1000+ coding challenges' },
-        { text: 'Real-time code execution' },
-        { text: 'Interview preparation tools' },
+        {
+            icon: Zap,
+            text: '1000+ coding challenges',
+            description: 'Practice with real-world problems',
+        },
+        {
+            icon: Shield,
+            text: 'Real-time code execution',
+            description: 'Test your solutions instantly',
+        },
+        {
+            icon: Users,
+            text: 'Interview preparation',
+            description: 'Ace your technical interviews',
+        },
     ];
 
     return (
-        <div className="from-dark-900 via-muted-700 to-dark-900 relative min-h-screen overflow-hidden bg-gradient-to-br">
+        <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
             <AuthBackground variant="developer" />
             <AuthHeader title="Developer Hub" icon={Code2} />
 
-            <div className="relative z-10 flex min-h-[calc(100vh-120px)] items-center justify-center px-6">
-                <div className="mx-auto grid max-w-6xl items-center gap-12 md:grid-cols-2">
+            <div className="relative z-10 flex min-h-[calc(100vh-120px)] items-center justify-center px-6 py-12">
+                <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
                     {/* Left Side - Welcome Message */}
                     <motion.div
                         initial={{ opacity: 0, x: -50 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.8 }}
-                        className="hidden md:block"
+                        className="hidden lg:block"
                     >
-                        <div className="space-y-6">
-                            <div className="flex items-center space-x-2">
-                                <Sparkles className="text-success-100 h-6 w-6" />
-                                <span className="text-success-100 font-medium">Welcome back!</span>
+                        <div className="space-y-8">
+                            <div className="space-y-4">
+                                <h1 className="text-5xl leading-tight font-bold text-gray-900">
+                                    Ready to
+                                    <span className="block bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                                        level up?
+                                    </span>
+                                </h1>
+                                <p className="max-w-lg text-xl leading-relaxed text-gray-600">
+                                    Join millions of developers worldwide. Practice coding
+                                    challenges, prepare for interviews, and showcase your skills.
+                                </p>
                             </div>
-                            <h1 className="text-4xl leading-tight font-bold text-white">
-                                Ready to code?
-                                <br />
-                                <span className="text-success-100">
-                                    Lets build something amazing.
-                                </span>
-                            </h1>
-                            <p className="text-muted-500 text-lg leading-relaxed">
-                                Join millions of developers worldwide. Practice coding challenges,
-                                prepare for interviews, and showcase your skills to top companies.
-                            </p>
 
-                            <FeatureList features={features} />
+                            <div className="space-y-4">
+                                <h3 className="text-lg font-semibold text-gray-800">
+                                    What you&apos;ll get:
+                                </h3>
+                                <div className="space-y-3">
+                                    {features.map((feature, index) => (
+                                        <motion.div
+                                            key={index}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ duration: 0.5, delay: index * 0.1 }}
+                                            className="flex items-center space-x-3"
+                                        >
+                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-100 to-teal-100">
+                                                <feature.icon className="h-4 w-4 text-emerald-600" />
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-gray-900">
+                                                    {feature.text}
+                                                </p>
+                                                <p className="text-sm text-gray-600">
+                                                    {feature.description}
+                                                </p>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     </motion.div>
 
                     {/* Right Side - Login Form */}
                     <AuthCard
-                        icon={Code2}
                         title="Welcome Back!"
                         subtitle="Continue your coding journey"
                         delay={0.2}
                     >
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleSubmit} className="space-y-6">
                             <FormField
                                 label="Email or Username"
                                 htmlFor="email"
@@ -107,14 +140,14 @@ export default function DeveloperLogin() {
                                 required
                             >
                                 <div className="relative">
-                                    <Mail className="text-muted-500 absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
+                                    <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                                     <Input
                                         id="email"
                                         type="text"
                                         placeholder="Enter your email or username"
                                         value={formData.email}
                                         onChange={(e) => handleFieldChange('email', e.target.value)}
-                                        className="placeholder:text-muted-500 focus:border-success-100 focus:ring-success-100 border-white/20 bg-white/5 pl-10 text-white"
+                                        className="border-gray-300 bg-white pl-10 text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-emerald-500"
                                         required
                                     />
                                 </div>
@@ -143,15 +176,18 @@ export default function DeveloperLogin() {
                                         onCheckedChange={(checked) =>
                                             handleFieldChange('rememberMe', checked)
                                         }
-                                        className="data-[state=checked]:bg-success-100 data-[state=checked]:border-success-100 border-white/20"
+                                        className="border-gray-300 data-[state=checked]:border-emerald-500 data-[state=checked]:bg-emerald-500"
                                     />
-                                    <Label htmlFor="remember" className="text-muted-500 text-sm">
+                                    <Label
+                                        htmlFor="remember"
+                                        className="text-sm font-medium text-gray-700"
+                                    >
                                         Remember me
                                     </Label>
                                 </div>
                                 <Link
                                     href="/developers/forgot-password"
-                                    className="text-success-100 text-sm hover:underline"
+                                    className="text-sm font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
                                 >
                                     Forgot password?
                                 </Link>
@@ -161,22 +197,35 @@ export default function DeveloperLogin() {
                                 type="submit"
                                 isLoading={isLoading}
                                 loadingText="Signing in..."
-                                className="transform hover:scale-105"
+                                className="w-full transform bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:from-emerald-700 hover:to-teal-700"
                             >
                                 Start Coding
                             </LoadingButton>
                         </form>
 
+                        <div className="relative my-8">
+                            <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-gray-300"></div>
+                            </div>
+                            <div className="relative flex justify-center text-sm">
+                                <span className="bg-white px-4 text-gray-500">
+                                    Or continue with
+                                </span>
+                            </div>
+                        </div>
+
                         <SocialLogin disabled={isLoading} />
 
-                        <div className="text-muted-500 text-center">
-                            Dont have an account?{' '}
-                            <Link
-                                href="/developers/signup"
-                                className="text-success-100 font-medium hover:underline"
-                            >
-                                Sign up for free
-                            </Link>
+                        <div className="pt-6 text-center">
+                            <p className="text-gray-600">
+                                Don&apos;t have an account?{' '}
+                                <Link
+                                    href="/developers/signup"
+                                    className="font-semibold text-emerald-600 hover:text-emerald-700 hover:underline"
+                                >
+                                    Sign up for free
+                                </Link>
+                            </p>
                         </div>
                     </AuthCard>
                 </div>

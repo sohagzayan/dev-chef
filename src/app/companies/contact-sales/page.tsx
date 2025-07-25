@@ -23,12 +23,14 @@ export default function ContactSales() {
                 </div>
             }
         >
-            <div className="mx-auto grid max-w-6xl items-start gap-12 lg:grid-cols-2">
+            <div className="mx-auto grid max-w-6xl items-start gap-8 lg:grid-cols-2 lg:gap-12">
                 {/* Left Side - Information */}
-                <ContactSalesFeatures />
+                <div className="order-2 lg:order-1">
+                    <ContactSalesFeatures />
+                </div>
 
                 {/* Right Side - Form */}
-                <div className="mx-auto w-full max-w-md lg:max-w-none">
+                <div className="order-1 mx-auto w-full max-w-md lg:order-2 lg:max-w-none">
                     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl">
                         <ContactSalesForm />
                     </div>

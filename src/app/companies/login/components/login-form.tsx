@@ -39,7 +39,6 @@ export function LoginForm() {
         }
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleFieldChange = (field: keyof CompanyLoginForm, value: any) => {
         const newData = { ...formData, [field]: value };
         setFormData(newData);
@@ -47,34 +46,38 @@ export function LoginForm() {
     };
 
     return (
-        <>
+        <div className="space-y-6">
+            {/* Form Section */}
             <form onSubmit={handleSubmit} className="space-y-4">
-                <FormField label="Work Email" htmlFor="email" error={errors.email} required>
-                    <div className="relative">
-                        <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
-                        <Input
-                            id="email"
-                            type="email"
-                            placeholder="your.email@company.com"
-                            value={formData.email}
-                            onChange={(e) => handleFieldChange('email', e.target.value)}
-                            className="border-gray-300 bg-white pl-10 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-[rgb(148,242,127)] focus:ring-[rgb(148,242,127)]"
+                <div className="space-y-4">
+                    <FormField label="Work Email" htmlFor="email" error={errors.email} required>
+                        <div className="relative">
+                            <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+                            <Input
+                                id="email"
+                                type="email"
+                                placeholder="your.email@company.com"
+                                value={formData.email}
+                                onChange={(e) => handleFieldChange('email', e.target.value)}
+                                className="border-gray-300 bg-white py-2.5 pr-4 pl-10 text-gray-900 shadow-sm transition-all duration-200 placeholder:text-gray-400 focus:border-[rgb(148,242,127)] focus:ring-[rgb(148,242,127)]"
+                                required
+                            />
+                        </div>
+                    </FormField>
+
+                    <FormField label="Password" htmlFor="password" error={errors.password} required>
+                        <PasswordInput
+                            id="password"
+                            value={formData.password}
+                            onChange={(value) => handleFieldChange('password', value)}
+                            error={!!errors.password}
                             required
                         />
-                    </div>
-                </FormField>
+                    </FormField>
+                </div>
 
-                <FormField label="Password" htmlFor="password" error={errors.password} required>
-                    <PasswordInput
-                        id="password"
-                        value={formData.password}
-                        onChange={(value) => handleFieldChange('password', value)}
-                        error={!!errors.password}
-                        required
-                    />
-                </FormField>
-
-                <div className="flex items-center justify-between">
+                {/* Remember Me & Forgot Password */}
+                <div className="flex items-center justify-between pt-1">
                     <div className="flex items-center space-x-2">
                         <Checkbox
                             id="remember"
@@ -82,41 +85,60 @@ export function LoginForm() {
                             onCheckedChange={(checked) => handleFieldChange('rememberMe', checked)}
                             className="border-gray-300 data-[state=checked]:border-[rgb(148,242,127)] data-[state=checked]:bg-[rgb(148,242,127)]"
                         />
-                        <Label htmlFor="remember" className="text-sm text-gray-600">
+                        <Label
+                            htmlFor="remember"
+                            className="cursor-pointer text-sm font-medium text-gray-700"
+                        >
                             Remember me
                         </Label>
                     </div>
                     <Link
                         href="/companies/forgot-password"
-                        className="text-sm text-[rgb(148,242,127)] hover:underline"
+                        className="text-sm font-medium text-[rgb(148,242,127)] transition-colors duration-200 hover:text-[rgb(148,242,127)]/80"
                     >
                         Forgot password?
                     </Link>
                 </div>
 
-                <LoadingButton type="submit" isLoading={isLoading} loadingText="Signing in...">
-                    Sign In
-                </LoadingButton>
+                {/* Submit Button */}
+                <div className="pt-3">
+                    <LoadingButton
+                        type="submit"
+                        isLoading={isLoading}
+                        loadingText="Signing in..."
+                        className="w-full py-2.5 text-sm font-semibold"
+                    >
+                        Sign In
+                    </LoadingButton>
+                </div>
             </form>
 
-            <SocialLogin disabled={isLoading} />
-
-            <div className="text-center text-gray-600">
-                Dont have an account?{' '}
-                <Link
-                    href="/companies/demo"
-                    className="font-medium text-[rgb(148,242,127)] hover:underline"
-                >
-                    Request Demo
-                </Link>{' '}
-                or{' '}
-                <Link
-                    href="/companies/trial"
-                    className="font-medium text-[rgb(148,242,127)] hover:underline"
-                >
-                    Start Free Trial
-                </Link>
+            {/* Social Login */}
+            <div className="pt-1">
+                <SocialLogin disabled={isLoading} />
             </div>
-        </>
+
+            {/* Bottom Links */}
+            <div className="space-y-2 pt-4 text-center">
+                <p className="text-xs text-gray-600">
+                    Don&apos;t have an account?{' '}
+                    <Link
+                        href="/companies/demo"
+                        className="font-semibold text-[rgb(148,242,127)] transition-colors duration-200 hover:text-[rgb(148,242,127)]/80"
+                    >
+                        Request Demo
+                    </Link>
+                </p>
+                <p className="text-xs text-gray-600">
+                    Want to try before you buy?{' '}
+                    <Link
+                        href="/companies/trial"
+                        className="font-semibold text-[rgb(148,242,127)] transition-colors duration-200 hover:text-[rgb(148,242,127)]/80"
+                    >
+                        Start Free Trial
+                    </Link>
+                </p>
+            </div>
+        </div>
     );
 }

@@ -56,16 +56,22 @@ export default function Navbar() {
 
     return (
         <motion.header
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
             className={cn(
-                'sticky top-0 z-50 w-full backdrop-blur-md transition-all duration-500',
-                authState.isAuthenticated ? 'bg-white/90 shadow-sm' : '',
+                'sticky top-0 z-50 w-full border-b border-gray-200/50 backdrop-blur-xl transition-all duration-700',
+                authState.isAuthenticated ? 'bg-white/90 shadow-lg' : 'bg-white/90 shadow-md',
             )}
         >
-            <div className="container mx-auto flex h-20 items-center">
-                <Logo authState={authState} />
+            <div className="container mx-auto flex h-16 items-center px-6">
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.6, delay: 0.1 }}
+                >
+                    <Logo authState={authState} />
+                </motion.div>
 
                 <MobileMenu
                     isOpen={isMobileMenuOpen}
@@ -76,17 +82,26 @@ export default function Navbar() {
                     pathname={pathname}
                 />
 
-                <DesktopMenu
-                    navItems={navItems}
-                    authState={authState}
-                    pathname={pathname}
-                    hoveredItem={hoveredItem}
-                    setHoveredItem={setHoveredItem}
-                />
+                <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                >
+                    <DesktopMenu
+                        navItems={navItems}
+                        authState={authState}
+                        pathname={pathname}
+                        hoveredItem={hoveredItem}
+                        setHoveredItem={setHoveredItem}
+                    />
+                </motion.div>
 
-                <div className="ml-auto flex items-center gap-2">
+                <div className="ml-auto flex items-center gap-3">
                     <motion.div
-                        whileHover={{ scale: 1.05 }}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5, delay: 0.3 }}
+                        whileHover={{ scale: 1.05, rotate: 5 }}
                         whileTap={{ scale: 0.95 }}
                         className="hidden sm:block"
                     >
@@ -94,16 +109,18 @@ export default function Navbar() {
                             variant="ghost"
                             size="icon"
                             className={cn(
-                                'rounded-full transition-all duration-300',
-                                searchFocused ? 'bg-[rgb(148,242,127)]' : 'hover:bg-amber-500/10',
+                                'rounded-xl transition-all duration-500 ease-out',
+                                searchFocused
+                                    ? 'bg-emerald-100 text-emerald-600 shadow-md'
+                                    : 'text-gray-600 hover:bg-gray-100 hover:shadow-sm',
                             )}
                             onMouseEnter={() => setSearchFocused(true)}
                             onMouseLeave={() => setSearchFocused(false)}
                         >
                             <Search
                                 className={cn(
-                                    'h-5 w-5 transition-transform duration-300',
-                                    searchFocused ? 'scale-110' : '',
+                                    'h-4 w-4 transition-all duration-500',
+                                    searchFocused ? 'scale-110 rotate-12' : '',
                                 )}
                             />
                             <span className="sr-only">Search</span>
@@ -115,35 +132,40 @@ export default function Navbar() {
                             <motion.div
                                 className="flex items-center gap-2"
                                 key="authenticated"
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 20 }}
-                                transition={{ duration: 0.3 }}
+                                initial={{ opacity: 0, x: 30, scale: 0.8 }}
+                                animate={{ opacity: 1, x: 0, scale: 1 }}
+                                exit={{ opacity: 0, x: 30, scale: 0.8 }}
+                                transition={{ duration: 0.5, ease: 'easeOut' }}
                             >
                                 {/* Notifications */}
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <motion.div
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
+                                            whileHover={{ scale: 1.1, rotate: 5 }}
+                                            whileTap={{ scale: 0.9 }}
+                                            transition={{
+                                                type: 'spring',
+                                                stiffness: 400,
+                                                damping: 10,
+                                            }}
                                         >
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                className="relative"
+                                                className="relative rounded-xl transition-all duration-300 hover:bg-gray-100 hover:shadow-sm"
                                             >
-                                                <Bell className="h-5 w-5" />
+                                                <Bell className="h-4 w-4 text-gray-600 transition-colors duration-300" />
                                                 {authState.notificationCount > 0 && (
                                                     <motion.div
-                                                        initial={{ scale: 0 }}
-                                                        animate={{ scale: 1 }}
+                                                        initial={{ scale: 0, rotate: -180 }}
+                                                        animate={{ scale: 1, rotate: 0 }}
                                                         transition={{
                                                             type: 'spring',
                                                             stiffness: 500,
                                                             damping: 15,
                                                         }}
                                                     >
-                                                        <Badge className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center bg-red-500 p-0 text-xs">
+                                                        <Badge className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center bg-red-500 p-0 text-xs shadow-lg">
                                                             {authState.notificationCount}
                                                         </Badge>
                                                     </motion.div>
@@ -153,29 +175,39 @@ export default function Navbar() {
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent
                                         align="end"
-                                        className="w-80 bg-white/90 backdrop-blur-md"
+                                        className="w-80 border border-gray-200 bg-white/95 shadow-xl backdrop-blur-xl"
                                     >
-                                        <div className="border-b p-2 font-medium">
+                                        <motion.div
+                                            initial={{ opacity: 0, y: -10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="border-b border-gray-200 p-3 font-medium text-gray-900"
+                                        >
                                             Notifications
-                                        </div>
+                                        </motion.div>
                                         <AnimatePresence>
                                             {[...Array(authState.notificationCount)].map((_, i) => (
                                                 <motion.div
                                                     key={`notification-${i}`}
-                                                    initial={{ opacity: 0, y: -10 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    transition={{ delay: i * 0.1 }}
+                                                    initial={{ opacity: 0, x: -20 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    transition={{ delay: i * 0.1, duration: 0.3 }}
                                                 >
-                                                    <DropdownMenuItem className="cursor-pointer p-3">
+                                                    <DropdownMenuItem className="cursor-pointer p-3 transition-all duration-200 hover:bg-emerald-50">
                                                         <div className="flex items-start gap-3">
-                                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100">
-                                                                <Bell className="h-4 w-4 text-amber-600" />
-                                                            </div>
+                                                            <motion.div
+                                                                className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100"
+                                                                whileHover={{
+                                                                    scale: 1.1,
+                                                                    rotate: 5,
+                                                                }}
+                                                            >
+                                                                <Bell className="h-4 w-4 text-emerald-600" />
+                                                            </motion.div>
                                                             <div>
-                                                                <p className="font-medium">
+                                                                <p className="font-medium text-gray-900">
                                                                     New notification {i + 1}
                                                                 </p>
-                                                                <p className="text-muted-foreground text-sm">
+                                                                <p className="text-sm text-gray-600">
                                                                     You have a new update to check
                                                                 </p>
                                                             </div>
@@ -187,9 +219,17 @@ export default function Navbar() {
                                     </DropdownMenuContent>
                                 </DropdownMenu>
 
-                                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                    <Button variant="ghost" size="icon">
-                                        <ShoppingCart className="h-5 w-5" />
+                                <motion.div
+                                    whileHover={{ scale: 1.1, rotate: 5 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                                >
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="rounded-xl transition-all duration-300 hover:bg-gray-100 hover:shadow-sm"
+                                    >
+                                        <ShoppingCart className="h-4 w-4 text-gray-600 transition-colors duration-300" />
                                     </Button>
                                 </motion.div>
 
@@ -197,17 +237,22 @@ export default function Navbar() {
 
                                 {authState.user?.role === 'premium' && (
                                     <motion.div
-                                        initial={{ opacity: 0, scale: 0.8 }}
-                                        animate={{ opacity: 1, scale: 1 }}
+                                        initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+                                        animate={{ opacity: 1, scale: 1, rotate: 0 }}
                                         transition={{
-                                            delay: 0.2,
+                                            delay: 0.4,
                                             type: 'spring',
                                             stiffness: 500,
                                             damping: 15,
                                         }}
+                                        whileHover={{ scale: 1.05, rotate: 2 }}
                                     >
-                                        <span className="hidden items-center gap-1 rounded-full bg-[rgb(148,242,127)] px-2 py-1 text-sm font-medium text-white sm:flex">
-                                            <span className="h-2 w-2 animate-pulse rounded-full bg-[rgba(0,55,32,1)]" />
+                                        <span className="hidden items-center gap-1 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 px-3 py-1 text-sm font-medium text-white shadow-lg sm:flex">
+                                            <motion.span
+                                                className="h-2 w-2 rounded-full bg-white/80"
+                                                animate={{ scale: [1, 1.2, 1] }}
+                                                transition={{ duration: 2, repeat: Infinity }}
+                                            />
                                             Premium
                                         </span>
                                     </motion.div>
@@ -215,32 +260,46 @@ export default function Navbar() {
                             </motion.div>
                         ) : (
                             <motion.div
-                                className="flex items-center gap-2"
+                                className="flex items-center gap-3"
                                 key="unauthenticated"
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 20 }}
-                                transition={{ duration: 0.3 }}
+                                initial={{ opacity: 0, x: 30, scale: 0.8 }}
+                                animate={{ opacity: 1, x: 0, scale: 1 }}
+                                exit={{ opacity: 0, x: 30, scale: 0.8 }}
+                                transition={{ duration: 0.5, ease: 'easeOut' }}
                             >
                                 <motion.div
-                                    whileHover={{ scale: 1.05 }}
+                                    whileHover={{ scale: 1.05, x: -2 }}
                                     whileTap={{ scale: 0.95 }}
+                                    transition={{ type: 'spring', stiffness: 400, damping: 10 }}
                                     className="hidden sm:block"
                                 >
                                     <Button
                                         variant="ghost"
                                         onClick={toggleAuth}
-                                        className="cursor-pointer rounded-full text-[rgba(0,55,32,1)] transition-colors duration-300 hover:bg-[rgb(148,242,127)] hover:text-white"
+                                        className="cursor-pointer rounded-xl font-medium text-gray-700 transition-all duration-300 hover:bg-gray-100 hover:text-gray-900 hover:shadow-sm"
                                     >
                                         Sign in
                                     </Button>
                                 </motion.div>
-                                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                <motion.div
+                                    whileHover={{ scale: 1.05, y: -2 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                                >
                                     <Button
                                         onClick={() => router.push('/access-account')}
-                                        className="cursor-pointer rounded-full border border-[rgba(106,108,106,0.1)] bg-white font-semibold text-[rgba(0,55,32,1))] transition-all duration-300 hover:bg-[rgb(148,242,127)] hover:from-amber-600 hover:to-amber-700 hover:text-white"
+                                        className="cursor-pointer rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 font-medium text-white shadow-lg transition-all duration-500 hover:scale-105 hover:from-emerald-700 hover:to-teal-700 hover:shadow-xl"
                                     >
-                                        <MdOutlineSyncLock />
+                                        <motion.div
+                                            animate={{ rotate: [0, 5, -5, 0] }}
+                                            transition={{
+                                                duration: 2,
+                                                repeat: Infinity,
+                                                ease: 'easeInOut',
+                                            }}
+                                        >
+                                            <MdOutlineSyncLock className="mr-2 h-4 w-4" />
+                                        </motion.div>
                                         Sign up
                                     </Button>
                                 </motion.div>

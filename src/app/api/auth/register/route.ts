@@ -5,21 +5,6 @@ import { sendWelcomeEmail } from '@/lib/email';
 import { generateTokens } from '@/lib/jwt';
 import { prisma } from '@/lib/prisma';
 
-// const registerSchema = z.object({
-//     name: z.string().min(2, 'Name must be at least 2 characters'),
-//     email: z.string().email('Invalid email address'),
-//     password: z
-//         .string()
-//         .min(8, 'Password must be at least 8 characters')
-//         .regex(
-//             /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
-//             'Password must contain uppercase, lowercase, number and special character',
-//         ),
-//     role: z.enum(['ADMIN', 'CANDIDATE', 'RECRUITER']).default('CANDIDATE'),
-//     phone: z.string().optional(),
-//     company: z.string().optional(),
-// });
-
 const CandidateProfileSchema = z.object({
     firstName: z.string(),
     lastName: z.string(),
@@ -41,7 +26,6 @@ const AdminProfileSchema = z.object({
 
 export const registerSchema = z
     .object({
-        name: z.string().min(2, 'Name must be at least 2 characters'),
         email: z.string().email('Invalid email address'),
         password: z
             .string()
@@ -51,8 +35,6 @@ export const registerSchema = z
                 'Password must contain uppercase, lowercase, number and special character',
             ),
         role: z.enum(['ADMIN', 'CANDIDATE', 'RECRUITER']).default('CANDIDATE'),
-        phone: z.string().optional(),
-        company: z.string().optional(),
         profile: z.any(), // temporarily allow any, then refine below
     })
     .superRefine((data, ctx) => {
@@ -110,33 +92,64 @@ export async function POST(request: NextRequest) {
         // Hash password
         const hashedPassword = await bcrypt.hash(validatedData.password, 12);
 
-        // Create user
-        const user = await prisma.user.create({
-            data: {
-                name: validatedData.name,
-                email: validatedData.email,
-                password: hashedPassword,
-                role: validatedData.role,
-                phone: validatedData.phone,
-                company: validatedData.company,
-            },
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                role: true,
-                phone: true,
-                company: true,
-                createdAt: true,
-            },
+        // Create user with profile in a transaction
+        const result = await prisma.$transaction(async (tx) => {
+            // Create the user first
+            const user = await tx.user.create({
+                data: {
+                    email: validatedData.email,
+                    password: hashedPassword,
+                    role: validatedData.role,
+                },
+                select: {
+                    id: true,
+                    email: true,
+                    role: true,
+                    createdAt: true,
+                },
+            });
+
+            // Create the appropriate profile based on role
+            if (validatedData.role === 'CANDIDATE') {
+                await tx.candidateProfile.create({
+                    data: {
+                        userId: user.id,
+                        firstName: validatedData.profile.firstName,
+                        lastName: validatedData.profile.lastName,
+                    },
+                });
+            } else if (validatedData.role === 'RECRUITER') {
+                await tx.recruiterProfile.create({
+                    data: {
+                        userId: user.id,
+                        firstName: validatedData.profile.firstName,
+                        lastName: validatedData.profile.lastName,
+                        companyName: validatedData.profile.companyName,
+                    },
+                });
+            } else if (validatedData.role === 'ADMIN') {
+                await tx.adminProfile.create({
+                    data: {
+                        userId: user.id,
+                        firstName: validatedData.profile.firstName,
+                        lastName: validatedData.profile.lastName,
+                        permissions: validatedData.profile.permissions,
+                        department: validatedData.profile.department,
+                        isSuperAdmin: validatedData.profile.isSuperAdmin || false,
+                    },
+                });
+            }
+
+            return user;
         });
 
         // Generate tokens
-        const { accessToken, refreshToken } = await generateTokens(user);
+        const { accessToken, refreshToken } = await generateTokens(result);
 
         // Send welcome email
         try {
-            await sendWelcomeEmail(user.email, user.name || 'User');
+            const fullName = `${validatedData.profile.firstName} ${validatedData.profile.lastName}`;
+            await sendWelcomeEmail(result.email, fullName);
         } catch (emailError) {
             console.error('Failed to send welcome email:', emailError);
         }
@@ -144,7 +157,7 @@ export async function POST(request: NextRequest) {
         // Set refresh token as httpOnly cookie
         const response = NextResponse.json({
             message: 'User registered successfully',
-            user,
+            user: result,
             accessToken,
         });
 

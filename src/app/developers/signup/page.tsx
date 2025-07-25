@@ -4,12 +4,11 @@ import type React from 'react';
 import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Code2, Mail, Sparkles, User } from 'lucide-react';
+import { Code2, Mail, Shield, Trophy, User, Users, Zap } from 'lucide-react';
 import { FormField } from '@/components/client/common/form-field';
 import { LoadingButton } from '@/components/client/common/loading-button';
 import { PasswordInput } from '@/components/client/common/password-input';
 import { SocialLogin } from '@/components/client/common/social-login';
-import { FeatureList } from '@/components/client/features/feature-list';
 import { AuthBackground } from '@/components/client/layout/auth-background';
 import { AuthCard } from '@/components/client/layout/auth-card';
 import { AuthHeader } from '@/components/client/layout/auth-header';
@@ -47,23 +46,37 @@ export default function DeveloperSignup() {
         }
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleFieldChange = (field: keyof DeveloperSignupForm, value: any) => {
         const newData = { ...formData, [field]: value };
         setFormData(newData);
         validateField(field, value, newData);
     };
 
-    const benefits = [
-        { text: 'Access to 1000+ coding challenges' },
-        { text: 'Real-time code execution environment' },
-        { text: 'Interview preparation resources' },
-        { text: 'Global leaderboards and competitions' },
-        { text: 'Career opportunities from top companies' },
+    const features = [
+        {
+            icon: Zap,
+            text: '1000+ coding challenges',
+            description: 'Practice with real-world problems',
+        },
+        {
+            icon: Shield,
+            text: 'Real-time code execution',
+            description: 'Test your solutions instantly',
+        },
+        {
+            icon: Users,
+            text: 'Interview preparation',
+            description: 'Ace your technical interviews',
+        },
+        {
+            icon: Trophy,
+            text: 'Global leaderboards',
+            description: 'Compete with developers worldwide',
+        },
     ];
 
     return (
-        <div className="from-dark-900 via-muted-700 to-dark-900 relative min-h-screen overflow-hidden bg-gradient-to-br">
+        <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
             <AuthBackground variant="developer" />
 
             <AuthHeader
@@ -71,10 +84,10 @@ export default function DeveloperSignup() {
                 icon={Code2}
                 rightContent={
                     <div className="flex items-center space-x-4">
-                        <span className="text-muted-500">Already have an account?</span>
+                        <span className="text-gray-600">Already have an account?</span>
                         <Link
                             href="/developers/login"
-                            className="text-success-100 font-medium hover:underline"
+                            className="font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
                         >
                             Sign in
                         </Link>
@@ -82,50 +95,57 @@ export default function DeveloperSignup() {
                 }
             />
 
-            <div className="relative z-10 flex min-h-[calc(100vh-120px)] items-center justify-center px-6">
-                <div className="mx-auto grid max-w-6xl items-center gap-12 md:grid-cols-2">
-                    {/* Left Side - Benefits */}
+            <div className="relative z-10 flex min-h-[calc(100vh-120px)] items-center justify-center px-6 py-12">
+                <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
+                    {/* Left Side - Welcome Message */}
                     <motion.div
                         initial={{ opacity: 0, x: -50 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.8 }}
-                        className="hidden space-y-8 md:block"
+                        className="hidden lg:block"
                     >
-                        <div>
-                            <div className="mb-4 flex items-center space-x-2">
-                                <Sparkles className="text-success-100 h-6 w-6" />
-                                <span className="text-success-100 font-medium">
-                                    Join the community
-                                </span>
+                        <div className="space-y-8">
+                            <div className="space-y-4">
+                                <h1 className="text-5xl leading-tight font-bold text-gray-900">
+                                    Start your
+                                    <span className="block bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                                        coding journey
+                                    </span>
+                                </h1>
+                                <p className="text-lg text-gray-600">
+                                    Join millions of developers worldwide.
+                                </p>
                             </div>
-                            <h1 className="mb-4 text-4xl leading-tight font-bold text-white">
-                                Start your
-                                <br />
-                                <span className="text-success-100">coding journey today</span>
-                            </h1>
-                            <p className="text-muted-500 text-lg leading-relaxed">
-                                Join over 2 million developers worldwide. Practice coding, prepare
-                                for interviews, and connect with the global developer community.
-                            </p>
-                        </div>
 
-                        <FeatureList features={benefits} />
+                            <div className="space-y-3">
+                                {features.map((feature, index) => (
+                                    <motion.div
+                                        key={index}
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                                        className="flex items-center space-x-3"
+                                    >
+                                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-100 to-teal-100">
+                                            <feature.icon className="h-4 w-4 text-emerald-600" />
+                                        </div>
+                                        <p className="font-medium text-gray-900">{feature.text}</p>
+                                    </motion.div>
+                                ))}
+                            </div>
 
-                        <div className="bg-success-100/10 border-success-100/20 rounded-lg border p-6">
-                            <h3 className="text-success-100 mb-2 font-semibold">
-                                🎉 Special Launch Offer
-                            </h3>
-                            <p className="text-muted-500 text-sm">
-                                Sign up now and get premium features free for your first month!
-                            </p>
+                            <div className="rounded-lg border border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50 p-4">
+                                <p className="text-sm text-emerald-600">
+                                    🎉 Get premium features free for your first month!
+                                </p>
+                            </div>
                         </div>
                     </motion.div>
 
                     {/* Right Side - Signup Form */}
                     <AuthCard
-                        icon={Code2}
-                        title="Join Us"
-                        subtitle="Create your developer account"
+                        title="Create Account"
+                        subtitle="Join our developer community"
                         delay={0.2}
                     >
                         <form onSubmit={handleSubmit} className="space-y-4">
@@ -136,7 +156,7 @@ export default function DeveloperSignup() {
                                 required
                             >
                                 <div className="relative">
-                                    <User className="text-muted-500 absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
+                                    <User className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                                     <Input
                                         id="fullName"
                                         type="text"
@@ -145,7 +165,7 @@ export default function DeveloperSignup() {
                                         onChange={(e) =>
                                             handleFieldChange('fullName', e.target.value)
                                         }
-                                        className="placeholder:text-muted-500 focus:border-success-100 focus:ring-success-100 border-white/20 bg-white/5 pl-10 text-white"
+                                        className="border-gray-300 bg-white pl-10 text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-emerald-500"
                                         required
                                     />
                                 </div>
@@ -153,14 +173,14 @@ export default function DeveloperSignup() {
 
                             <FormField label="Email" htmlFor="email" error={errors.email} required>
                                 <div className="relative">
-                                    <Mail className="text-muted-500 absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
+                                    <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                                     <Input
                                         id="email"
                                         type="email"
                                         placeholder="Enter your email"
                                         value={formData.email}
                                         onChange={(e) => handleFieldChange('email', e.target.value)}
-                                        className="placeholder:text-muted-500 focus:border-success-100 focus:ring-success-100 border-white/20 bg-white/5 pl-10 text-white"
+                                        className="border-gray-300 bg-white pl-10 text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-emerald-500"
                                         required
                                     />
                                 </div>
@@ -201,46 +221,52 @@ export default function DeveloperSignup() {
                             </FormField>
 
                             <div className="space-y-3">
-                                <div className="flex items-start space-x-2">
+                                <div className="flex items-start space-x-3">
                                     <Checkbox
                                         id="terms"
                                         checked={formData.agreeToTerms}
                                         onCheckedChange={(checked) =>
                                             handleFieldChange('agreeToTerms', checked)
                                         }
-                                        className="data-[state=checked]:bg-success-100 data-[state=checked]:border-success-100 mt-1 border-white/20"
+                                        className="mt-0.5 border-gray-300 data-[state=checked]:border-emerald-500 data-[state=checked]:bg-emerald-500"
                                         required
                                     />
                                     <Label
                                         htmlFor="terms"
-                                        className="text-muted-500 text-sm leading-relaxed"
+                                        className="text-sm leading-relaxed text-gray-700"
                                     >
                                         I agree to the{' '}
-                                        <Link href="#" className="text-success-100 hover:underline">
+                                        <Link
+                                            href="#"
+                                            className="font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
+                                        >
                                             Terms of Service
                                         </Link>{' '}
                                         and{' '}
-                                        <Link href="#" className="text-success-100 hover:underline">
+                                        <Link
+                                            href="#"
+                                            className="font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
+                                        >
                                             Privacy Policy
                                         </Link>
                                     </Label>
                                 </div>
                                 {errors.agreeToTerms && (
-                                    <p className="text-destructive-100 animate-fade-in text-sm">
+                                    <p className="animate-fade-in text-sm text-red-600">
                                         {errors.agreeToTerms}
                                     </p>
                                 )}
 
-                                <div className="flex items-center space-x-2">
+                                <div className="flex items-center space-x-3">
                                     <Checkbox
                                         id="newsletter"
                                         checked={formData.subscribeNewsletter}
                                         onCheckedChange={(checked) =>
                                             handleFieldChange('subscribeNewsletter', checked)
                                         }
-                                        className="data-[state=checked]:bg-success-100 data-[state=checked]:border-success-100 border-white/20"
+                                        className="border-gray-300 data-[state=checked]:border-emerald-500 data-[state=checked]:bg-emerald-500"
                                     />
-                                    <Label htmlFor="newsletter" className="text-muted-500 text-sm">
+                                    <Label htmlFor="newsletter" className="text-sm text-gray-700">
                                         Subscribe to our newsletter for coding tips and updates
                                     </Label>
                                 </div>
@@ -251,7 +277,7 @@ export default function DeveloperSignup() {
                                 isLoading={isLoading}
                                 loadingText="Creating account..."
                                 disabled={!formData.agreeToTerms}
-                                className="transform hover:scale-105"
+                                className="w-full transform bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:from-emerald-700 hover:to-teal-700"
                             >
                                 Create Account
                             </LoadingButton>

@@ -48,6 +48,8 @@ export function AuthLayout({
                     <>
                         <div className="absolute top-1/3 right-1/3 h-48 w-48 rounded-full bg-[rgb(148,242,127)] opacity-3 mix-blend-multiply blur-3xl filter"></div>
                         <div className="absolute bottom-1/3 left-1/3 h-56 w-56 rounded-full bg-[rgb(148,242,127)] opacity-3 mix-blend-multiply blur-3xl filter"></div>
+                        <div className="absolute top-1/4 left-1/4 h-32 w-32 rounded-full bg-blue-500 opacity-2 mix-blend-multiply blur-3xl filter"></div>
+                        <div className="absolute right-1/4 bottom-1/4 h-40 w-40 rounded-full bg-purple-500 opacity-2 mix-blend-multiply blur-3xl filter"></div>
                     </>
                 )}
             </div>
@@ -56,26 +58,26 @@ export function AuthLayout({
             <motion.header
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="relative z-10 border-b border-gray-100 bg-white p-6 shadow-sm"
+                className="relative z-10 border-b border-gray-100 bg-white/95 p-4 shadow-sm backdrop-blur-sm md:p-6"
             >
                 <div className="mx-auto flex max-w-7xl items-center justify-between">
                     <Link
                         href={backLink}
                         className="flex items-center space-x-2 text-gray-700 transition-colors hover:text-[rgb(148,242,127)]"
                     >
-                        <ArrowLeft className="h-5 w-5" />
-                        <span>Back to Home</span>
+                        <ArrowLeft className="h-4 w-4 md:h-5 md:w-5" />
+                        <span className="text-sm font-medium md:text-base">Back to Home</span>
                     </Link>
-                    <div className="flex items-center space-x-2">
-                        <Icon className="h-6 w-6 text-[rgb(148,242,127)]" />
-                        <span className="text-xl font-bold text-gray-900">{title}</span>
+                    <div className="flex items-center space-x-2 md:space-x-3">
+                        <Icon className="h-6 w-6 text-[rgb(148,242,127)] md:h-7 md:w-7" />
+                        <span className="text-lg font-bold text-gray-900 md:text-xl">{title}</span>
                     </div>
-                    {rightContent && <div>{rightContent}</div>}
+                    {rightContent && <div className="hidden md:block">{rightContent}</div>}
                 </div>
             </motion.header>
 
             {/* Main Content */}
-            <div className="relative z-10 flex min-h-[calc(100vh-120px)] items-center justify-center px-6">
+            <div className="relative z-10 flex min-h-[calc(100vh-120px)] items-center justify-center px-4 py-8 md:px-6 md:py-12">
                 {children}
             </div>
         </div>
