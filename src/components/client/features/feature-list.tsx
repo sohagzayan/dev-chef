@@ -29,7 +29,7 @@ export function FeatureList({ features, title }: FeatureListProps) {
                         className="flex items-center space-x-3"
                     >
                         <IconComponent className="text-success-100 h-5 w-5 flex-shrink-0" />
-                        <span className="text-white">{feature.text}</span>
+                        <span className="text-black">{feature.text}</span>
                     </motion.div>
                 );
             })}
