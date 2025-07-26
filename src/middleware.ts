@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyAccessToken } from '@/lib/jwt';
-import { prisma } from '@/lib/prisma';
 import { COOKIE_CONFIG } from '@/lib/utils/cookies';
 
 // Define protected routes
@@ -40,37 +39,32 @@ export async function middleware(request: NextRequest) {
             const tokenPayload = await verifyAccessToken(accessToken);
 
             if (tokenPayload) {
-                // Check if user exists and is active
-                const user = await prisma.user.findUnique({
-                    where: { id: tokenPayload.userId },
-                    select: { isActive: true, role: true },
-                });
-
-                if (user?.isActive) {
-                    // Redirect based on user role
-                    let dashboardUrl: string;
-                    if (user.role === 'RECRUITER') {
-                        dashboardUrl = '/';
-                    } else {
-                        dashboardUrl = '/';
-                    }
-
-                    // Check if there's a redirect parameter and it's a valid path
-                    const redirectParam = request.nextUrl.searchParams.get('redirect');
-                    if (redirectParam && redirectParam.startsWith('/')) {
-                        // Validate the redirect path is appropriate for the user role
-                        if (user.role === 'RECRUITER' && redirectParam.startsWith('/companies/')) {
-                            dashboardUrl = redirectParam;
-                        } else if (
-                            user.role !== 'RECRUITER' &&
-                            !redirectParam.startsWith('/companies/')
-                        ) {
-                            dashboardUrl = redirectParam;
-                        }
-                    }
-
-                    return NextResponse.redirect(new URL(dashboardUrl, request.url));
+                // Redirect based on user role
+                let dashboardUrl: string;
+                if (tokenPayload.role === 'RECRUITER') {
+                    dashboardUrl = '/companies/dashboard';
+                } else {
+                    dashboardUrl = '/for-developer/dashboard';
                 }
+
+                // Check if there's a redirect parameter and it's a valid path
+                const redirectParam = request.nextUrl.searchParams.get('redirect');
+                if (redirectParam && redirectParam.startsWith('/')) {
+                    // Validate the redirect path is appropriate for the user role
+                    if (
+                        tokenPayload.role === 'RECRUITER' &&
+                        redirectParam.startsWith('/companies/')
+                    ) {
+                        dashboardUrl = redirectParam;
+                    } else if (
+                        tokenPayload.role !== 'RECRUITER' &&
+                        !redirectParam.startsWith('/companies/')
+                    ) {
+                        dashboardUrl = redirectParam;
+                    }
+                }
+
+                return NextResponse.redirect(new URL(dashboardUrl, request.url));
             }
         } catch (error) {
             console.error('Token verification failed:', error);
@@ -113,35 +107,15 @@ export async function middleware(request: NextRequest) {
                 return NextResponse.redirect(redirectUrl);
             }
 
-            // Check if user exists and is active
-            const user = await prisma.user.findUnique({
-                where: { id: tokenPayload.userId },
-                select: { isActive: true, role: true },
-            });
-
-            if (!user?.isActive) {
-                // User is deactivated, redirect to login
-                let loginUrl: string;
-                if (pathname.startsWith('/companies/') || pathname.startsWith('/admin/')) {
-                    loginUrl = '/companies/login';
-                } else {
-                    loginUrl = '/developers/login';
-                }
-
-                const redirectUrl = new URL(loginUrl, request.url);
-                redirectUrl.searchParams.set('redirect', pathname);
-                return NextResponse.redirect(redirectUrl);
-            }
-
             // Check role-based access
-            if (pathname.startsWith('/companies/') && user.role !== 'RECRUITER') {
+            if (pathname.startsWith('/companies/') && tokenPayload.role !== 'RECRUITER') {
                 // Non-recruiter trying to access company routes
                 return NextResponse.redirect(
                     new URL('/developers/login?error=access_denied', request.url),
                 );
             }
 
-            if (pathname.startsWith('/admin/') && user.role !== 'ADMIN') {
+            if (pathname.startsWith('/admin/') && tokenPayload.role !== 'ADMIN') {
                 // Non-admin trying to access admin routes
                 return NextResponse.redirect(
                     new URL('/developers/login?error=access_denied', request.url),

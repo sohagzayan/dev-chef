@@ -1,25 +1,21 @@
 'use client';
 
-import { Code2 } from 'lucide-react';
-import { AuthCard } from '@/components/client/layout/auth-card';
-import { AuthLayout } from '@/components/client/layout/auth-layout';
-import { ForgotPasswordForm } from './components/forgot-password-form';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function DeveloperForgotPassword() {
+    const router = useRouter();
+
+    useEffect(() => {
+        router.replace('/forgot-password');
+    }, [router]);
+
     return (
-        <AuthLayout
-            title="Developer Hub"
-            icon={Code2}
-            variant="developer"
-            backLink="/developers/login"
-        >
-            <AuthCard
-                icon={Code2}
-                title="Reset Password"
-                subtitle="Enter your email or username to receive a reset link"
-            >
-                <ForgotPasswordForm />
-            </AuthCard>
-        </AuthLayout>
+        <div className="flex min-h-screen items-center justify-center">
+            <div className="text-center">
+                <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
+                <p className="mt-2 text-sm text-gray-600">Redirecting to forgot password...</p>
+            </div>
+        </div>
     );
 }

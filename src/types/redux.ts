@@ -88,6 +88,7 @@ export interface RegisterRequest {
 
 export interface ForgotPasswordRequest {
     email: string;
+    userType?: 'candidate' | 'recruiter';
 }
 
 export interface ResetPasswordRequest {

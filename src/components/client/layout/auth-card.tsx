@@ -24,22 +24,60 @@ export function AuthCard({
 }: AuthCardProps) {
     return (
         <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay }}
+            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{
+                duration: 0.6,
+                delay,
+                type: 'spring',
+                stiffness: 100,
+                damping: 15,
+            }}
             className={`mx-auto w-full ${className}`}
         >
-            <Card className="border border-gray-100 bg-white shadow-lg">
-                <CardHeader className="pt-6 pb-6 text-center">
+            <Card className="border-0 bg-white/90 shadow-lg ring-1 ring-gray-100/30 backdrop-blur-sm">
+                <CardHeader className="pt-8 pb-6 text-center">
                     {Icon && (
-                        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[rgb(148,242,127)] to-[rgb(148,242,127)]/80 shadow-md">
-                            <Icon className="h-6 w-6 text-[rgba(14,15,12,1)]" />
-                        </div>
+                        <motion.div
+                            initial={{ scale: 0, rotate: -180 }}
+                            animate={{ scale: 1, rotate: 0 }}
+                            transition={{
+                                duration: 0.6,
+                                delay: delay + 0.2,
+                                type: 'spring',
+                                stiffness: 200,
+                            }}
+                            className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-md"
+                        >
+                            <Icon className="h-8 w-8 text-white" />
+                        </motion.div>
                     )}
-                    <h1 className="mb-2 text-xl font-bold text-gray-900">{title}</h1>
-                    <p className="text-sm leading-relaxed text-gray-600">{subtitle}</p>
+                    <motion.h1
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: delay + 0.3 }}
+                        className="mb-3 text-2xl font-bold text-gray-900"
+                    >
+                        {title}
+                    </motion.h1>
+                    <motion.p
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: delay + 0.4 }}
+                        className="text-sm leading-relaxed text-gray-600"
+                    >
+                        {subtitle}
+                    </motion.p>
                 </CardHeader>
-                <CardContent className="px-6 pb-6">{children}</CardContent>
+                <CardContent className="px-8 pb-8">
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: delay + 0.5 }}
+                    >
+                        {children}
+                    </motion.div>
+                </CardContent>
             </Card>
         </motion.div>
     );
