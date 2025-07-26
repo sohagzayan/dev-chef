@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -129,16 +128,16 @@ export default function CertificationPage() {
     if (!hasStarted) {
         return (
             <div className="min-h-screen bg-white">
-                <div className="border-b border-gray-100 bg-white">
-                    <div className="mx-auto max-w-4xl px-6 py-4">
+                <div className="px-6 py-4">
+                    <div className="mx-auto max-w-4xl">
                         <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => router.push('/')}
-                            className="flex items-center gap-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                            className="inline-flex items-center gap-2 rounded-full bg-gray-100 px-4 py-2 text-gray-600 transition-all duration-200 hover:bg-gray-200 hover:text-gray-900"
                         >
                             <ArrowLeft className="h-4 w-4" />
-                            Back to Home
+                            Back
                         </Button>
                     </div>
                 </div>
@@ -337,7 +336,7 @@ export default function CertificationPage() {
     return (
         <div className="min-h-screen bg-white">
             {/* Header with Timer */}
-            <div className="sticky top-0 z-40 border-b border-gray-200 bg-white">
+            <div className="sticky top-0 z-40 border-b border-gray-100 bg-white/95 backdrop-blur-sm">
                 <div className="mx-auto max-w-6xl px-6 py-4">
                     <div className="flex items-center justify-between">
                         <div>

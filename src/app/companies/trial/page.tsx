@@ -1,18 +1,19 @@
 'use client';
 
 import type React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Briefcase, Building2, Mail, Sparkles, User, Users } from 'lucide-react';
 import { FormField } from '@/components/client/common/form-field';
 import { LoadingButton } from '@/components/client/common/loading-button';
+import { PasswordInput } from '@/components/client/common/password-input';
 import { SocialLogin } from '@/components/client/common/social-login';
 import { FeatureList } from '@/components/client/features/feature-list';
 import { AuthBackground } from '@/components/client/layout/auth-background';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
     Select,
     SelectContent,
@@ -20,11 +21,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { SuccessNotification } from '@/components/ui/success-notification';
+import { useAuth } from '@/context/AuthContext';
+import { useCompanyTrialRegistration } from '@/hooks/client/use-company-trial-registration';
 import { useFormValidation } from '@/hooks/form/use-form-validation';
 import { companyTrialSchema, type CompanyTrialForm } from '@/lib/validations';
 
 export default function CompanyTrial() {
-    const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState<CompanyTrialForm>({
         firstName: '',
         lastName: '',
@@ -32,33 +35,108 @@ export default function CompanyTrial() {
         companyName: '',
         jobTitle: '',
         companySize: '',
+        password: '',
+        confirmPassword: '',
         agreeToTerms: false,
     });
 
-    const { errors, validate, validateField } = useFormValidation(companyTrialSchema);
+    const { errors, validate, validateField, clearErrors } = useFormValidation(companyTrialSchema);
+    const { register, isLoading, error, success, clearError, clearSuccess } =
+        useCompanyTrialRegistration();
+    const { isAuthenticated, isLoading: authLoading } = useAuth();
+    const router = useRouter();
+    const [hasRedirected, setHasRedirected] = useState(false);
+
+    // Redirect if already authenticated
+    useEffect(() => {
+        console.log(
+            'Company Trial - isAuthenticated:',
+            isAuthenticated,
+            'hasRedirected:',
+            hasRedirected,
+            'authLoading:',
+            authLoading,
+        );
+
+        if (isAuthenticated && !hasRedirected && !authLoading) {
+            setHasRedirected(true);
+
+            console.log('Company Trial - Redirecting authenticated user to dashboard');
+
+            // Use setTimeout to ensure state updates are processed
+            setTimeout(() => {
+                router.replace('/companies/dashboard');
+            }, 100);
+        }
+    }, [isAuthenticated, hasRedirected, authLoading, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!validate(formData)) return;
 
-        setIsLoading(true);
-        try {
-            // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-            // Handle success - redirect to onboarding or dashboard
-            console.log('Trial started successfully');
-        } catch (error) {
-            console.error('Trial signup failed:', error);
-        } finally {
-            setIsLoading(false);
+        // Clear any existing API errors
+        if (error) {
+            clearError();
         }
+
+        // Log form data for debugging
+        console.log('Form data:', formData);
+
+        // Validate the entire form
+        if (!validate(formData)) {
+            console.log('Validation errors:', errors);
+            // If validation fails, don't proceed
+            return;
+        }
+
+        console.log('Validation passed, proceeding with registration');
+        await register(formData);
     };
 
     const handleFieldChange = (field: keyof CompanyTrialForm, value: any) => {
         const newData = { ...formData, [field]: value };
         setFormData(newData);
-        validateField(field, value, newData);
+
+        // Clear API errors when user starts typing
+        if (error) {
+            clearError();
+        }
+
+        // Clear field error immediately when user starts typing
+        if (errors[field]) {
+            // Clear all errors and re-validate to remove the specific field error
+            clearErrors();
+        }
+
+        // Validate field after a short delay to avoid too frequent validation
+        setTimeout(() => {
+            // Only validate if the field has a value
+            if (value && value.toString().trim() !== '') {
+                validateField(field, value, newData);
+            }
+        }, 300);
     };
+
+    // Auto-hide success notification after 5 seconds
+    useEffect(() => {
+        if (success) {
+            const timer = setTimeout(() => {
+                clearSuccess();
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [success, clearSuccess]);
+
+    // If already authenticated and redirecting, show loading
+    if (isAuthenticated && !hasRedirected) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-white">
+                <div className="text-center">
+                    <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-emerald-600"></div>
+                    <p className="text-gray-600">Redirecting to dashboard...</p>
+                </div>
+            </div>
+        );
+    }
 
     const trialFeatures = [
         { text: '14-day free trial, no credit card required' },
@@ -79,6 +157,11 @@ export default function CompanyTrial() {
 
     return (
         <div className="relative min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+            <SuccessNotification
+                message="Trial account created successfully! You can now log in with your email and password."
+                isVisible={success}
+                onClose={clearSuccess}
+            />
             <AuthBackground variant="company" />
 
             {/* Header Section */}
@@ -121,32 +204,36 @@ export default function CompanyTrial() {
                                         Start your free trial
                                     </span>
                                 </div>
-                                <h1 className="mb-6 text-4xl leading-tight font-bold text-gray-900 lg:text-5xl">
+                                <h1 className="mb-6 text-3xl leading-tight font-bold text-gray-900 lg:text-4xl">
                                     Transform your hiring
                                     <span className="block text-green-600">in 14 days</span>
                                 </h1>
-                                <p className="text-xl leading-relaxed text-gray-600">
+                                <p className="text-lg leading-relaxed text-gray-600">
                                     No credit card required. Get full access to our enterprise
                                     platform with advanced hiring tools and analytics.
                                 </p>
                             </div>
 
                             <div className="space-y-4">
-                                <h3 className="text-lg font-semibold text-gray-900">
+                                <h3 className="text-base font-semibold text-gray-900">
                                     What{"'"}s included in your trial:
                                 </h3>
                                 <FeatureList features={trialFeatures} />
                             </div>
 
                             <div className="rounded-xl border border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 p-6">
-                                <h3 className="mb-4 flex items-center text-lg font-semibold text-green-800">
+                                <h3 className="mb-4 flex items-center text-base font-semibold text-green-800">
                                     <span className="mr-2">🚀</span>
                                     What happens next?
                                 </h3>
-                                <ul className="space-y-2 text-sm text-gray-700">
+                                <ul className="space-y-2 text-xs text-gray-700">
                                     <li className="flex items-center">
                                         <span className="mr-2 h-1.5 w-1.5 rounded-full bg-green-500"></span>
                                         Instant access to your trial account
+                                    </li>
+                                    <li className="flex items-center">
+                                        <span className="mr-2 h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                                        Log in immediately with your email and password
                                     </li>
                                     <li className="flex items-center">
                                         <span className="mr-2 h-1.5 w-1.5 rounded-full bg-green-500"></span>
@@ -175,7 +262,8 @@ export default function CompanyTrial() {
                                         Start Your Free Trial
                                     </h2>
                                     <p className="mt-3 text-gray-600">
-                                        No credit card required. Sign up with your work email.
+                                        No credit card required. Create your account and start your
+                                        free trial today.
                                     </p>
                                 </div>
 
@@ -333,8 +421,44 @@ export default function CompanyTrial() {
                                         </div>
                                     </FormField>
 
+                                    <FormField
+                                        label="Password"
+                                        htmlFor="password"
+                                        error={errors.password}
+                                        required
+                                    >
+                                        <PasswordInput
+                                            id="password"
+                                            placeholder="Create a strong password"
+                                            value={formData.password}
+                                            onChange={(value) =>
+                                                handleFieldChange('password', value)
+                                            }
+                                            error={!!errors.password}
+                                            required
+                                        />
+                                    </FormField>
+
+                                    <FormField
+                                        label="Confirm Password"
+                                        htmlFor="confirmPassword"
+                                        error={errors.confirmPassword}
+                                        required
+                                    >
+                                        <PasswordInput
+                                            id="confirmPassword"
+                                            placeholder="Confirm your password"
+                                            value={formData.confirmPassword}
+                                            onChange={(value) =>
+                                                handleFieldChange('confirmPassword', value)
+                                            }
+                                            error={!!errors.confirmPassword}
+                                            required
+                                        />
+                                    </FormField>
+
                                     <div className="space-y-3">
-                                        <div className="flex items-start space-x-3">
+                                        <div className="flex items-start gap-3">
                                             <Checkbox
                                                 id="terms"
                                                 checked={formData.agreeToTerms}
@@ -344,26 +468,25 @@ export default function CompanyTrial() {
                                                 className="mt-1 border-gray-300 data-[state=checked]:border-green-500 data-[state=checked]:bg-green-500"
                                                 required
                                             />
-                                            <Label
-                                                htmlFor="terms"
-                                                className="text-sm leading-relaxed text-gray-700"
-                                            >
+                                            <p className="max-w-md text-sm text-gray-700">
                                                 By signing up, you agree to our{' '}
                                                 <Link
                                                     href="#"
-                                                    className="font-medium text-green-600 hover:underline"
+                                                    className="font-medium text-green-600 hover:text-green-700 hover:underline"
                                                 >
                                                     master subscription agreement
                                                 </Link>{' '}
                                                 and{' '}
                                                 <Link
                                                     href="#"
-                                                    className="font-medium text-green-600 hover:underline"
+                                                    className="font-medium text-green-600 hover:text-green-700 hover:underline"
                                                 >
                                                     privacy policy
                                                 </Link>
-                                            </Label>
+                                                .
+                                            </p>
                                         </div>
+
                                         {errors.agreeToTerms && (
                                             <p className="text-sm text-red-600">
                                                 {errors.agreeToTerms}
@@ -371,10 +494,16 @@ export default function CompanyTrial() {
                                         )}
                                     </div>
 
+                                    {error && (
+                                        <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+                                            <p className="text-sm text-red-600">{error}</p>
+                                        </div>
+                                    )}
+
                                     <LoadingButton
                                         type="submit"
                                         isLoading={isLoading}
-                                        loadingText="Starting your trial..."
+                                        loadingText="Creating your trial account..."
                                         disabled={!formData.agreeToTerms}
                                         className="w-full"
                                     >

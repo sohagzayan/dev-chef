@@ -21,6 +21,7 @@ export function useFormValidation<T extends z.ZodSchema>(schema: T) {
                         newErrors[err.path.join('.')] = err.message;
                     }
                 });
+                console.log('Validation errors:', newErrors);
                 setErrors(newErrors);
                 setIsValid(false);
                 return false;
@@ -29,10 +30,22 @@ export function useFormValidation<T extends z.ZodSchema>(schema: T) {
         }
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const validateField = (fieldName: string, value: any, data: z.infer<T>) => {
+        // Don't validate empty fields unless they're required
+        if (!value || value.toString().trim() === '') {
+            // Clear the field error if it exists
+            setErrors((prev) => {
+                const newErrors = { ...prev };
+                delete newErrors[fieldName];
+                return newErrors;
+            });
+            return;
+        }
+
         try {
+            // Validate the entire form data
             schema.parse(data);
+            // If validation passes, clear the field error
             setErrors((prev) => {
                 const newErrors = { ...prev };
                 delete newErrors[fieldName];
@@ -40,12 +53,21 @@ export function useFormValidation<T extends z.ZodSchema>(schema: T) {
             });
         } catch (error) {
             if (error instanceof z.ZodError) {
-                const fieldError = error.errors.find((err) => err.path.join('.') === fieldName);
-                if (fieldError) {
+                // Find errors for the specific field
+                const fieldErrors = error.errors.filter((err) => err.path.join('.') === fieldName);
+                if (fieldErrors.length > 0) {
+                    console.log(`Validation error for ${fieldName}:`, fieldErrors[0].message);
                     setErrors((prev) => ({
                         ...prev,
-                        [fieldName]: fieldError.message,
+                        [fieldName]: fieldErrors[0].message,
                     }));
+                } else {
+                    // Clear field error if no specific error for this field
+                    setErrors((prev) => {
+                        const newErrors = { ...prev };
+                        delete newErrors[fieldName];
+                        return newErrors;
+                    });
                 }
             }
         }

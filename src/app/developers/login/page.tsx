@@ -1,53 +1,161 @@
 'use client';
 
 import type React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Code2, Mail, Shield, Users, Zap } from 'lucide-react';
+import { Mail, Shield, Users, Zap } from 'lucide-react';
 import { FormField } from '@/components/client/common/form-field';
 import { LoadingButton } from '@/components/client/common/loading-button';
 import { PasswordInput } from '@/components/client/common/password-input';
 import { SocialLogin } from '@/components/client/common/social-login';
-import { AuthBackground } from '@/components/client/layout/auth-background';
 import { AuthCard } from '@/components/client/layout/auth-card';
 import { AuthHeader } from '@/components/client/layout/auth-header';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SuccessNotification } from '@/components/ui/success-notification';
+import { useAuth } from '@/context/AuthContext';
 import { useFormValidation } from '@/hooks/form/use-form-validation';
 import { developerLoginSchema, type DeveloperLoginForm } from '@/lib/validations';
 
 export default function DeveloperLogin() {
-    const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState<DeveloperLoginForm>({
         email: '',
         password: '',
         rememberMe: false,
     });
 
-    const { errors, validate, validateField } = useFormValidation(developerLoginSchema);
+    const { errors, validate, validateField, clearErrors } =
+        useFormValidation(developerLoginSchema);
+    const { login, isAuthenticated, isLoading } = useAuth();
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState(false);
+    const [hasRedirected, setHasRedirected] = useState(false);
+
+    // Redirect if already authenticated
+    useEffect(() => {
+        console.log(
+            'Developer Login - isAuthenticated:',
+            isAuthenticated,
+            'hasRedirected:',
+            hasRedirected,
+            'isLoading:',
+            isLoading,
+        );
+
+        if (isAuthenticated && !hasRedirected && !isLoading) {
+            setHasRedirected(true);
+
+            // Get redirect URL from search params
+            const redirectUrl = searchParams.get('redirect') || searchParams.get('callbackUrl');
+
+            // Determine where to redirect based on user role and redirect parameter
+            let targetPath = '/';
+
+            if (redirectUrl && !redirectUrl.startsWith('/companies/')) {
+                targetPath = redirectUrl;
+            }
+
+            console.log('Developer Login - Redirecting authenticated user to:', targetPath);
+
+            // Use setTimeout to ensure state updates are processed
+            setTimeout(() => {
+                router.replace(targetPath);
+            }, 100);
+        }
+    }, [isAuthenticated, hasRedirected, isLoading, searchParams, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!validate(formData)) return;
 
-        setIsLoading(true);
-        try {
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-            console.log('Login successful');
-        } catch (error) {
-            console.error('Login failed:', error);
-        } finally {
-            setIsLoading(false);
+        // Clear any existing errors
+        setError(null);
+
+        // Log form data for debugging
+        console.log('Login form data:', formData);
+
+        // Validate the entire form
+        if (!validate(formData)) {
+            console.log('Validation errors:', errors);
+            return;
+        }
+
+        console.log('Validation passed, proceeding with login');
+
+        const result = await login(
+            formData.email,
+            formData.password,
+            formData.rememberMe || false,
+            'developer',
+        );
+
+        if (result.success) {
+            setSuccess(true);
+
+            // Handle redirect after successful login
+            const redirectUrl = searchParams.get('redirect') || searchParams.get('callbackUrl');
+            const targetPath =
+                redirectUrl && !redirectUrl.startsWith('/companies/') ? redirectUrl : '/';
+
+            console.log('Developer Login - Redirecting after successful login to:', targetPath);
+
+            // Use setTimeout to allow the success notification to show briefly
+            setTimeout(() => {
+                router.replace(targetPath);
+            }, 1500);
+        } else {
+            setError(result.error || 'Login failed');
         }
     };
 
     const handleFieldChange = (field: keyof DeveloperLoginForm, value: any) => {
         const newData = { ...formData, [field]: value };
         setFormData(newData);
-        validateField(field, value, newData);
+
+        // Clear errors when user starts typing
+        if (error) {
+            setError(null);
+        }
+
+        // Clear field error immediately when user starts typing
+        if (errors[field]) {
+            clearErrors();
+        }
+
+        // Validate field after a short delay to avoid too frequent validation
+        setTimeout(() => {
+            // Only validate if the field has a value
+            if (value && value.toString().trim() !== '') {
+                validateField(field, value, newData);
+            }
+        }, 300);
     };
+
+    // Auto-hide success notification after 5 seconds
+    useEffect(() => {
+        if (success) {
+            const timer = setTimeout(() => {
+                setSuccess(false);
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [success]);
+
+    // If already authenticated and redirecting, show loading
+    if (isAuthenticated && !hasRedirected) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-white">
+                <div className="text-center">
+                    <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-emerald-600"></div>
+                    <p className="text-gray-600">Redirecting to dashboard...</p>
+                </div>
+            </div>
+        );
+    }
 
     const features = [
         {
@@ -68,17 +176,21 @@ export default function DeveloperLogin() {
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-            <AuthBackground variant="developer" />
-            <AuthHeader title="Developer Hub" icon={Code2} />
+        <div className="min-h-screen bg-white pb-0">
+            <SuccessNotification
+                message="Login successful! Redirecting..."
+                isVisible={success}
+                onClose={() => setSuccess(false)}
+            />
+            <AuthHeader />
 
-            <div className="relative z-10 flex min-h-[calc(100vh-120px)] items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
-                <div className="mx-auto grid w-full max-w-7xl items-center gap-8 lg:grid-cols-2 lg:gap-16">
+            <div className="relative z-10 flex min-h-[calc(100vh-120px)] items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
+                <div className="mx-auto grid w-full max-w-5xl items-center gap-2 border-0 shadow-none lg:grid-cols-2 lg:gap-4">
                     {/* Left Side - Welcome Message */}
                     <motion.div
-                        initial={{ opacity: 0, x: -50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.8 }}
+                        initial={{ opacity: 0, x: -50, scale: 0.95 }}
+                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                        transition={{ duration: 0.8, ease: 'easeOut' }}
                         className="hidden lg:block"
                     >
                         <div className="space-y-8">
@@ -127,7 +239,12 @@ export default function DeveloperLogin() {
                     </motion.div>
 
                     {/* Right Side - Login Form */}
-                    <div className="flex justify-center lg:justify-end">
+                    <motion.div
+                        initial={{ opacity: 0, x: 50, scale: 0.95 }}
+                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                        transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
+                        className="flex justify-center lg:justify-start"
+                    >
                         <AuthCard
                             title="Welcome Back!"
                             subtitle="Continue your coding journey"
@@ -171,6 +288,12 @@ export default function DeveloperLogin() {
                                         required
                                     />
                                 </FormField>
+
+                                {error && (
+                                    <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+                                        <p className="text-sm text-red-600">{error}</p>
+                                    </div>
+                                )}
 
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center space-x-2">
@@ -221,7 +344,7 @@ export default function DeveloperLogin() {
                                 </p>
                             </div>
                         </AuthCard>
-                    </div>
+                    </motion.div>
                 </div>
             </div>
         </div>

@@ -7,8 +7,6 @@ import { ArrowLeft } from 'lucide-react';
 
 interface AuthLayoutProps {
     children: React.ReactNode;
-    title: string;
-    icon: React.ComponentType<{ className?: string }>;
     backLink?: string;
     rightContent?: React.ReactNode;
     variant?: 'default' | 'developer' | 'company';
@@ -16,8 +14,6 @@ interface AuthLayoutProps {
 
 export function AuthLayout({
     children,
-    title,
-    icon: Icon,
     backLink = '/',
     rightContent,
     variant = 'default',
@@ -55,26 +51,33 @@ export function AuthLayout({
             </div>
 
             {/* Header */}
-            <motion.header
-                initial={{ opacity: 0, y: -20 }}
+            <motion.div
+                initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="relative z-10 border-b border-gray-100 bg-white/95 p-4 shadow-sm backdrop-blur-sm md:p-6"
+                className="relative z-10 px-6 py-4"
             >
                 <div className="mx-auto flex max-w-7xl items-center justify-between">
-                    <Link
-                        href={backLink}
-                        className="flex items-center space-x-2 text-gray-700 transition-colors hover:text-[rgb(148,242,127)]"
-                    >
-                        <ArrowLeft className="h-4 w-4 md:h-5 md:w-5" />
-                        <span className="text-sm font-medium md:text-base">Back to Home</span>
-                    </Link>
-                    <div className="flex items-center space-x-2 md:space-x-3">
-                        <Icon className="h-6 w-6 text-[rgb(148,242,127)] md:h-7 md:w-7" />
-                        <span className="text-lg font-bold text-gray-900 md:text-xl">{title}</span>
-                    </div>
-                    {rightContent && <div className="hidden md:block">{rightContent}</div>}
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Link
+                            href={backLink}
+                            className="inline-flex items-center space-x-2 rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 transition-all duration-200 hover:bg-gray-200 hover:text-gray-900 md:text-base"
+                        >
+                            <ArrowLeft className="h-4 w-4 md:h-5 md:w-5" />
+                            <span>Back</span>
+                        </Link>
+                    </motion.div>
+                    {rightContent && (
+                        <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="hidden md:block"
+                        >
+                            {rightContent}
+                        </motion.div>
+                    )}
                 </div>
-            </motion.header>
+            </motion.div>
 
             {/* Main Content */}
             <div className="relative z-10 flex min-h-[calc(100vh-120px)] items-center justify-center px-4 py-8 md:px-6 md:py-12">

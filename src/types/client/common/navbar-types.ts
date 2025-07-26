@@ -2,7 +2,15 @@ export type User = {
     id: string;
     name: string;
     email: string;
-    role: 'user' | 'premium' | 'admin';
+    role:
+        | 'user'
+        | 'premium'
+        | 'admin'
+        | 'developer'
+        | 'recruiter'
+        | 'CANDIDATE'
+        | 'RECRUITER'
+        | 'ADMIN';
     avatarUrl?: string;
 };
 

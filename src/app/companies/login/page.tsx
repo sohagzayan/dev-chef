@@ -1,16 +1,16 @@
 'use client';
 
-import { Building2, Shield, Users, Zap } from 'lucide-react';
+import { Shield, Users, Zap } from 'lucide-react';
 import { AuthCard } from '@/components/client/layout/auth-card';
 import { AuthLayout } from '@/components/client/layout/auth-layout';
 import { LoginForm } from './components/login-form';
 
 export default function CompanyLogin() {
     return (
-        <AuthLayout title="Enterprise Portal" icon={Building2} variant="company">
+        <AuthLayout variant="company">
             <div className="flex w-full max-w-6xl items-center justify-center gap-12 px-6 py-12">
                 {/* Left Side - Login Form */}
-                <div className="max-w-sm flex-1">
+                <div className="max-w-md flex-1">
                     <AuthCard
                         title="Welcome Back!"
                         subtitle="Sign in to your company account to access enterprise features"

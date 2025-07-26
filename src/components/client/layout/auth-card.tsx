@@ -29,7 +29,7 @@ export function AuthCard({
             transition={{ duration: 0.6, delay }}
             className={`mx-auto w-full ${className}`}
         >
-            <Card className="border border-gray-200 bg-white shadow-xl">
+            <Card className="border border-gray-100 bg-white shadow-lg">
                 <CardHeader className="pt-6 pb-6 text-center">
                     {Icon && (
                         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[rgb(148,242,127)] to-[rgb(148,242,127)]/80 shadow-md">

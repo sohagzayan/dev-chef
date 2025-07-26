@@ -34,11 +34,17 @@ export const developerLoginSchema = z.object({
 // Developer signup validation
 export const developerSignupSchema = z
     .object({
-        fullName: nameSchema,
-        email: emailSchema,
+        fullName: z
+            .string()
+            .min(2, 'Full name must be at least 2 characters')
+            .max(100, 'Full name must be less than 100 characters')
+            .regex(/^[a-zA-Z\s]+$/, 'Full name can only contain letters and spaces'),
+        email: z.string().email('Please enter a valid email address').toLowerCase().trim(),
         password: passwordSchema,
         confirmPassword: z.string(),
-        agreeToTerms: z.boolean().refine((val) => val === true, 'You must agree to the terms'),
+        agreeToTerms: z
+            .boolean()
+            .refine((val) => val === true, 'You must agree to the terms and conditions'),
         subscribeNewsletter: z.boolean().optional(),
     })
     .refine((data) => data.password === data.confirmPassword, {
@@ -47,15 +53,22 @@ export const developerSignupSchema = z
     });
 
 // Company free trial validation
-export const companyTrialSchema = z.object({
-    firstName: nameSchema,
-    lastName: nameSchema,
-    workEmail: emailSchema,
-    companyName: z.string().min(2, 'Company name must be at least 2 characters'),
-    jobTitle: z.string().min(2, 'Job title must be at least 2 characters'),
-    companySize: z.string().min(1, 'Please select company size'),
-    agreeToTerms: z.boolean().refine((val) => val === true, 'You must agree to the terms'),
-});
+export const companyTrialSchema = z
+    .object({
+        firstName: nameSchema,
+        lastName: nameSchema,
+        workEmail: emailSchema,
+        companyName: z.string().min(2, 'Company name must be at least 2 characters'),
+        jobTitle: z.string().min(2, 'Job title must be at least 2 characters'),
+        companySize: z.string().min(1, 'Please select company size'),
+        password: passwordSchema,
+        confirmPassword: z.string(),
+        agreeToTerms: z.boolean().refine((val) => val === true, 'You must agree to the terms'),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+        message: "Passwords don't match",
+        path: ['confirmPassword'],
+    });
 
 // Contact sales validation
 export const contactSalesSchema = z.object({

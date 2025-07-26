@@ -1,10 +1,11 @@
 'use client';
 
 import type React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Code2, Mail, Shield, Trophy, User, Users, Zap } from 'lucide-react';
+import { Mail, Shield, Trophy, User, Users, Zap } from 'lucide-react';
 import { FormField } from '@/components/client/common/form-field';
 import { LoadingButton } from '@/components/client/common/loading-button';
 import { PasswordInput } from '@/components/client/common/password-input';
@@ -15,11 +16,13 @@ import { AuthHeader } from '@/components/client/layout/auth-header';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SuccessNotification } from '@/components/ui/success-notification';
+import { useAuth } from '@/context/AuthContext';
+import { useDeveloperRegistration } from '@/hooks/client/use-developer-registration';
 import { useFormValidation } from '@/hooks/form/use-form-validation';
 import { developerSignupSchema, type DeveloperSignupForm } from '@/lib/validations';
 
 export default function DeveloperSignup() {
-    const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState<DeveloperSignupForm>({
         fullName: '',
         email: '',
@@ -29,28 +32,104 @@ export default function DeveloperSignup() {
         subscribeNewsletter: false,
     });
 
-    const { errors, validate, validateField } = useFormValidation(developerSignupSchema);
+    const { errors, validate, validateField, clearErrors } =
+        useFormValidation(developerSignupSchema);
+    const { register, isLoading, error, success, clearError, clearSuccess } =
+        useDeveloperRegistration();
+    const { isAuthenticated, isLoading: authLoading } = useAuth();
+    const router = useRouter();
+    const [hasRedirected, setHasRedirected] = useState(false);
+
+    // Redirect if already authenticated
+    useEffect(() => {
+        console.log(
+            'Developer Signup - isAuthenticated:',
+            isAuthenticated,
+            'hasRedirected:',
+            hasRedirected,
+            'authLoading:',
+            authLoading,
+        );
+
+        if (isAuthenticated && !hasRedirected && !authLoading) {
+            setHasRedirected(true);
+
+            console.log('Developer Signup - Redirecting authenticated user to dashboard');
+
+            // Use setTimeout to ensure state updates are processed
+            setTimeout(() => {
+                router.replace('/for-developer/dashboard');
+            }, 100);
+        }
+    }, [isAuthenticated, hasRedirected, authLoading, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!validate(formData)) return;
 
-        setIsLoading(true);
-        try {
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-            console.log('Signup successful');
-        } catch (error) {
-            console.error('Signup failed:', error);
-        } finally {
-            setIsLoading(false);
+        // Clear any existing API errors
+        if (error) {
+            clearError();
         }
+
+        // Log form data for debugging
+        console.log('Form data:', formData);
+
+        // Validate the entire form
+        if (!validate(formData)) {
+            console.log('Validation errors:', errors);
+            // If validation fails, don't proceed
+            return;
+        }
+
+        console.log('Validation passed, proceeding with registration');
+        await register(formData);
     };
 
     const handleFieldChange = (field: keyof DeveloperSignupForm, value: any) => {
         const newData = { ...formData, [field]: value };
         setFormData(newData);
-        validateField(field, value, newData);
+
+        // Clear API errors when user starts typing
+        if (error) {
+            clearError();
+        }
+
+        // Clear field error immediately when user starts typing
+        if (errors[field]) {
+            // Clear all errors and re-validate to remove the specific field error
+            clearErrors();
+        }
+
+        // Validate field after a short delay to avoid too frequent validation
+        setTimeout(() => {
+            // Only validate if the field has a value
+            if (value && value.toString().trim() !== '') {
+                validateField(field, value, newData);
+            }
+        }, 300);
     };
+
+    // Auto-hide success notification after 5 seconds
+    useEffect(() => {
+        if (success) {
+            const timer = setTimeout(() => {
+                clearSuccess();
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [success, clearSuccess]);
+
+    // If already authenticated and redirecting, show loading
+    if (isAuthenticated && !hasRedirected) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-white">
+                <div className="text-center">
+                    <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-emerald-600"></div>
+                    <p className="text-gray-600">Redirecting to dashboard...</p>
+                </div>
+            </div>
+        );
+    }
 
     const features = [
         {
@@ -77,11 +156,14 @@ export default function DeveloperSignup() {
 
     return (
         <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+            <SuccessNotification
+                message="Account created successfully! Redirecting to home page..."
+                isVisible={success}
+                onClose={clearSuccess}
+            />
             <AuthBackground variant="developer" />
 
             <AuthHeader
-                title="Developer Hub"
-                icon={Code2}
                 rightContent={
                     <div className="flex items-center space-x-2 sm:space-x-4">
                         <span className="hidden text-sm text-gray-600 sm:inline">
@@ -283,6 +365,12 @@ export default function DeveloperSignup() {
                                     </Label>
                                 </div>
                             </div>
+
+                            {error && (
+                                <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+                                    <p className="text-sm text-red-600">{error}</p>
+                                </div>
+                            )}
 
                             <LoadingButton
                                 type="submit"

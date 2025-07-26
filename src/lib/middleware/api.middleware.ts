@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { verifyAccessToken } from '@/lib/jwt';
 import { prisma } from '@/lib/prisma';
 import type { ApiResponse, AuthenticatedUser } from '@/types/api/api';
@@ -82,33 +82,108 @@ export function requireRole(allowedRoles: string[]) {
     };
 }
 
-// Rate limiting helper (basic implementation)
-const rateLimitMap = new Map();
+// Simple in-memory rate limiting (in production, use Redis or similar)
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 
-export function rateLimit(maxRequests: number, windowMs: number) {
-    return (request: NextRequest) => {
-        const ip = request.ip || request.headers.get('x-forwarded-for') || 'unknown';
+interface RateLimitConfig {
+    maxRequests: number;
+    windowMs: number;
+}
+
+export function rateLimit(config: RateLimitConfig) {
+    return function (request: NextRequest) {
+        const ip =
+            request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
         const now = Date.now();
-        const windowStart = now - windowMs;
 
-        if (!rateLimitMap.has(ip)) {
-            rateLimitMap.set(ip, []);
-        }
+        const rateLimitInfo = rateLimitMap.get(ip);
 
-        const requests = rateLimitMap.get(ip);
-        const validRequests = requests.filter((time: number) => time > windowStart);
-
-        if (validRequests.length >= maxRequests) {
-            return NextResponse.json(createApiResponse(false, null, null, 'Too many requests'), {
-                status: 429,
+        if (!rateLimitInfo || now > rateLimitInfo.resetTime) {
+            // First request or window expired
+            rateLimitMap.set(ip, {
+                count: 1,
+                resetTime: now + config.windowMs,
             });
+            return null; // Continue
         }
 
-        validRequests.push(now);
-        rateLimitMap.set(ip, validRequests);
+        if (rateLimitInfo.count >= config.maxRequests) {
+            // Rate limit exceeded
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: 'Too many requests',
+                    message: 'Please try again later',
+                },
+                { status: 429 },
+            );
+        }
 
-        return null;
+        // Increment count
+        rateLimitInfo.count++;
+        return null; // Continue
     };
+}
+
+export function validateContentType(request: NextRequest) {
+    const contentType = request.headers.get('content-type');
+
+    if (!contentType || !contentType.includes('application/json')) {
+        return NextResponse.json(
+            {
+                success: false,
+                error: 'Invalid content type',
+                message: 'Content-Type must be application/json',
+            },
+            { status: 400 },
+        );
+    }
+
+    return null; // Continue
+}
+
+export function validateRequestSize(request: NextRequest) {
+    const contentLength = request.headers.get('content-length');
+
+    if (contentLength) {
+        const size = parseInt(contentLength, 10);
+        const maxSize = 1024 * 1024; // 1MB
+
+        if (size > maxSize) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: 'Request too large',
+                    message: 'Request body must be less than 1MB',
+                },
+                { status: 413 },
+            );
+        }
+    }
+
+    return null; // Continue
+}
+
+export function corsHeaders() {
+    return {
+        'Access-Control-Allow-Origin':
+            process.env.NODE_ENV === 'production'
+                ? process.env.NEXT_PUBLIC_APP_URL || 'https://yourdomain.com'
+                : '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    };
+}
+
+export function handleOptions(request: NextRequest) {
+    if (request.method === 'OPTIONS') {
+        return new NextResponse(null, {
+            status: 200,
+            headers: corsHeaders(),
+        });
+    }
+
+    return null; // Continue
 }
 
 // Error handler
