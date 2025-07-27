@@ -1,23 +1,15 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 
-const resetPasswordSchema = z.object({
+const verifyTokenSchema = z.object({
     token: z.string().min(1, 'Token is required'),
-    password: z
-        .string()
-        .min(8, 'Password must be at least 8 characters')
-        .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-        .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-        .regex(/\d/, 'Password must contain at least one number')
-        .regex(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character'),
 });
 
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { token, password } = resetPasswordSchema.parse(body);
+        const { token } = verifyTokenSchema.parse(body);
 
         // Find the password reset record
         const passwordReset = await prisma.passwordReset.findUnique({
@@ -77,51 +69,23 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Hash the new password
-        const hashedPassword = await bcrypt.hash(password, 12);
-
-        // Update user password and mark token as used in a transaction
-        await prisma.$transaction([
-            // Update user password
-            prisma.user.update({
-                where: { id: passwordReset.user.id },
-                data: { password: hashedPassword },
-            }),
-            // Mark token as used
-            prisma.passwordReset.update({
-                where: { id: passwordReset.id },
-                data: { used: true },
-            }),
-            // Invalidate all other active sessions for this user
-            prisma.session.deleteMany({
-                where: { userId: passwordReset.user.id },
-            }),
-            // Revoke all refresh tokens for this user
-            prisma.refreshToken.updateMany({
-                where: { userId: passwordReset.user.id },
-                data: { revoked: true },
-            }),
-        ]);
-
-        console.log(`Password reset successfully for user: ${passwordReset.user.email}`);
-
         return NextResponse.json({
-            message: 'Password reset successfully',
+            message: 'Token is valid',
             success: true,
+            email: passwordReset.user.email,
         });
     } catch (error) {
         if (error instanceof z.ZodError) {
-            const errors = error.errors.map((err) => err.message);
             return NextResponse.json(
                 {
-                    error: errors.join(', '),
+                    error: 'Invalid token format',
                     code: 'VALIDATION_ERROR',
                 },
                 { status: 400 },
             );
         }
 
-        console.error('Reset password error:', error);
+        console.error('Verify reset token error:', error);
         return NextResponse.json(
             {
                 error: 'Something went wrong. Please try again later.',

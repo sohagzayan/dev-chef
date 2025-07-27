@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
         // Generate reset token
         const resetToken = generateSecureToken();
         const expiresAt = new Date();
-        expiresAt.setHours(expiresAt.getHours() + 1); // 1 hour expiry
+        expiresAt.setMinutes(expiresAt.getMinutes() + 5); // 5 minutes expiry
 
         // Store reset token
         await prisma.passwordReset.create({

@@ -24,7 +24,7 @@ export async function sendPasswordResetEmail(email: string, resetToken: string) 
         <div style="text-align: center; margin: 30px 0;">
           <a href="${resetUrl}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a>
         </div>
-        <p style="color: #666; font-size: 14px;">This link will expire in 1 hour. If you didn't request this reset, please ignore this email.</p>
+        <p style="color: #666; font-size: 14px;">This link will expire in 5 minutes. If you didn't request this reset, please ignore this email.</p>
         <p style="color: #666; font-size: 14px;">If the button doesn't work, copy and paste this URL into your browser:</p>
         <p style="color: #007bff; word-break: break-all;">${resetUrl}</p>
       </div>
