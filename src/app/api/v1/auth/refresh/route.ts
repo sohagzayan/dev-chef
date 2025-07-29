@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { generateTokens } from '@/lib/jwt';
+import { generateTokens, isRefreshTokenValid, verifyRefreshToken } from '@/lib/jwt';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
@@ -14,10 +14,28 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // For now, we'll use a simple approach - you can enhance this with proper JWT verification
-        // Get the first active user (this is just for demonstration)
-        const user = await prisma.user.findFirst({
+        // Verify the refresh token
+        const tokenPayload = verifyRefreshToken(refreshToken);
+        if (!tokenPayload) {
+            return NextResponse.json(
+                { success: false, error: 'Invalid refresh token' },
+                { status: 401 },
+            );
+        }
+
+        // Check if refresh token is valid in database
+        const isValid = await isRefreshTokenValid(refreshToken);
+        if (!isValid) {
+            return NextResponse.json(
+                { success: false, error: 'Refresh token expired or revoked' },
+                { status: 401 },
+            );
+        }
+
+        // Get user from database
+        const user = await prisma.user.findUnique({
             where: {
+                id: tokenPayload.userId,
                 isActive: true,
             },
             select: {
@@ -30,7 +48,7 @@ export async function POST(request: NextRequest) {
 
         if (!user) {
             return NextResponse.json(
-                { success: false, error: 'Invalid refresh token' },
+                { success: false, error: 'User not found or inactive' },
                 { status: 401 },
             );
         }

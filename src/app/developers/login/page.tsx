@@ -7,6 +7,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Mail, Shield, Users, Zap } from 'lucide-react';
 import { FormField } from '@/components/client/common/form-field';
+import { GitHubLoginPopup } from '@/components/client/common/GitHubLoginPopup';
+import { GoogleLoginPopup } from '@/components/client/common/GoogleLoginPopup';
 import { LoadingButton } from '@/components/client/common/loading-button';
 import { PasswordInput } from '@/components/client/common/password-input';
 import { SocialLogin } from '@/components/client/common/social-login';
@@ -29,12 +31,14 @@ export default function DeveloperLogin() {
 
     const { errors, validate, validateField, clearErrors } =
         useFormValidation(developerLoginSchema);
-    const { login, isAuthenticated, isLoading } = useAuth();
+    const { login, handlePopupLoginSuccess, isAuthenticated, isLoading } = useAuth();
     const searchParams = useSearchParams();
     const router = useRouter();
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
     const [hasRedirected, setHasRedirected] = useState(false);
+    const [showGooglePopup, setShowGooglePopup] = useState(false);
+    const [showGitHubPopup, setShowGitHubPopup] = useState(false);
 
     // Redirect if already authenticated
     useEffect(() => {
@@ -133,6 +137,72 @@ export default function DeveloperLogin() {
                 validateField(field, value, newData);
             }
         }, 300);
+    };
+
+    const handleGoogleLogin = async () => {
+        setError(null);
+        setShowGooglePopup(true);
+    };
+
+    const handleGoogleLoginSuccess = async (userData: any) => {
+        try {
+            await handlePopupLoginSuccess(userData);
+            setSuccess(true);
+
+            // Handle redirect after successful login
+            const redirectUrl = searchParams.get('redirect') || searchParams.get('callbackUrl');
+            const targetPath =
+                redirectUrl && !redirectUrl.startsWith('/companies/') ? redirectUrl : '/';
+
+            console.log(
+                'Developer Login - Redirecting after successful Google login to:',
+                targetPath,
+            );
+
+            // Use setTimeout to allow the notification to show briefly
+            setTimeout(() => {
+                router.replace(targetPath);
+            }, 300);
+        } catch {
+            setError('Failed to complete Google login. Please try again.');
+        }
+    };
+
+    const handleGoogleLoginError = (errorMessage: string) => {
+        setError(errorMessage);
+    };
+
+    const handleGitHubLogin = async () => {
+        setError(null);
+        setShowGitHubPopup(true);
+    };
+
+    const handleGitHubLoginSuccess = async (userData: any) => {
+        try {
+            await handlePopupLoginSuccess(userData);
+            setSuccess(true);
+
+            // Handle redirect after successful login
+            const redirectUrl = searchParams.get('redirect') || searchParams.get('callbackUrl');
+            const targetPath =
+                redirectUrl && !redirectUrl.startsWith('/companies/') ? redirectUrl : '/';
+
+            console.log(
+                'Developer Login - Redirecting after successful GitHub login to:',
+                targetPath,
+            );
+
+            // Use setTimeout to allow the notification to show briefly
+            setTimeout(() => {
+                router.replace(targetPath);
+            }, 300);
+        } catch {
+            setError('Failed to complete GitHub login. Please try again.');
+        }
+    };
+
+    const handleGitHubLoginError = (errorMessage: string) => {
+        setError(errorMessage);
     };
 
     // Auto-hide success notification after 5 seconds
@@ -330,7 +400,11 @@ export default function DeveloperLogin() {
                                 </LoadingButton>
                             </form>
 
-                            <SocialLogin disabled={isLoading} />
+                            <SocialLogin
+                                onGoogleLogin={handleGoogleLogin}
+                                onGithubLogin={handleGitHubLogin}
+                                disabled={isLoading}
+                            />
 
                             <div className="pt-6 text-center">
                                 <p className="text-gray-600">
@@ -347,6 +421,24 @@ export default function DeveloperLogin() {
                     </motion.div>
                 </div>
             </div>
+
+            {/* Google Login Popup */}
+            <GoogleLoginPopup
+                isOpen={showGooglePopup}
+                onClose={() => setShowGooglePopup(false)}
+                onSuccess={handleGoogleLoginSuccess}
+                onError={handleGoogleLoginError}
+                userType="developer"
+            />
+
+            {/* GitHub Login Popup */}
+            <GitHubLoginPopup
+                isOpen={showGitHubPopup}
+                onClose={() => setShowGitHubPopup(false)}
+                onSuccess={handleGitHubLoginSuccess}
+                onError={handleGitHubLoginError}
+                userType="developer"
+            />
         </div>
     );
 }

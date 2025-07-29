@@ -1,0 +1,27 @@
+# Copy this to your .env.local file and fill in your actual values
+
+# Google OAuth (Required for Google login)
+GOOGLE_CLIENT_ID="your_google_client_id_here"
+GOOGLE_CLIENT_SECRET="your_google_client_secret_here"
+NEXT_PUBLIC_GOOGLE_CLIENT_ID="your_google_client_id_here"
+
+# GitHub OAuth (Required for GitHub login)
+GITHUB_ID="your_github_client_id_here"
+GITHUB_SECRET="your_github_client_secret_here"
+
+# App URL (Required)
+NEXTAUTH_URL="http://localhost:3001"
+NEXT_PUBLIC_APP_URL="http://localhost:3001"
+
+# Database (Required)
+DATABASE_URL="your_mongodb_connection_string_here"
+
+# JWT (Required)
+JWT_SECRET="your_jwt_secret_key_here"
+JWT_REFRESH_SECRET="your_jwt_refresh_secret_key_here"
+
+# Email (Optional - for welcome emails)
+EMAIL_SERVER_HOST="smtp.gmail.com"
+EMAIL_SERVER_PORT=587
+EMAIL_SERVER_USER="your_email@gmail.com"
+EMAIL_SERVER_PASSWORD="your_app_password" 

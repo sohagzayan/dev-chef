@@ -29,7 +29,6 @@ export async function POST(request: NextRequest) {
         if (user) {
             // Check if GitHub account is already linked
             const githubAccount = user.accounts.find(
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (account: any) => account.provider === 'github',
             );
 
@@ -56,9 +55,8 @@ export async function POST(request: NextRequest) {
             user = await prisma.user.create({
                 data: {
                     email,
-                    name,
                     image: avatar_url,
-                    role: 'USER',
+                    role: 'CANDIDATE', // Default to CANDIDATE role
                     emailVerified: new Date(),
                     accounts: {
                         create: {
@@ -91,7 +89,6 @@ export async function POST(request: NextRequest) {
             message: 'GitHub authentication successful',
             user: {
                 id: user.id,
-                name: user.name,
                 email: user.email,
                 role: user.role,
                 image: user.image,

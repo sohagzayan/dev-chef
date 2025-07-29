@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AlertCircle, Mail, X } from 'lucide-react';
 import { FormField } from '@/components/client/common/form-field';
+import { GitHubLoginPopup } from '@/components/client/common/GitHubLoginPopup';
+import { GoogleLoginPopup } from '@/components/client/common/GoogleLoginPopup';
 import { LoadingButton } from '@/components/client/common/loading-button';
 import { PasswordInput } from '@/components/client/common/password-input';
 import { SocialLogin } from '@/components/client/common/social-login';
@@ -25,12 +27,14 @@ export function LoginForm() {
     });
 
     const { errors, validate, validateField } = useFormValidation(companyLoginSchema);
-    const { login, isAuthenticated, isLoading } = useAuth();
+    const { login, handlePopupLoginSuccess, isAuthenticated, isLoading } = useAuth();
     const searchParams = useSearchParams();
     const router = useRouter();
     const { showNotification } = useUI();
     const [error, setError] = useState<string | null>(null);
     const [hasRedirected, setHasRedirected] = useState(false);
+    const [showGooglePopup, setShowGooglePopup] = useState(false);
+    const [showGitHubPopup, setShowGitHubPopup] = useState(false);
 
     // Redirect if already authenticated
     useEffect(() => {
@@ -131,6 +135,79 @@ export function LoginForm() {
         validateField(field, formData[field], formData);
     };
 
+    // Handle Google login
+    const handleGoogleLogin = async () => {
+        setError(null);
+        setShowGooglePopup(true);
+    };
+
+    const handleGoogleLoginSuccess = async (userData: any) => {
+        try {
+            await handlePopupLoginSuccess(userData);
+
+            // Show success notification
+            showNotification({
+                type: 'success',
+                title: 'Login Successful',
+                message: 'Welcome back! Redirecting to your dashboard...',
+                duration: 3000,
+            });
+
+            // Handle redirect after successful login
+            const redirectUrl = searchParams.get('redirect') || searchParams.get('callbackUrl');
+            const targetPath =
+                redirectUrl && redirectUrl.startsWith('/companies/') ? redirectUrl : '/';
+
+            console.log(
+                'Company Login - Redirecting after successful Google login to:',
+                targetPath,
+            );
+            router.replace(targetPath);
+        } catch {
+            setError('Failed to complete Google login. Please try again.');
+        }
+    };
+
+    const handleGoogleLoginError = (errorMessage: string) => {
+        setError(errorMessage);
+    };
+
+    const handleGitHubLogin = async () => {
+        setError(null);
+        setShowGitHubPopup(true);
+    };
+
+    const handleGitHubLoginSuccess = async (userData: any) => {
+        try {
+            await handlePopupLoginSuccess(userData);
+
+            // Show success notification
+            showNotification({
+                type: 'success',
+                title: 'Login Successful',
+                message: 'Welcome back! Redirecting to your dashboard...',
+                duration: 3000,
+            });
+
+            // Handle redirect after successful login
+            const redirectUrl = searchParams.get('redirect') || searchParams.get('callbackUrl');
+            const targetPath =
+                redirectUrl && redirectUrl.startsWith('/companies/') ? redirectUrl : '/';
+
+            console.log(
+                'Company Login - Redirecting after successful GitHub login to:',
+                targetPath,
+            );
+            router.replace(targetPath);
+        } catch {
+            setError('Failed to complete GitHub login. Please try again.');
+        }
+    };
+
+    const handleGitHubLoginError = (errorMessage: string) => {
+        setError(errorMessage);
+    };
+
     // If already authenticated and redirecting, show loading
     if (isAuthenticated && !hasRedirected) {
         return (
@@ -144,110 +221,134 @@ export function LoginForm() {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Error Display */}
-            {error && (
-                <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                    <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                    <span>{error}</span>
-                    <button
-                        type="button"
-                        onClick={() => setError(null)}
-                        className="ml-auto text-red-500 hover:text-red-700"
-                    >
-                        <X className="h-4 w-4" />
-                    </button>
-                </div>
-            )}
+        <>
+            <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Error Display */}
+                {error && (
+                    <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                        <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                        <span>{error}</span>
+                        <button
+                            type="button"
+                            onClick={() => setError(null)}
+                            className="ml-auto text-red-500 hover:text-red-700"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+                    </div>
+                )}
 
-            {/* Email Field */}
-            <FormField label="Email Address" htmlFor="email" error={errors.email} required>
-                <div className="relative">
-                    <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                    <Input
-                        id="email"
-                        type="email"
-                        placeholder="Enter your email"
-                        value={formData.email}
-                        onChange={(e) => handleInputChange('email', e.target.value)}
-                        onBlur={() => handleFieldBlur('email')}
-                        className="pl-10"
-                        disabled={isLoading}
+                {/* Email Field */}
+                <FormField label="Email Address" htmlFor="email" error={errors.email} required>
+                    <div className="relative">
+                        <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                        <Input
+                            id="email"
+                            type="email"
+                            placeholder="Enter your email"
+                            value={formData.email}
+                            onChange={(e) => handleInputChange('email', e.target.value)}
+                            onBlur={() => handleFieldBlur('email')}
+                            className="pl-10"
+                            disabled={isLoading}
+                        />
+                    </div>
+                </FormField>
+
+                {/* Password Field */}
+                <FormField label="Password" htmlFor="password" error={errors.password} required>
+                    <PasswordInput
+                        id="password"
+                        placeholder="Enter your password"
+                        value={formData.password}
+                        onChange={(value) => handleInputChange('password', value)}
                     />
-                </div>
-            </FormField>
+                </FormField>
 
-            {/* Password Field */}
-            <FormField label="Password" htmlFor="password" error={errors.password} required>
-                <PasswordInput
-                    id="password"
-                    placeholder="Enter your password"
-                    value={formData.password}
-                    onChange={(value) => handleInputChange('password', value)}
-                />
-            </FormField>
-
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                    <Checkbox
-                        id="rememberMe"
-                        checked={formData.rememberMe}
-                        onCheckedChange={(checked) =>
-                            handleInputChange('rememberMe', checked as boolean)
-                        }
-                        disabled={isLoading}
-                    />
-                    <Label
-                        htmlFor="rememberMe"
-                        className="cursor-pointer text-sm font-medium text-gray-700"
-                    >
-                        Remember me
-                    </Label>
-                </div>
-                <Link
-                    href="/companies/forgot-password"
-                    className="text-sm font-medium text-emerald-600 transition-colors hover:text-emerald-700"
-                >
-                    Forgot password?
-                </Link>
-            </div>
-
-            {/* Submit Button */}
-            <LoadingButton
-                type="submit"
-                isLoading={isLoading}
-                disabled={isLoading}
-                className="w-full"
-            >
-                Sign In
-            </LoadingButton>
-
-            {/* Divider */}
-            <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-gray-300" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white px-2 text-gray-500">Or continue with</span>
-                </div>
-            </div>
-
-            {/* Social Login */}
-            <SocialLogin disabled={isLoading} />
-
-            {/* Sign Up Link */}
-            <div className="text-center">
-                <p className="text-sm text-gray-600">
-                    Don&apos;t have an account?{' '}
+                {/* Remember Me & Forgot Password */}
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                        <Checkbox
+                            id="rememberMe"
+                            checked={formData.rememberMe}
+                            onCheckedChange={(checked) =>
+                                handleInputChange('rememberMe', checked as boolean)
+                            }
+                            disabled={isLoading}
+                        />
+                        <Label
+                            htmlFor="rememberMe"
+                            className="cursor-pointer text-sm font-medium text-gray-700"
+                        >
+                            Remember me
+                        </Label>
+                    </div>
                     <Link
-                        href="/companies/trial"
-                        className="font-medium text-emerald-600 transition-colors hover:text-emerald-700"
+                        href="/companies/forgot-password"
+                        className="text-sm font-medium text-emerald-600 transition-colors hover:text-emerald-700"
                     >
-                        Start your free trial
+                        Forgot password?
                     </Link>
-                </p>
-            </div>
-        </form>
+                </div>
+
+                {/* Submit Button */}
+                <LoadingButton
+                    type="submit"
+                    isLoading={isLoading}
+                    disabled={isLoading}
+                    className="w-full"
+                >
+                    Sign In
+                </LoadingButton>
+
+                {/* Divider */}
+                <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t border-gray-300" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-white px-2 text-gray-500">Or continue with</span>
+                    </div>
+                </div>
+
+                {/* Social Login */}
+                <SocialLogin
+                    onGoogleLogin={handleGoogleLogin}
+                    onGithubLogin={handleGitHubLogin}
+                    disabled={isLoading}
+                />
+
+                {/* Sign Up Link */}
+                <div className="text-center">
+                    <p className="text-sm text-gray-600">
+                        Don&apos;t have an account?{' '}
+                        <Link
+                            href="/companies/trial"
+                            className="font-medium text-emerald-600 transition-colors hover:text-emerald-700"
+                        >
+                            Start your free trial
+                        </Link>
+                    </p>
+                </div>
+            </form>
+
+            {/* Google Login Popup */}
+            <GoogleLoginPopup
+                isOpen={showGooglePopup}
+                onClose={() => setShowGooglePopup(false)}
+                onSuccess={handleGoogleLoginSuccess}
+                onError={handleGoogleLoginError}
+                userType="company"
+            />
+
+            {/* GitHub Login Popup */}
+            <GitHubLoginPopup
+                isOpen={showGitHubPopup}
+                onClose={() => setShowGitHubPopup(false)}
+                onSuccess={handleGitHubLoginSuccess}
+                onError={handleGitHubLoginError}
+                userType="company"
+            />
+        </>
     );
 }

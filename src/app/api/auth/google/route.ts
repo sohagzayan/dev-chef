@@ -22,7 +22,6 @@ export async function POST(request: NextRequest) {
         if (user) {
             // Check if Google account is already linked
             const googleAccount = user.accounts.find(
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (account: any) => account.provider === 'google',
             );
 

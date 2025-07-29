@@ -32,6 +32,10 @@ interface AuthContextType extends AuthState {
         rememberMe: boolean,
         userType: 'developer' | 'company',
     ) => Promise<{ success: boolean; error?: string }>;
+    googleLogin: (
+        userType: 'developer' | 'company',
+    ) => Promise<{ success: boolean; error?: string }>;
+    handlePopupLoginSuccess: (userData: any) => Promise<void>;
     logout: () => Promise<void>;
     refreshSession: () => Promise<boolean>;
     clearUser: () => void;
@@ -96,6 +100,63 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         const initializeAuth = async () => {
             try {
+                // Check for Google login callback
+                const urlParams = new URLSearchParams(window.location.search);
+                const googleLoginSuccess = urlParams.get('googleLogin');
+                const success = urlParams.get('success');
+
+                if (googleLoginSuccess === 'true' && success === 'true') {
+                    console.log('Google login callback detected, fetching user data...');
+
+                    // Get user data using the access token from cookies
+                    try {
+                        const response = await fetch('/api/v1/auth/me', {
+                            credentials: 'include',
+                        });
+
+                        if (response.ok) {
+                            const result = await response.json();
+                            if (result.success && result.data) {
+                                const userData = result.data.user;
+
+                                console.log('Google login successful, user data:', userData);
+
+                                // Store user data in client-side cookie
+                                ClientCookies.setUserData(userData);
+
+                                // Update auth state
+                                const userType =
+                                    userData.role === 'RECRUITER' ? 'company' : 'developer';
+                                setAuthState({
+                                    user: userData,
+                                    isAuthenticated: true,
+                                    isLoading: false,
+                                    userType,
+                                    notificationCount: 0,
+                                });
+
+                                // Clean up URL parameters
+                                window.history.replaceState(
+                                    {},
+                                    document.title,
+                                    window.location.pathname,
+                                );
+
+                                // Redirect based on user type
+                                const targetPath =
+                                    userType === 'company' ? '/companies/dashboard' : '/';
+                                router.replace(targetPath);
+
+                                return;
+                            }
+                        } else {
+                            console.error('Failed to get user data after Google login');
+                        }
+                    } catch (error) {
+                        console.error('Error fetching user data after Google login:', error);
+                    }
+                }
+
                 // First check server-side authentication state
                 const serverAuth = await checkServerAuth();
 
@@ -135,7 +196,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
 
         initializeAuth();
-    }, [checkServerAuth]);
+    }, [checkServerAuth, router]);
 
     // Auto-refresh session
     useEffect(() => {
@@ -225,6 +286,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         [],
     );
 
+    // Google login function - now returns a promise that resolves when popup is opened
+    const googleLogin = useCallback(
+        async (
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            _userType: 'developer' | 'company',
+        ): Promise<{ success: boolean; error?: string }> => {
+            return new Promise((resolve) => {
+                // This function now just returns success immediately
+                // The actual login will be handled by the popup component
+                resolve({ success: true });
+            });
+        },
+        [],
+    );
+
     // Logout function
     const logout = useCallback(async (): Promise<void> => {
         try {
@@ -244,6 +320,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Refresh session
     const refreshSession = useCallback(async (): Promise<boolean> => {
         try {
+            console.log('Refreshing session...');
             const response = await fetch('/api/v1/auth/refresh', {
                 method: 'POST',
                 headers: {
@@ -257,6 +334,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
                 if (result.success && result.data) {
                     const userData = result.data.user;
+
+                    console.log('Session refreshed successfully:', userData);
 
                     // Update client-side user cookie
                     ClientCookies.setUserData(userData);
@@ -273,10 +352,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 }
             }
 
+            console.log('Session refresh failed');
             return false;
         } catch (error) {
             console.error('Error refreshing session:', error);
             return false;
+        }
+    }, []);
+
+    // Handle popup login success
+    const handlePopupLoginSuccess = useCallback(async (userData: any) => {
+        try {
+            setAuthState((prev) => ({ ...prev, isLoading: true }));
+
+            // Store user data in client-side cookie
+            ClientCookies.setUserData(userData.user);
+
+            // Update auth state
+            setAuthState({
+                user: userData.user,
+                isAuthenticated: true,
+                isLoading: false,
+                userType: userData.user.role === 'RECRUITER' ? 'company' : 'developer',
+                notificationCount: 0,
+            });
+
+            // Store access token in localStorage for API calls
+            if (userData.accessToken) {
+                localStorage.setItem('accessToken', userData.accessToken);
+            }
+
+            console.log('Popup login successful:', userData.user);
+        } catch (error) {
+            console.error('Error handling popup login success:', error);
+            setAuthState((prev) => ({ ...prev, isLoading: false }));
         }
     }, []);
 
@@ -295,6 +404,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const contextValue: AuthContextType = {
         ...authState,
         login,
+        googleLogin,
+        handlePopupLoginSuccess,
         logout,
         refreshSession,
         clearUser,
