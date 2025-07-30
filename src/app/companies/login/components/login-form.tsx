@@ -240,8 +240,8 @@ export function LoginForm() {
 
                 {/* Email Field */}
                 <FormField label="Email Address" htmlFor="email" error={errors.email} required>
-                    <div className="relative">
-                        <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                    <div className="group relative">
+                        <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400 transition-colors duration-200 group-focus-within:text-green-500" />
                         <Input
                             id="email"
                             type="email"
@@ -249,7 +249,7 @@ export function LoginForm() {
                             value={formData.email}
                             onChange={(e) => handleInputChange('email', e.target.value)}
                             onBlur={() => handleFieldBlur('email')}
-                            className="pl-10"
+                            className="border-gray-200 pl-10 transition-all duration-200 focus:border-green-500 focus:ring-green-500/20"
                             disabled={isLoading}
                         />
                     </div>
@@ -262,6 +262,7 @@ export function LoginForm() {
                         placeholder="Enter your password"
                         value={formData.password}
                         onChange={(value) => handleInputChange('password', value)}
+                        className="border-gray-200 transition-all duration-200 focus:border-green-500 focus:ring-green-500/20"
                     />
                 </FormField>
 
@@ -275,17 +276,18 @@ export function LoginForm() {
                                 handleInputChange('rememberMe', checked as boolean)
                             }
                             disabled={isLoading}
+                            className="border-gray-300 data-[state=checked]:border-green-500 data-[state=checked]:bg-green-500"
                         />
                         <Label
                             htmlFor="rememberMe"
-                            className="cursor-pointer text-sm font-medium text-gray-700"
+                            className="cursor-pointer text-sm font-medium text-gray-700 transition-colors duration-200 hover:text-gray-900"
                         >
                             Remember me
                         </Label>
                     </div>
                     <Link
                         href="/companies/forgot-password"
-                        className="text-sm font-medium text-emerald-600 transition-colors hover:text-emerald-700"
+                        className="text-sm font-medium text-emerald-600 transition-colors hover:text-emerald-700 hover:underline"
                     >
                         Forgot password?
                     </Link>
@@ -296,20 +298,10 @@ export function LoginForm() {
                     type="submit"
                     isLoading={isLoading}
                     disabled={isLoading}
-                    className="w-full"
+                    className="w-full rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 py-2.5 text-sm font-semibold text-white shadow-md transition-all duration-300 hover:from-green-600 hover:to-emerald-700 hover:shadow-lg"
                 >
                     Sign In
                 </LoadingButton>
-
-                {/* Divider */}
-                <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t border-gray-300" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-white px-2 text-gray-500">Or continue with</span>
-                    </div>
-                </div>
 
                 {/* Social Login */}
                 <SocialLogin
@@ -324,7 +316,7 @@ export function LoginForm() {
                         Don&apos;t have an account?{' '}
                         <Link
                             href="/companies/trial"
-                            className="font-medium text-emerald-600 transition-colors hover:text-emerald-700"
+                            className="font-medium text-emerald-600 transition-colors hover:text-emerald-700 hover:underline"
                         >
                             Start your free trial
                         </Link>
