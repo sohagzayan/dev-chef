@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
         const skip = (page - 1) * limit;
 
         // Build where clause
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const where: any = {};
         if (role) where.role = role;
         if (search) {

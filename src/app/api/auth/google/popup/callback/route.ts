@@ -10,11 +10,25 @@ export async function GET(request: NextRequest) {
     const userType = searchParams.get('userType');
 
     if (error) {
-        return renderErrorPage('Authentication was cancelled or failed. Please try again.');
+        return new NextResponse(
+            renderErrorPage('Authentication was cancelled or failed. Please try again.'),
+            {
+                headers: {
+                    'Content-Type': 'text/html',
+                },
+            },
+        );
     }
 
     if (!code || !userType) {
-        return renderErrorPage('Invalid authentication response. Please try again.');
+        return new NextResponse(
+            renderErrorPage('Invalid authentication response. Please try again.'),
+            {
+                headers: {
+                    'Content-Type': 'text/html',
+                },
+            },
+        );
     }
 
     try {
@@ -119,24 +133,72 @@ export async function GET(request: NextRequest) {
             role: user.role,
         });
 
-        // Return success page that communicates with parent window
-        return renderSuccessPage({
-            user: {
+        // Create response with cookies
+        const response = new NextResponse(
+            renderSuccessPage({
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    role: user.role,
+                    image: user.image,
+                },
+                accessToken,
+                refreshToken,
+            }),
+            {
+                headers: {
+                    'Content-Type': 'text/html',
+                },
+            },
+        );
+
+        // Set HTTP-only cookies
+        response.cookies.set('devchef_access_token', accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 15 * 60, // 15 minutes
+            path: '/',
+        });
+
+        response.cookies.set('devchef_refresh_token', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 7 * 24 * 60 * 60, // 7 days
+            path: '/',
+        });
+
+        // Set user data cookie (non-httpOnly for client access)
+        response.cookies.set(
+            'devchef_user',
+            JSON.stringify({
                 id: user.id,
                 email: user.email,
                 role: user.role,
                 image: user.image,
+            }),
+            {
+                httpOnly: false,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                maxAge: 7 * 24 * 60 * 60, // 7 days
+                path: '/',
             },
-            accessToken,
-            refreshToken,
-        });
+        );
+
+        return response;
     } catch (error) {
         console.error('Google popup auth error:', error);
-        return renderErrorPage('Authentication failed. Please try again.');
+        return new NextResponse(renderErrorPage('Authentication failed. Please try again.'), {
+            headers: {
+                'Content-Type': 'text/html',
+            },
+        });
     }
 }
 
-function renderSuccessPage(userData: any) {
+function renderSuccessPage(userData: any): string {
     const html = `
         <!DOCTYPE html>
         <html>
@@ -199,14 +261,10 @@ function renderSuccessPage(userData: any) {
         </html>
     `;
 
-    return new NextResponse(html, {
-        headers: {
-            'Content-Type': 'text/html',
-        },
-    });
+    return html;
 }
 
-function renderErrorPage(errorMessage: string) {
+function renderErrorPage(errorMessage: string): string {
     const html = `
         <!DOCTYPE html>
         <html>
@@ -270,9 +328,5 @@ function renderErrorPage(errorMessage: string) {
         </html>
     `;
 
-    return new NextResponse(html, {
-        headers: {
-            'Content-Type': 'text/html',
-        },
-    });
+    return html;
 }

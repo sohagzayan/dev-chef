@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 interface PaymentModalProps {
     isOpen: boolean;
     onClose: () => void;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     plan: any;
 }
 

@@ -36,7 +36,7 @@ const filterOptions = [
     { id: 'design', label: 'Design', icon: <Palette className="h-4 w-4" /> },
 ];
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 const containerVariants: any = {
     hidden: { opacity: 0 },
     visible: {
@@ -47,7 +47,7 @@ const containerVariants: any = {
     },
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 const itemVariants: any = {
     hidden: { opacity: 0, y: 20 },
     visible: {

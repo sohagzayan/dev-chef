@@ -16,7 +16,7 @@ const containerVariants = {
     },
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 const itemVariants: any = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -29,7 +29,7 @@ const itemVariants: any = {
     },
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 const cardHoverVariants: any = {
     hover: {
         y: -8,

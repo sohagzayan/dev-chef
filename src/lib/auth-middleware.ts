@@ -27,7 +27,7 @@ export async function authMiddleware(request: NextRequest) {
 }
 
 export function requireRole(allowedRoles: string[]) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     return async (request: NextRequest, user: any) => {
         if (!allowedRoles.includes(user.role)) {
             return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });

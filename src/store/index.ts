@@ -4,6 +4,7 @@ import { adminApi } from './api/adminApi';
 import { authApi } from './api/authApi';
 import { candidatesApi } from './api/candidatesApi';
 import { checkoutApi } from './api/checkoutApi';
+import { problemsApi } from './api/problemsApi';
 import { recruitersApi } from './api/recruitersApi';
 import { userApi } from './api/userApi';
 import authReducer from './slices/authSlice';
@@ -16,6 +17,7 @@ export const store = configureStore({
         [userApi.reducerPath]: userApi.reducer,
         [adminApi.reducerPath]: adminApi.reducer,
         [candidatesApi.reducerPath]: candidatesApi.reducer,
+        [problemsApi.reducerPath]: problemsApi.reducer,
         [recruitersApi.reducerPath]: recruitersApi.reducer,
         [checkoutApi.reducerPath]: checkoutApi.reducer,
 
@@ -34,6 +36,7 @@ export const store = configureStore({
             userApi.middleware,
             adminApi.middleware,
             candidatesApi.middleware,
+            problemsApi.middleware,
             recruitersApi.middleware,
             checkoutApi.middleware,
         ),

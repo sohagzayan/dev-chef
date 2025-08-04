@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Geist, Geist_Mono, Syne } from 'next/font/google';
 import './globals.css';
-import { FooterSection } from '@/components/client/common/Footer/FooterSection';
-import Navbar from '@/components/client/common/Navbar/Navbar';
+import LayoutWrapper from '@/components/client/common/LayoutWrapper';
 import { ReduxProvider } from '@/components/providers/ReduxProvider';
 import { AuthProvider } from '@/context/AuthContext';
 
@@ -13,6 +12,11 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
     variable: '--font-geist-mono',
+    subsets: ['latin'],
+});
+
+const syne = Syne({
+    variable: '--font-syne',
     subsets: ['latin'],
 });
 
@@ -29,14 +33,12 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body
-                className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+                className={`${geistSans.variable} ${geistMono.variable} ${syne.variable} antialiased`}
                 suppressHydrationWarning={true}
             >
                 <ReduxProvider>
                     <AuthProvider>
-                        <Navbar />
-                        {children}
-                        <FooterSection />
+                        <LayoutWrapper>{children}</LayoutWrapper>
                     </AuthProvider>
                 </ReduxProvider>
             </body>

@@ -19,7 +19,7 @@ interface FiltersSidebarProps {
         status: string;
         search: string;
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     onFiltersChange: (filters: any) => void;
 }
 
@@ -58,9 +58,9 @@ export function FiltersSidebar({ filters, onFiltersChange }: FiltersSidebarProps
                     <label className="mb-3 block text-sm font-semibold text-gray-700">Status</label>
                     <div className="space-y-3">
                         {[
-                            { status: 'Solved', icon: '✅', count: 45 },
-                            { status: 'Attempted', icon: '🔄', count: 12 },
-                            { status: 'Unsolved', icon: '⭕', count: 93 },
+                            { status: 'SOLVED', icon: '✅', count: 45 },
+                            { status: 'ATTEMPTED', icon: '🔄', count: 12 },
+                            { status: 'UNSOLVED', icon: '⭕', count: 93 },
                         ].map(({ status, icon, count }) => (
                             <div key={status} className="flex items-center justify-between">
                                 <div className="flex items-center space-x-3">
@@ -107,9 +107,9 @@ export function FiltersSidebar({ filters, onFiltersChange }: FiltersSidebarProps
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="All difficulties">All difficulties</SelectItem>
-                            <SelectItem value="Easy">🟢 Easy</SelectItem>
-                            <SelectItem value="Medium">🟡 Medium</SelectItem>
-                            <SelectItem value="Hard">🔴 Hard</SelectItem>
+                            <SelectItem value="EASY">🟢 Easy</SelectItem>
+                            <SelectItem value="MEDIUM">🟡 Medium</SelectItem>
+                            <SelectItem value="HARD">🔴 Hard</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>

@@ -10,6 +10,7 @@ import type { UserRole } from '@/types/api/auth';
 export const { handlers, signIn, signOut, auth } = NextAuth({
     adapter: PrismaAdapter(prisma),
     session: { strategy: 'jwt' },
+    secret: process.env.NEXTAUTH_SECRET,
     pages: {
         signIn: '/auth/login',
         signUp: '/auth/register',
@@ -85,6 +86,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
         async session({ session, token }) {
             if (token) {
+                if (!session.user) {
+                    session.user = {} as any;
+                }
                 session.user.id = token.id as string;
                 session.user.role = token.role as UserRole;
             }

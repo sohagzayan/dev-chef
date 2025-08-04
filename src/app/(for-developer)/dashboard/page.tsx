@@ -5,14 +5,9 @@ import { CertificationSection } from './components/certification-section';
 import { ContestsSection } from './components/contests-section';
 import { Header } from './components/header';
 import { PreparationSection } from './components/preparation-section';
-import { TopicsSection } from './components/topics-section';
 
 export default function DeveloperPrepPage() {
     const router = useRouter();
-
-    const handleTopicSelect = (topicId: string) => {
-        router.push(`/topics/${topicId}`);
-    };
 
     const handleCertificationStart = (certId: string) => {
         router.push(`/certification/${certId}`);
@@ -44,7 +39,6 @@ export default function DeveloperPrepPage() {
                     onInterviewPrepStart={handleInterviewPrepStart}
                     onSkillsExplore={handleSkillsExplore}
                 />
-                <TopicsSection onTopicSelect={handleTopicSelect} />
                 <ContestsSection
                     onContestRegister={handleContestRegister}
                     onContestView={handleContestView}

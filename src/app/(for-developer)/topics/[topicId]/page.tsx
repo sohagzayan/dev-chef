@@ -1,9 +1,10 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { generateProblems, topics } from '@/data/problem-data';
+import { fetchProblems, Problem } from '@/lib/api/problems';
+import { fetchTopic, Topic } from '@/lib/api/topics';
 import { FiltersSidebar } from './components/filters-sidebar';
 import { ProblemsList } from './components/problems-list';
 import { TopicDetailHeader } from './components/topic-detail-header';
@@ -13,10 +14,12 @@ export default function TopicPage() {
     const router = useRouter();
     const topicId = params.topicId as string;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [problems, setProblems] = useState<any[]>([]);
+    const [problems, setProblems] = useState<Problem[]>([]);
+    const [topic, setTopic] = useState<Topic | null>(null);
     const [loading, setLoading] = useState(false);
-    const [page, setPage] = useState(0);
+    const [topicLoading, setTopicLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [filters, setFilters] = useState({
         difficulty: 'All difficulties',
@@ -39,31 +42,71 @@ export default function TopicPage() {
         [loading, hasMore],
     );
 
-    const loadMoreProblems = useCallback(() => {
-        if (!topicId || loading) return;
+    // Load topic details
+    useEffect(() => {
+        const loadTopic = async () => {
+            if (!topicId) return;
 
-        setLoading(true);
-        setTimeout(() => {
-            const newProblems = generateProblems(topicId, page);
-            setProblems((prev) => [...prev, ...newProblems]);
-            setPage((prev) => prev + 1);
-            setLoading(false);
-
-            if (page >= 4) {
-                setHasMore(false);
+            try {
+                setTopicLoading(true);
+                const response = await fetchTopic(topicId);
+                setTopic(response.data);
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Failed to load topic');
+            } finally {
+                setTopicLoading(false);
             }
-        }, 1000);
-    }, [topicId, page, loading]);
+        };
+
+        loadTopic();
+    }, [topicId]);
 
     // Load initial problems
-    useState(() => {
-        if (topicId) {
-            const initialProblems = generateProblems(topicId, 0);
-            setProblems(initialProblems);
-            setPage(1);
-        }
-    });
+    useEffect(() => {
+        const loadInitialProblems = async () => {
+            if (!topicId) return;
 
+            try {
+                setLoading(true);
+                const response = await fetchProblems({
+                    topicId,
+                    page: 1,
+                    limit: 10,
+                });
+                setProblems(response.data);
+                setHasMore(response.pagination.hasNext);
+                setPage(2);
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Failed to load problems');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadInitialProblems();
+    }, [topicId]);
+
+    const loadMoreProblems = useCallback(async () => {
+        if (!topicId || loading || !hasMore) return;
+
+        try {
+            setLoading(true);
+            const response = await fetchProblems({
+                topicId,
+                page,
+                limit: 10,
+            });
+            setProblems((prev) => [...prev, ...response.data]);
+            setHasMore(response.pagination.hasNext);
+            setPage((prev) => prev + 1);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to load more problems');
+        } finally {
+            setLoading(false);
+        }
+    }, [topicId, page, loading, hasMore]);
+
+    // Filter problems based on current filters
     const filteredProblems = problems.filter((problem) => {
         if (filters.difficulty !== 'All difficulties' && problem.difficulty !== filters.difficulty)
             return false;
@@ -73,10 +116,28 @@ export default function TopicPage() {
         return true;
     });
 
-    const topic = topics.find((t) => t.id === topicId);
+    if (topicLoading) {
+        return (
+            <div className="min-h-screen bg-white">
+                <div className="mx-auto max-w-7xl px-6 py-8">
+                    <div className="flex justify-center">
+                        <div className="text-lg text-gray-600">Loading topic...</div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
-    if (!topic) {
-        return <div>Topic not found</div>;
+    if (error || !topic) {
+        return (
+            <div className="min-h-screen bg-white">
+                <div className="mx-auto max-w-7xl px-6 py-8">
+                    <div className="flex justify-center">
+                        <div className="text-lg text-red-600">{error || 'Topic not found'}</div>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     return (

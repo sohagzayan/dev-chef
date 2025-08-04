@@ -1,7 +1,8 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Clock, Loader2, Shield, TrendingUp, Trophy, Users } from 'lucide-react';
+import { CheckCircle, Clock, Loader2, Shield, TrendingUp, Trophy, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,11 +10,11 @@ import { Card, CardContent } from '@/components/ui/card';
 interface Problem {
     id: string;
     title: string;
-    difficulty: string;
-    status: string;
+    difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+    status: 'UNSOLVED' | 'ATTEMPTED' | 'SOLVED';
     successRate: number;
     maxScore: number;
-    solvedBy: number;
+    solvedBy: string[]; // Array of user IDs who solved this problem
     tags: string[];
     companies: string[];
     estimatedTime: string;
@@ -32,13 +33,14 @@ export function ProblemsList({
     hasMore,
     lastProblemElementRef,
 }: ProblemsListProps) {
+    const router = useRouter();
     const getDifficultyColor = (difficulty: string) => {
         switch (difficulty) {
-            case 'Easy':
+            case 'EASY':
                 return 'bg-green-50 text-green-700 border-green-200';
-            case 'Medium':
+            case 'MEDIUM':
                 return 'bg-yellow-50 text-yellow-700 border-yellow-200';
-            case 'Hard':
+            case 'HARD':
                 return 'bg-red-50 text-red-700 border-red-200';
             default:
                 return 'bg-gray-50 text-gray-700 border-gray-200';
@@ -47,11 +49,11 @@ export function ProblemsList({
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'Solved':
+            case 'SOLVED':
                 return 'bg-green-50 text-green-700 border-green-200';
-            case 'Attempted':
+            case 'ATTEMPTED':
                 return 'bg-orange-50 text-orange-700 border-orange-200';
-            case 'Unsolved':
+            case 'UNSOLVED':
                 return 'bg-gray-50 text-gray-700 border-gray-200';
             default:
                 return 'bg-gray-50 text-gray-700 border-gray-200';
@@ -69,7 +71,11 @@ export function ProblemsList({
                     transition={{ delay: index * 0.03 }}
                     whileHover={{ y: -2 }}
                 >
-                    <Card className="group border-0 shadow-md transition-all duration-300 hover:shadow-xl">
+                    <Card
+                        className={`group border-0 shadow-md transition-all duration-300 hover:shadow-xl ${
+                            problem.status === 'SOLVED' ? 'border-l-4 border-l-green-500' : ''
+                        }`}
+                    >
                         <CardContent className="p-6">
                             <div className="flex items-start justify-between">
                                 <div className="flex-1">
@@ -77,6 +83,12 @@ export function ProblemsList({
                                         <h3 className="cursor-pointer text-lg font-semibold text-gray-900 transition-colors group-hover:text-blue-600 hover:text-blue-600">
                                             {problem.title}
                                         </h3>
+                                        {problem.status === 'SOLVED' && (
+                                            <div className="flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700">
+                                                <CheckCircle className="h-3 w-3" />
+                                                <span>Solved</span>
+                                            </div>
+                                        )}
                                         <Badge
                                             className={`${getDifficultyColor(problem.difficulty)} border font-medium`}
                                         >
@@ -108,7 +120,7 @@ export function ProblemsList({
                                             <Users className="h-4 w-4 text-blue-500" />
                                             <span className="text-gray-600">Solved:</span>
                                             <span className="font-semibold">
-                                                {problem.solvedBy.toLocaleString()}
+                                                {problem.solvedBy.length}
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-2">
@@ -147,7 +159,10 @@ export function ProblemsList({
                                     </div>
                                 </div>
 
-                                <Button className="ml-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md hover:from-blue-700 hover:to-blue-800">
+                                <Button
+                                    className="ml-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md hover:from-blue-700 hover:to-blue-800"
+                                    onClick={() => router.push(`/problems/${problem.id}`)}
+                                >
                                     Solve Challenge
                                 </Button>
                             </div>

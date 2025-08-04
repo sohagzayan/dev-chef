@@ -397,3 +397,125 @@
         transform: translateY(0);
     }
 }
+
+/* Workspace Styles */
+.split {
+    display: flex;
+    flex-direction: row;
+}
+
+.gutter {
+    background-color: #374151;
+    background-repeat: no-repeat;
+    background-position: 50%;
+}
+
+.gutter.gutter-horizontal {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+    cursor: col-resize;
+}
+
+.gutter.gutter-vertical {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUCNdA5idTgACJ+4c9rRZu0FIAAPBw2ULF4+2nAAAAAElFTkSuQmCC');
+    cursor: row-resize;
+}
+
+/* Dark theme colors for workspace */
+.bg-dark-layer-1 {
+    background-color: #1e1e1e;
+}
+
+.bg-dark-layer-2 {
+    background-color: #2d2d30;
+}
+
+.bg-dark-fill-2 {
+    background-color: #2d2d30;
+}
+
+.bg-dark-fill-3 {
+    background-color: #3c3c3c;
+}
+
+.text-dark-label-2 {
+    color: #cccccc;
+}
+
+.text-dark-gray-6 {
+    color: #6a6c6a;
+}
+
+.bg-dark-green-s {
+    background-color: #00b8a3;
+}
+
+.hover\:bg-green-3:hover {
+    background-color: #00a394;
+}
+
+.hover\:bg-dark-fill-2:hover {
+    background-color: #3c3c3c;
+}
+
+.hover\:bg-dark-fill-3:hover {
+    background-color: #4c4c4c;
+}
+
+/* Preference button styles */
+.preferenceBtn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    background-color: #3c3c3c;
+    transition: background-color 0.2s;
+}
+
+.preferenceBtn:hover {
+    background-color: #3c3c3c;
+}
+
+.preferenceBtn-tooltip {
+    position: absolute;
+    top: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #2d2d30;
+    color: #cccccc;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+}
+
+.group:hover .preferenceBtn-tooltip {
+    opacity: 1;
+}
+
+/* Example card styles */
+.example-card {
+    border-radius: 0.5rem;
+    border: 1px solid #374151;
+    background-color: #1f2937;
+    padding: 1rem;
+}
+
+/* CodeMirror custom styles */
+.cm-editor {
+    height: 100%;
+}
+
+.cm-editor .cm-scroller {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Split pane styles */
+.split > * {
+    overflow: hidden;
+}

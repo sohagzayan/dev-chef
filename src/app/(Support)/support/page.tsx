@@ -23,7 +23,7 @@ export default function SupportPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [showSubscription, setShowSubscription] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const [selectedArticle, setSelectedArticle] = useState<any>(null);
     const [viewMode, setViewMode] = useState<'main' | 'category' | 'article'>('main');
 
@@ -40,7 +40,7 @@ export default function SupportPage() {
         setViewMode('category');
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const handleArticleClick = (article: any) => {
         setSelectedArticle(article);
         setViewMode('article');

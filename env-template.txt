@@ -13,6 +13,9 @@ GITHUB_SECRET="your_github_client_secret_here"
 NEXTAUTH_URL="http://localhost:3001"
 NEXT_PUBLIC_APP_URL="http://localhost:3001"
 
+# NextAuth Secret (Required)
+NEXTAUTH_SECRET="your-nextauth-secret-key-here"
+
 # Database (Required)
 DATABASE_URL="your_mongodb_connection_string_here"
 

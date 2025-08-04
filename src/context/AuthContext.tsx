@@ -67,6 +67,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 credentials: 'include', // This will send the HTTP-only cookies
             });
 
+            console.log('AuthContext - Server auth check response status:', response.status);
+
             if (response.ok) {
                 const result = await response.json();
                 if (result.success && result.data) {
@@ -88,10 +90,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
                     return true;
                 }
+            } else {
+                console.log('AuthContext - Server auth check failed with status:', response.status);
+                // If server auth fails, clear any existing client-side data
+                ClientCookies.clearUserData();
+                setAuthState({
+                    user: null,
+                    isAuthenticated: false,
+                    isLoading: false,
+                    userType: null,
+                    notificationCount: 0,
+                });
             }
             return false;
         } catch (error) {
             console.error('Error checking server auth:', error);
+            // If there's an error, clear any existing client-side data
+            ClientCookies.clearUserData();
+            setAuthState({
+                user: null,
+                isAuthenticated: false,
+                isLoading: false,
+                userType: null,
+                notificationCount: 0,
+            });
             return false;
         }
     }, []);
@@ -271,6 +293,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
                     console.log('AuthContext - Auth state updated, isAuthenticated: true');
 
+                    // Verify server-side authentication after login
+                    setTimeout(async () => {
+                        const serverAuthSuccess = await checkServerAuth();
+                        if (!serverAuthSuccess) {
+                            console.log(
+                                'AuthContext - Server auth verification failed after login',
+                            );
+                            // If server auth fails, clear the state
+                            clearUser();
+                        }
+                    }, 1000);
+
                     // Don't redirect here - let the login forms handle redirects
                     return { success: true };
                 } else {
@@ -377,10 +411,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 notificationCount: 0,
             });
 
-            // Store access token in localStorage for API calls
-            if (userData.accessToken) {
-                localStorage.setItem('accessToken', userData.accessToken);
-            }
+            // Note: JWT tokens are now set as HTTP-only cookies by the server
+            // No need to store them in localStorage for security
 
             console.log('Popup login successful:', userData.user);
         } catch (error) {

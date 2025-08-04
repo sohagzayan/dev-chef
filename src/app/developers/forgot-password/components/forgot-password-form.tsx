@@ -40,7 +40,7 @@ export function ForgotPasswordForm() {
         }
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const handleFieldChange = (field: keyof ForgotPasswordForm, value: any) => {
         const newData = { ...formData, [field]: value };
         setFormData(newData);

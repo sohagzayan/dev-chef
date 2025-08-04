@@ -96,13 +96,40 @@ export async function POST(request: NextRequest) {
             accessToken,
         });
 
-        // Set refresh token cookie
-        response.cookies.set('refreshToken', refreshToken, {
+        // Set HTTP-only cookies
+        response.cookies.set('devchef_access_token', accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60, // 7 days
+            sameSite: 'lax',
+            maxAge: 15 * 60, // 15 minutes
+            path: '/',
         });
+
+        response.cookies.set('devchef_refresh_token', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 7 * 24 * 60 * 60, // 7 days
+            path: '/',
+        });
+
+        // Set user data cookie (non-httpOnly for client access)
+        response.cookies.set(
+            'devchef_user',
+            JSON.stringify({
+                id: user.id,
+                email: user.email,
+                role: user.role,
+                image: user.image,
+            }),
+            {
+                httpOnly: false,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                maxAge: 7 * 24 * 60 * 60, // 7 days
+                path: '/',
+            },
+        );
 
         return response;
     } catch (error) {

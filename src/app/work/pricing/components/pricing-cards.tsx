@@ -8,7 +8,7 @@ import PaymentModal from './payment-modal';
 
 export default function PricingCards() {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const [selectedPlan, setSelectedPlan] = useState<any>(null);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
 
@@ -72,7 +72,7 @@ export default function PricingCards() {
         },
     ];
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const handlePlanSelect = (plan: any) => {
         if (plan.id === 'enterprise') {
             // Handle enterprise contact

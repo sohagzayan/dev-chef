@@ -1,4 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 export const certificationQuestions: { [key: string]: any[] } = {
     'problem-solving-basic': [
         {

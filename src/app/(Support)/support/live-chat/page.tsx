@@ -32,7 +32,7 @@ export default function LiveChatPage() {
     ]);
     const [newMessage, setNewMessage] = useState('');
     const [isTyping, setIsTyping] = useState(false);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const [subscription, setSubscription] = useState<any>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
