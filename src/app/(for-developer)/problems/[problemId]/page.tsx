@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import AuthDebug from './components/AuthDebug';
 import Workspace from './components/Workspace';
 
 interface Problem {
@@ -37,6 +36,20 @@ interface Problem {
     companies: string[];
     estimatedTime: string;
     hints?: string[];
+    // Add missing properties
+    starterCode?: {
+        javascript?: string;
+        python?: string;
+        java?: string;
+        cpp?: string;
+    };
+    testCases?: Array<{
+        id: string;
+        name: string;
+        inputs: Record<string, any>;
+        expectedOutput: any;
+        isCustom?: boolean;
+    }>;
 }
 
 export default function ProblemPage() {
@@ -95,7 +108,6 @@ export default function ProblemPage() {
         return (
             <div className="flex h-screen w-full items-center justify-center bg-gray-50">
                 <div className="text-lg text-gray-600">Loading problem...</div>
-                <AuthDebug />
             </div>
         );
     }
@@ -137,10 +149,10 @@ export default function ProblemPage() {
         },
         testCases: (problem.testCases || []).map((tc) => ({
             id: tc.id,
-            name: tc.name,
+            name: tc.name || `Test Case ${tc.id}`,
             inputs: tc.inputs || {},
             expectedOutput: tc.expectedOutput || (tc as any).output,
-            isCustom: tc.isCustom,
+            isCustom: tc.isCustom || false,
         })),
         solutions: [],
         editorial: {
@@ -173,7 +185,6 @@ export default function ProblemPage() {
                 problem={transformedProblem}
                 onSuccessfulSubmission={refreshProblem}
             />
-            <AuthDebug />
         </div>
     );
 }

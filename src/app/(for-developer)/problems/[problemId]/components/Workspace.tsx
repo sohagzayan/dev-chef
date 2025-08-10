@@ -1,26 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Confetti from 'react-confetti';
-import {
-    AiOutlineAppstore,
-    AiOutlineArrowLeft,
-    AiOutlineArrowRight,
-    AiOutlineBell,
-    AiOutlineClockCircle,
-    AiOutlineCopy,
-    AiOutlineReload,
-    AiOutlineSetting,
-    AiOutlineUserAdd,
-} from 'react-icons/ai';
-import { BsCloudUpload, BsPlayFill } from 'react-icons/bs';
 import Split from 'split.js';
 import { useAuth } from '@/context/AuthContext';
 import { Problem } from '@/data/problem-data';
 import useWindowSize from '@/hooks/useWindowSize';
-import AuthTooltip from './AuthTooltip';
+import DynamicNavbar from './DynamicNavbar';
 import LoginBanner from './LoginBanner';
 import Playground from './Playground';
 import ProblemDescription from './ProblemDescription';
@@ -183,6 +170,10 @@ const Workspace: React.FC<WorkspaceProps> = ({ problem, onSuccessfulSubmission }
         }
     };
 
+    const handleRefresh = () => {
+        window.location.reload();
+    };
+
     return (
         <>
             <style jsx global>{`
@@ -219,158 +210,13 @@ const Workspace: React.FC<WorkspaceProps> = ({ problem, onSuccessfulSubmission }
             `}</style>
 
             <div className="flex h-screen w-full flex-col bg-gray-900">
-                {/* 🔲 1. Top Navigation Bar - Fixed Height */}
-                <div
-                    className={`sticky z-50 flex flex-shrink-0 items-center justify-between border-b border-gray-700 bg-gray-800 px-4 py-3 ${!isAuthenticated && showAuthBanner ? 'top-12' : 'top-0'}`}
-                >
-                    {/* Left side - Navigation */}
-                    <div className="flex items-center space-x-4">
-                        <Link
-                            href="/problems"
-                            className="flex items-center space-x-1 text-sm font-medium text-gray-300 hover:text-white"
-                        >
-                            <AiOutlineArrowLeft size={14} />
-                            <span>Problem List</span>
-                        </Link>
-                        <div className="flex items-center space-x-2">
-                            <button
-                                className="rounded p-1 text-gray-400 hover:text-white disabled:opacity-50"
-                                onClick={() => navigateToProblem('prev')}
-                                disabled={navigationLoading}
-                            >
-                                {navigationLoading ? (
-                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-white"></div>
-                                ) : (
-                                    <AiOutlineArrowLeft size={16} />
-                                )}
-                            </button>
-                            <button
-                                className="rounded p-1 text-gray-400 hover:text-white disabled:opacity-50"
-                                onClick={() => navigateToProblem('next')}
-                                disabled={navigationLoading}
-                            >
-                                {navigationLoading ? (
-                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-white"></div>
-                                ) : (
-                                    <AiOutlineArrowRight size={16} />
-                                )}
-                            </button>
-                            <button
-                                className="rounded p-1 text-gray-400 hover:text-white"
-                                onClick={() => window.location.reload()}
-                            >
-                                <AiOutlineReload size={16} />
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Center - Action buttons */}
-                    <div className="flex items-center space-x-3">
-                        {!isAuthenticated ? (
-                            <AuthTooltip message="Login required to run code">
-                                <button
-                                    className="flex transform items-center space-x-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:scale-105 hover:bg-blue-700 hover:shadow-xl"
-                                    onClick={handleRunCode}
-                                >
-                                    <BsPlayFill size={14} />
-                                    <span>Run Code</span>
-                                </button>
-                            </AuthTooltip>
-                        ) : (
-                            <button
-                                className={`flex items-center space-x-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 ${
-                                    isRunning
-                                        ? 'cursor-not-allowed bg-gray-600 text-gray-300'
-                                        : 'bg-gray-700 text-white hover:bg-gray-600'
-                                }`}
-                                onClick={handleRunCode}
-                                disabled={isRunning}
-                            >
-                                {isRunning ? (
-                                    <>
-                                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-white"></div>
-                                        <span>Running...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <BsPlayFill size={14} />
-                                        <span>Run Code</span>
-                                    </>
-                                )}
-                            </button>
-                        )}
-                        {!isAuthenticated ? (
-                            <AuthTooltip message="Login required to submit solution">
-                                <button
-                                    className="flex transform items-center space-x-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:scale-105 hover:bg-blue-700 hover:shadow-xl"
-                                    onClick={() => {
-                                        setLoginAction('submit');
-                                        setShowAuthBanner(true);
-                                    }}
-                                >
-                                    <BsCloudUpload size={14} />
-                                    <span>Submit</span>
-                                </button>
-                            </AuthTooltip>
-                        ) : (
-                            <button
-                                className={`flex items-center space-x-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 ${
-                                    isSubmitting
-                                        ? 'cursor-not-allowed bg-gray-600 text-gray-300'
-                                        : 'bg-green-600 text-white hover:bg-green-700'
-                                }`}
-                                onClick={() => {
-                                    // Trigger submission in Playground via callback
-                                    if (handleSubmitStart) {
-                                        handleSubmitStart();
-                                    }
-                                }}
-                                disabled={isSubmitting}
-                            >
-                                {isSubmitting ? (
-                                    <>
-                                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-white"></div>
-                                        <span>Submitting...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <BsCloudUpload size={14} />
-                                        <span>Submit</span>
-                                    </>
-                                )}
-                            </button>
-                        )}
-                        {/* Submit button removed - handled by Playground component */}
-                        <button className="rounded p-2 text-gray-400 transition-colors hover:text-white">
-                            <AiOutlineCopy size={16} />
-                        </button>
-                    </div>
-
-                    {/* Right side - User controls */}
-                    <div className="flex items-center space-x-3">
-                        <button className="rounded p-2 text-gray-400 transition-colors hover:text-white">
-                            <AiOutlineAppstore size={16} />
-                        </button>
-                        <button className="rounded p-2 text-gray-400 transition-colors hover:text-white">
-                            <AiOutlineSetting size={16} />
-                        </button>
-                        <button className="rounded p-2 text-gray-400 transition-colors hover:text-white">
-                            <AiOutlineBell size={16} />
-                        </button>
-                        <button className="rounded p-2 text-gray-400 transition-colors hover:text-white">
-                            <AiOutlineClockCircle size={16} />
-                        </button>
-                        <button className="rounded p-2 text-gray-400 transition-colors hover:text-white">
-                            <AiOutlineUserAdd size={16} />
-                        </button>
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-600">
-                            <span className="text-sm font-medium text-white">U</span>
-                        </div>
-                        <button className="rounded-lg bg-orange-500 px-4 py-1 text-sm font-medium text-white transition-colors hover:bg-orange-600">
-                            Premium
-                        </button>
-                    </div>
-                </div>
+                {/* Dynamic Navbar */}
+                <DynamicNavbar
+                    onNavigate={navigateToProblem}
+                    navigationLoading={navigationLoading}
+                    onRefresh={handleRefresh}
+                    problemTitle={problem.title}
+                />
 
                 {/* Main Content Area - Resizable Panels */}
                 <div className="flex flex-1 overflow-hidden">

@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AiOutlineDelete, AiOutlinePlus } from 'react-icons/ai';
 
 interface TestCase {
     id: string;
@@ -14,21 +13,29 @@ interface TestCase {
     isHidden?: boolean;
 }
 
+interface TestResult {
+    case: number | string;
+    status: 'PASSED' | 'FAILED' | 'ERROR';
+    input?: string;
+    output?: string;
+    expected?: string;
+    error?: string;
+    runtime?: number;
+    memory?: number;
+}
+
 type TestCaseManagerProps = {
     testCases: TestCase[];
-    onAddTestCase: (testCase: TestCase) => void;
-    onDeleteTestCase: (id: string) => void;
     onRunTestCase: (testCase: TestCase) => void;
+    testResults?: TestResult[];
 };
 
 const TestCaseManager: React.FC<TestCaseManagerProps> = ({
     testCases,
-    onAddTestCase,
-    onDeleteTestCase,
     onRunTestCase,
+    testResults = [],
 }) => {
     const [activeTab, setActiveTab] = useState<string>(testCases[0]?.id || '');
-    const [showAddForm, setShowAddForm] = useState(false);
 
     // Update active tab when test cases change
     useEffect(() => {
@@ -41,85 +48,46 @@ const TestCaseManager: React.FC<TestCaseManagerProps> = ({
             setActiveTab('');
         }
     }, [testCases, activeTab]);
-    const [newTestCase, setNewTestCase] = useState({
-        name: '',
-        inputs: {} as Record<string, any>,
-        expectedOutput: null as any,
-    });
 
-    const handleAddTestCase = () => {
-        if (newTestCase.name && Object.keys(newTestCase.inputs).length > 0) {
-            const testCase: TestCase = {
-                id: `custom-${Date.now()}`,
-                name: newTestCase.name,
-                inputs: newTestCase.inputs,
-                expectedOutput: newTestCase.expectedOutput,
-                isCustom: true,
-            };
-            onAddTestCase(testCase);
-            setNewTestCase({ name: '', inputs: {}, expectedOutput: null });
-            setShowAddForm(false);
-        }
+    // Helper function to get test result for a specific test case
+    const getTestResult = (testCaseId: string) => {
+        return testResults.find((result) => result.case.toString() === testCaseId);
     };
 
-    const renderInputField = (key: string, value: any) => {
-        if (Array.isArray(value)) {
-            return (
-                <div key={key} className="mb-3">
-                    <label className="mb-1 block text-sm font-medium text-gray-300">{key} =</label>
-                    <input
-                        type="text"
-                        value={JSON.stringify(value)}
-                        onChange={(e) => {
-                            try {
-                                const parsed = JSON.parse(e.target.value);
-                                setNewTestCase((prev) => ({
-                                    ...prev,
-                                    inputs: { ...prev.inputs, [key]: parsed },
-                                }));
-                            } catch {
-                                // Handle invalid JSON
-                            }
-                        }}
-                        className="w-full rounded border border-gray-600 bg-gray-700 px-3 py-2 text-sm text-white"
-                        placeholder="[1, 2, 3]"
-                    />
-                </div>
-            );
-        }
+    // Helper function to get test case status
+    const getTestCaseStatus = (testCaseId: string) => {
+        const result = getTestResult(testCaseId);
+        return result ? result.status : null;
+    };
 
-        return (
-            <div key={key} className="mb-3">
-                <label className="mb-1 block text-sm font-medium text-gray-300">{key} =</label>
-                <input
-                    type="text"
-                    value={value?.toString() || ''}
-                    onChange={(e) =>
-                        setNewTestCase((prev) => ({
-                            ...prev,
-                            inputs: { ...prev.inputs, [key]: e.target.value },
-                        }))
-                    }
-                    className="w-full rounded border border-gray-600 bg-gray-700 px-3 py-2 text-sm text-white"
-                    placeholder="Enter value"
-                />
-            </div>
+    // Helper function to check if any test case has failed
+    const hasAnyFailedTests = () => {
+        return testResults.some(
+            (result) => result.status === 'FAILED' || result.status === 'ERROR',
         );
     };
 
+    // Helper function to check if all test cases have passed
+    const haveAllTestsPassed = () => {
+        return testResults.length > 0 && testResults.every((result) => result.status === 'PASSED');
+    };
+
     const renderTestCaseContent = (testCase: TestCase) => {
+        const testResult = getTestResult(testCase.id);
+
         return (
-            <div className="p-4">
-                <div className="space-y-4">
+            <div className="p-6">
+                <div className="space-y-6">
                     {/* Handle both old format (inputs/expectedOutput) and new format (input/output) */}
                     {testCase.inputs ? (
                         // Old format with structured inputs
                         Object.entries(testCase.inputs || {}).map(([key, value]) => (
-                            <div key={key}>
-                                <label className="mb-1 block text-sm font-medium text-gray-300">
-                                    {key} =
+                            <div key={key} className="space-y-2">
+                                <label className="flex items-center space-x-2 text-sm font-medium text-gray-300">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                                    <span>{key} =</span>
                                 </label>
-                                <div className="rounded border border-gray-600 bg-gray-700 px-3 py-2 text-sm text-white">
+                                <div className="rounded-lg border border-gray-600 bg-gray-700 px-4 py-3 font-mono text-sm text-white">
                                     {Array.isArray(value)
                                         ? JSON.stringify(value)
                                         : value?.toString()}
@@ -128,22 +96,24 @@ const TestCaseManager: React.FC<TestCaseManagerProps> = ({
                         ))
                     ) : (
                         // New format with raw input/output
-                        <div>
-                            <label className="mb-1 block text-sm font-medium text-gray-300">
-                                Input =
+                        <div className="space-y-2">
+                            <label className="flex items-center space-x-2 text-sm font-medium text-gray-300">
+                                <span className="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                                <span>Input =</span>
                             </label>
-                            <div className="rounded border border-gray-600 bg-gray-700 px-3 py-2 text-sm text-white">
+                            <div className="rounded-lg border border-gray-600 bg-gray-700 px-4 py-3 font-mono text-sm text-white">
                                 {testCase.input || 'No input'}
                             </div>
                         </div>
                     )}
 
                     {(testCase.expectedOutput !== null || testCase.output !== null) && (
-                        <div>
-                            <label className="mb-1 block text-sm font-medium text-gray-300">
-                                Expected Output =
+                        <div className="space-y-2">
+                            <label className="flex items-center space-x-2 text-sm font-medium text-gray-300">
+                                <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                                <span>Expected Output =</span>
                             </label>
-                            <div className="rounded border border-gray-600 bg-gray-700 px-3 py-2 text-sm text-white">
+                            <div className="rounded-lg border border-gray-600 bg-gray-700 px-4 py-3 font-mono text-sm text-white">
                                 {testCase.output ||
                                     (Array.isArray(testCase.expectedOutput)
                                         ? JSON.stringify(testCase.expectedOutput)
@@ -151,122 +121,141 @@ const TestCaseManager: React.FC<TestCaseManagerProps> = ({
                             </div>
                         </div>
                     )}
+
+                    {/* Show test result if available */}
+                    {testResult && (
+                        <div className="space-y-2">
+                            <label className="flex items-center space-x-2 text-sm font-medium text-gray-300">
+                                <span className="h-1.5 w-1.5 rounded-full bg-yellow-500"></span>
+                                <span>Actual Output =</span>
+                            </label>
+                            <div
+                                className={`rounded-lg border px-4 py-3 font-mono text-sm ${
+                                    testResult.status === 'PASSED'
+                                        ? 'border-green-500 bg-green-900/20 text-green-300'
+                                        : testResult.status === 'FAILED'
+                                          ? 'border-red-500 bg-red-900/20 text-red-300'
+                                          : 'border-yellow-500 bg-yellow-900/20 text-yellow-300'
+                                }`}
+                            >
+                                {testResult.error
+                                    ? testResult.error
+                                    : testResult.output || 'No output'}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
-                <div className="mt-4 flex space-x-2">
+                <div className="mt-6 flex items-center space-x-3">
                     <button
                         onClick={() => onRunTestCase(testCase)}
-                        className="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+                        className="flex items-center space-x-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
                     >
-                        Run Test Case
+                        <span>▶</span>
+                        <span>Run Test Case</span>
                     </button>
-                    {testCase.isCustom && (
-                        <button
-                            onClick={() => onDeleteTestCase(testCase.id)}
-                            className="flex items-center rounded bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700"
-                        >
-                            <AiOutlineDelete className="mr-1" />
-                            Delete
-                        </button>
-                    )}
                 </div>
             </div>
         );
     };
 
     return (
-        <div className="rounded-lg bg-gray-800">
-            {/* Test Case Tabs */}
-            <div className="flex items-center border-b border-gray-700">
-                <div className="mr-4 text-xs text-gray-400">
-                    {testCases.length} test case{testCases.length !== 1 ? 's' : ''}
+        <div className="rounded-lg border border-gray-700 bg-gray-800">
+            {/* Test Case Header */}
+            <div className="bg-gray-750 flex items-center justify-between border-b border-gray-700 px-4 py-3">
+                <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2">
+                        <div
+                            className={`h-2 w-2 rounded-full ${
+                                hasAnyFailedTests()
+                                    ? 'bg-red-500'
+                                    : haveAllTestsPassed()
+                                      ? 'bg-green-500'
+                                      : 'bg-blue-500'
+                            }`}
+                        ></div>
+                        <span className="text-sm font-medium text-white">
+                            {testCases.length} Test Case{testCases.length !== 1 ? 's' : ''}
+                        </span>
+                        {hasAnyFailedTests() && (
+                            <span className="ml-2 rounded-full bg-red-500 px-2 py-0.5 text-xs font-medium text-white">
+                                Failed
+                            </span>
+                        )}
+                        {haveAllTestsPassed() && (
+                            <span className="ml-2 rounded-full bg-green-500 px-2 py-0.5 text-xs font-medium text-white">
+                                Passed
+                            </span>
+                        )}
+                    </div>
                 </div>
-                {testCases.map((testCase, index) => (
-                    <button
-                        key={testCase.id}
-                        onClick={() => setActiveTab(testCase.id)}
-                        className={`px-4 py-2 text-sm font-medium transition-colors ${
-                            activeTab === testCase.id
-                                ? 'border-b-2 border-blue-500 bg-gray-700 text-white'
-                                : 'text-gray-400 hover:text-white'
-                        }`}
-                    >
-                        {testCase.name || `Case ${index + 1}`}
-                    </button>
-                ))}
-                <button
-                    onClick={() => setShowAddForm(true)}
-                    className="ml-2 px-3 py-2 text-gray-400 hover:text-white"
-                >
-                    <AiOutlinePlus size={16} />
-                </button>
+                <div className="flex items-center space-x-2 text-xs text-gray-400">
+                    <span>Visible Test Cases</span>
+                </div>
+            </div>
+
+            {/* Test Case Tabs */}
+            <div className="bg-gray-750 flex items-center border-b border-gray-700">
+                {testCases.map((testCase, index) => {
+                    const status = getTestCaseStatus(testCase.id);
+                    const isFailed = status === 'FAILED' || status === 'ERROR';
+                    const isPassed = status === 'PASSED';
+
+                    return (
+                        <button
+                            key={testCase.id}
+                            onClick={() => setActiveTab(testCase.id)}
+                            className={`relative px-6 py-3 text-sm font-medium transition-all duration-200 ${
+                                activeTab === testCase.id
+                                    ? isFailed
+                                        ? 'border-b-2 border-red-500 bg-gray-800 text-red-400'
+                                        : isPassed
+                                          ? 'border-b-2 border-green-500 bg-gray-800 text-green-400'
+                                          : 'border-b-2 border-blue-500 bg-gray-800 text-blue-400'
+                                    : isFailed
+                                      ? 'hover:bg-gray-750 text-red-400 hover:text-red-300'
+                                      : isPassed
+                                        ? 'hover:bg-gray-750 text-green-400 hover:text-green-300'
+                                        : 'hover:bg-gray-750 text-gray-400 hover:text-gray-300'
+                            }`}
+                        >
+                            <span className="flex items-center space-x-2">
+                                <span className="text-xs text-gray-500">#{index + 1}</span>
+                                <span>Test Case {index + 1}</span>
+                                {status && (
+                                    <span
+                                        className={`ml-2 rounded-full px-2 py-0.5 text-xs font-medium ${
+                                            isFailed
+                                                ? 'bg-red-500 text-white'
+                                                : isPassed
+                                                  ? 'bg-green-500 text-white'
+                                                  : 'bg-yellow-500 text-white'
+                                        }`}
+                                    >
+                                        {status}
+                                    </span>
+                                )}
+                            </span>
+                            {activeTab === testCase.id && (
+                                <div
+                                    className={`absolute right-0 bottom-0 left-0 h-0.5 ${
+                                        isFailed
+                                            ? 'bg-red-500'
+                                            : isPassed
+                                              ? 'bg-green-500'
+                                              : 'bg-blue-500'
+                                    }`}
+                                ></div>
+                            )}
+                        </button>
+                    );
+                })}
             </div>
 
             {/* Test Case Content */}
             <div className="min-h-[200px]">
-                {showAddForm ? (
-                    <div className="p-4">
-                        <div className="mb-4">
-                            <label className="mb-1 block text-sm font-medium text-gray-300">
-                                Test Case Name
-                            </label>
-                            <input
-                                type="text"
-                                value={newTestCase.name}
-                                onChange={(e) =>
-                                    setNewTestCase((prev) => ({ ...prev, name: e.target.value }))
-                                }
-                                className="w-full rounded border border-gray-600 bg-gray-700 px-3 py-2 text-sm text-white"
-                                placeholder="Custom Test Case"
-                            />
-                        </div>
-
-                        <div className="mb-4">
-                            <label className="mb-2 block text-sm font-medium text-gray-300">
-                                Input Parameters
-                            </label>
-                            {Object.entries(testCases[0]?.inputs || {}).map(([key, value]) =>
-                                renderInputField(key, value),
-                            )}
-                        </div>
-
-                        <div className="mb-4">
-                            <label className="mb-1 block text-sm font-medium text-gray-300">
-                                Expected Output
-                            </label>
-                            <input
-                                type="text"
-                                value={newTestCase.expectedOutput?.toString() || ''}
-                                onChange={(e) =>
-                                    setNewTestCase((prev) => ({
-                                        ...prev,
-                                        expectedOutput: e.target.value,
-                                    }))
-                                }
-                                className="w-full rounded border border-gray-600 bg-gray-700 px-3 py-2 text-sm text-white"
-                                placeholder="Expected result"
-                            />
-                        </div>
-
-                        <div className="flex space-x-2">
-                            <button
-                                onClick={handleAddTestCase}
-                                className="rounded bg-green-600 px-4 py-2 text-sm text-white hover:bg-green-700"
-                            >
-                                Add Test Case
-                            </button>
-                            <button
-                                onClick={() => setShowAddForm(false)}
-                                className="rounded bg-gray-600 px-4 py-2 text-sm text-white hover:bg-gray-700"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                ) : (
-                    testCases.find((tc) => tc.id === activeTab) &&
-                    renderTestCaseContent(testCases.find((tc) => tc.id === activeTab)!)
-                )}
+                {testCases.find((tc) => tc.id === activeTab) &&
+                    renderTestCaseContent(testCases.find((tc) => tc.id === activeTab)!)}
             </div>
         </div>
     );

@@ -186,8 +186,20 @@ const Playground: React.FC<PlaygroundProps> = ({
             if (!response.ok) {
                 if (response.status === 401) {
                     throw new Error('Please log in to run test cases');
+                } else if (response.status === 500) {
+                    // Try to get more specific error information
+                    try {
+                        const errorData = await response.json();
+                        throw new Error(
+                            errorData.message || 'Server error: Failed to run test cases',
+                        );
+                    } catch {
+                        throw new Error(
+                            `Server error (${response.status}): Failed to run test cases`,
+                        );
+                    }
                 } else {
-                    throw new Error('Failed to run test cases');
+                    throw new Error(`HTTP ${response.status}: Failed to run test cases`);
                 }
             }
 
@@ -319,21 +331,37 @@ const Playground: React.FC<PlaygroundProps> = ({
                         if (retryResponse.ok) {
                             const retryResult = await retryResponse.json();
                             if (retryResult.success) {
-                                // Show success
-                                setSuccess(true);
-                                setTimeout(() => {
-                                    setSuccess(false);
-                                }, 4000);
-                                setSolved(true);
-
-                                // Call the callback to show accepted tab
-                                if (onSuccessfulSubmission) {
-                                    onSuccessfulSubmission();
+                                // Handle test results from submission
+                                if (retryResult.data.testResults) {
+                                    setTestResults(retryResult.data.testResults);
+                                    setActiveTab('testresult');
                                 }
 
-                                // Call external callback if provided
-                                if (onSubmitComplete) {
-                                    onSubmitComplete();
+                                // Check if all tests passed
+                                const allPassed = retryResult.data.testResults?.every(
+                                    (r: any) => r.status === 'PASSED',
+                                );
+
+                                if (allPassed) {
+                                    // Show success
+                                    setSuccess(true);
+                                    setTimeout(() => {
+                                        setSuccess(false);
+                                    }, 4000);
+                                    setSolved(true);
+
+                                    // Call the callback to show accepted tab
+                                    if (onSuccessfulSubmission) {
+                                        onSuccessfulSubmission();
+                                    }
+
+                                    // Call external callback if provided
+                                    if (onSubmitComplete) {
+                                        onSubmitComplete();
+                                    }
+                                } else {
+                                    // Show test case failures
+                                    console.log('Test cases failed:', retryResult.data.testResults);
                                 }
                                 return;
                             }
@@ -348,21 +376,35 @@ const Playground: React.FC<PlaygroundProps> = ({
             const result = await response.json();
 
             if (result.success) {
-                // Show success
-                setSuccess(true);
-                setTimeout(() => {
-                    setSuccess(false);
-                }, 4000);
-                setSolved(true);
-
-                // Call the callback to show accepted tab
-                if (onSuccessfulSubmission) {
-                    onSuccessfulSubmission();
+                // Handle test results from submission
+                if (result.data.testResults) {
+                    setTestResults(result.data.testResults);
+                    setActiveTab('testresult');
                 }
 
-                // Call external callback if provided
-                if (onSubmitComplete) {
-                    onSubmitComplete();
+                // Check if all tests passed
+                const allPassed = result.data.testResults?.every((r: any) => r.status === 'PASSED');
+
+                if (allPassed) {
+                    // Show success
+                    setSuccess(true);
+                    setTimeout(() => {
+                        setSuccess(false);
+                    }, 4000);
+                    setSolved(true);
+
+                    // Call the callback to show accepted tab
+                    if (onSuccessfulSubmission) {
+                        onSuccessfulSubmission();
+                    }
+
+                    // Call external callback if provided
+                    if (onSubmitComplete) {
+                        onSubmitComplete();
+                    }
+                } else {
+                    // Show test case failures - they are already displayed in the test results tab
+                    console.log('Test cases failed:', result.data.testResults);
                 }
             } else {
                 throw new Error(result.message || 'Submission failed');
@@ -408,6 +450,129 @@ const Playground: React.FC<PlaygroundProps> = ({
 
     const onChange = (value: string) => {
         setUserCode(value);
+    };
+
+    const handleRunSingleTestCase = async (testCase: any) => {
+        // Call external callback if provided
+        if (onRunStart) {
+            onRunStart();
+        } else {
+            setIsRunning(true);
+        }
+
+        try {
+            // Execute code against the specific test case using the existing API
+            const response = await fetch(`/api/v1/problems/${problem.id}/test-cases`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include', // Include cookies for authentication
+                body: JSON.stringify({
+                    code: userCode,
+                    language,
+                    testCaseIds: [testCase.id], // Only run this specific test case
+                }),
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    throw new Error('Please log in to run test cases');
+                } else if (response.status === 500) {
+                    // Try to get more specific error information
+                    try {
+                        const errorData = await response.json();
+                        throw new Error(
+                            errorData.message || 'Server error: Failed to run test case',
+                        );
+                    } catch {
+                        throw new Error(
+                            `Server error (${response.status}): Failed to run test case`,
+                        );
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}: Failed to run test case`);
+                }
+            }
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Transform results to match the expected format
+                const transformedResults = result.data.results.map((testResult: any) => ({
+                    case: testCase.id, // Use testCase.id as case identifier
+                    status: testResult.status,
+                    input: testResult.input,
+                    output: testResult.actualOutput || 'No output',
+                    expected: testResult.expectedOutput,
+                    runtime: testResult.runtime,
+                    memory: testResult.memory,
+                    error: testResult.error,
+                }));
+
+                setTestResults(transformedResults);
+                setActiveTab('testresult');
+
+                // Check if the test case passed
+                const passed = result.data.summary.allPassed;
+
+                // Call external callback if provided
+                if (onRunComplete) {
+                    onRunComplete(passed);
+                }
+            } else {
+                throw new Error(result.message || 'Failed to run test case');
+            }
+        } catch (error) {
+            console.error('Run single test case failed:', error);
+
+            // Show user-friendly error message
+            const errorMessage = error instanceof Error ? error.message : 'Run failed';
+
+            // If it's an authentication error, show a more helpful message
+            if (errorMessage.includes('Please log in')) {
+                alert(
+                    'Please log in to run test cases. You can log in using the login button in the top navigation.',
+                );
+            }
+
+            setTestResults([
+                {
+                    case: testCase.id,
+                    status: 'ERROR',
+                    error: errorMessage,
+                },
+            ]);
+
+            // Call external callback if provided
+            if (onRunComplete) {
+                onRunComplete(false);
+            }
+        } finally {
+            if (!onRunStart) {
+                setIsRunning(false);
+            }
+        }
+    };
+
+    const handleViewSource = () => {
+        // Show the current user's code in a modal or alert
+        // For now, we'll use a simple alert, but this could be enhanced with a proper modal
+        const codeToShow = userCode || problem.starterCode?.javascript || 'No code available';
+
+        // Use a more user-friendly approach - could be replaced with a modal
+        if (typeof window !== 'undefined') {
+            // Create a temporary textarea to copy the code
+            const textarea = document.createElement('textarea');
+            textarea.value = codeToShow;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            // Show a notification that code has been copied
+            alert('Source code has been copied to clipboard!');
+        }
     };
 
     return (
@@ -494,116 +659,158 @@ const Playground: React.FC<PlaygroundProps> = ({
                             <TestCaseManager
                                 key={problem.id} // Force re-render when problem changes
                                 testCases={testCases}
-                                onAddTestCase={(testCase) => {
-                                    setTestCases((prev) => [...prev, testCase as any]);
-                                }}
-                                onDeleteTestCase={(id) => {
-                                    setTestCases((prev) => prev.filter((tc) => tc.id !== id));
-                                }}
+                                testResults={testResults}
                                 onRunTestCase={(testCase) => {
                                     // Handle running individual test case
-                                    console.log('Running test case:', testCase);
+                                    handleRunSingleTestCase(testCase);
                                 }}
                             />
 
                             {/* Source Link */}
                             <div className="mt-4">
-                                <a href="#" className="text-sm text-blue-400 hover:text-blue-300">
+                                <button
+                                    onClick={() => handleViewSource()}
+                                    className="text-sm text-blue-400 transition-colors hover:text-blue-300"
+                                >
                                     &lt;/&gt; Source
-                                </a>
+                                </button>
                             </div>
                         </>
                     ) : (
                         /* Test Results View */
                         <div className="space-y-3">
-                            <div className="mb-4 text-sm text-gray-400">
-                                Executing {testResults.length} test case
-                                {testResults.length !== 1 ? 's' : ''} for {problem.title}
+                            <div className="mb-4 flex items-center justify-between">
+                                <div className="text-sm text-gray-400">
+                                    Executing {testResults.length} test case
+                                    {testResults.length !== 1 ? 's' : ''} for {problem.title}
+                                </div>
+                                {testResults.length > 0 && (
+                                    <div className="flex items-center space-x-2">
+                                        <span className="text-sm text-gray-400">Results:</span>
+                                        <span
+                                            className={`rounded px-2 py-1 text-xs font-medium ${
+                                                testResults.every((r) => r.status === 'PASSED')
+                                                    ? 'bg-green-500 text-white'
+                                                    : 'bg-red-500 text-white'
+                                            }`}
+                                        >
+                                            {
+                                                testResults.filter((r) => r.status === 'PASSED')
+                                                    .length
+                                            }
+                                            /{testResults.length} passed
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                             {testResults.length > 0 ? (
-                                testResults.map((result, index) => (
-                                    <div
-                                        key={index}
-                                        className={`rounded-lg border p-3 ${
-                                            result.status === 'PASSED'
-                                                ? 'border-green-500 bg-green-900/20 text-green-300'
-                                                : result.status === 'FAILED'
-                                                  ? 'border-red-500 bg-red-900/20 text-red-300'
-                                                  : 'border-yellow-500 bg-yellow-900/20 text-yellow-300'
-                                        }`}
-                                    >
-                                        <div className="mb-2 flex items-center justify-between">
-                                            <span className="font-medium">
-                                                Test Case {result.case}
-                                            </span>
-                                            <span
-                                                className={`rounded px-2 py-1 text-xs font-medium ${
-                                                    result.status === 'PASSED'
-                                                        ? 'bg-green-500 text-white'
-                                                        : result.status === 'FAILED'
-                                                          ? 'bg-red-500 text-white'
-                                                          : 'bg-yellow-500 text-white'
-                                                }`}
-                                            >
-                                                {result.status}
-                                            </span>
+                                <>
+                                    {!testResults.every((r) => r.status === 'PASSED') && (
+                                        <div className="mb-4 rounded-lg border border-red-500 bg-red-900/20 p-3 text-red-300">
+                                            <div className="flex items-center space-x-2">
+                                                <span className="text-sm font-medium">
+                                                    ❌ Submission Failed
+                                                </span>
+                                                <span className="text-xs">
+                                                    {
+                                                        testResults.filter(
+                                                            (r) => r.status !== 'PASSED',
+                                                        ).length
+                                                    }{' '}
+                                                    test case(s) failed
+                                                </span>
+                                            </div>
+                                            <div className="mt-1 text-xs text-red-200">
+                                                Check the details below to see what went wrong
+                                            </div>
                                         </div>
-                                        {/* Input */}
-                                        {result.input && (
-                                            <div className="mt-2 text-sm">
-                                                <span className="font-medium text-gray-300">
-                                                    Input:
+                                    )}
+                                    {testResults.map((result, index) => (
+                                        <div
+                                            key={index}
+                                            className={`rounded-lg border p-3 ${
+                                                result.status === 'PASSED'
+                                                    ? 'border-green-500 bg-green-900/20 text-green-300'
+                                                    : result.status === 'FAILED'
+                                                      ? 'border-red-500 bg-red-900/20 text-red-300'
+                                                      : 'border-yellow-500 bg-yellow-900/20 text-yellow-300'
+                                            }`}
+                                        >
+                                            <div className="mb-2 flex items-center justify-between">
+                                                <span className="font-medium">
+                                                    Test Case {result.case}
                                                 </span>
-                                                <div className="mt-1 rounded bg-gray-700 p-2 font-mono text-xs text-gray-200">
-                                                    {result.input
-                                                        .split('\n')
-                                                        .map((line: string, i: number) => (
-                                                            <div key={i}>{line}</div>
-                                                        ))}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Output */}
-                                        {result.output && (
-                                            <div className="mt-2 text-sm">
-                                                <span className="font-medium text-gray-300">
-                                                    Output:
+                                                <span
+                                                    className={`rounded px-2 py-1 text-xs font-medium ${
+                                                        result.status === 'PASSED'
+                                                            ? 'bg-green-500 text-white'
+                                                            : result.status === 'FAILED'
+                                                              ? 'bg-red-500 text-white'
+                                                              : 'bg-yellow-500 text-white'
+                                                    }`}
+                                                >
+                                                    {result.status}
                                                 </span>
-                                                <div className="mt-1 rounded bg-gray-700 p-2 font-mono text-xs text-gray-200">
-                                                    {result.output}
+                                            </div>
+                                            {/* Input */}
+                                            {result.input && (
+                                                <div className="mt-2 text-sm">
+                                                    <span className="font-medium text-gray-300">
+                                                        Input:
+                                                    </span>
+                                                    <div className="mt-1 rounded bg-gray-700 p-2 font-mono text-xs text-gray-200">
+                                                        {result.input
+                                                            .split('\n')
+                                                            .map((line: string, i: number) => (
+                                                                <div key={i}>{line}</div>
+                                                            ))}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        )}
+                                            )}
 
-                                        {/* Expected Output */}
-                                        {result.expected && (
-                                            <div className="mt-2 text-sm">
-                                                <span className="font-medium text-gray-300">
-                                                    Expected:
-                                                </span>
-                                                <div className="mt-1 rounded bg-gray-700 p-2 font-mono text-xs text-gray-200">
-                                                    {result.expected}
+                                            {/* Output */}
+                                            {result.output && (
+                                                <div className="mt-2 text-sm">
+                                                    <span className="font-medium text-gray-300">
+                                                        Output:
+                                                    </span>
+                                                    <div className="mt-1 rounded bg-gray-700 p-2 font-mono text-xs text-gray-200">
+                                                        {result.output}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        )}
+                                            )}
 
-                                        {result.error && (
-                                            <div className="mt-2 text-sm">
-                                                <span className="font-medium text-red-400">
-                                                    Error:
-                                                </span>{' '}
-                                                <span className="text-red-300">{result.error}</span>
-                                            </div>
-                                        )}
-                                        {result.runtime && (
-                                            <div className="mt-1 text-xs opacity-75">
-                                                Runtime: {result.runtime}ms | Memory:{' '}
-                                                {result.memory}MB
-                                            </div>
-                                        )}
-                                    </div>
-                                ))
+                                            {/* Expected Output */}
+                                            {result.expected && (
+                                                <div className="mt-2 text-sm">
+                                                    <span className="font-medium text-gray-300">
+                                                        Expected:
+                                                    </span>
+                                                    <div className="mt-1 rounded bg-gray-700 p-2 font-mono text-xs text-gray-200">
+                                                        {result.expected}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {result.error && (
+                                                <div className="mt-2 text-sm">
+                                                    <span className="font-medium text-red-400">
+                                                        Error:
+                                                    </span>{' '}
+                                                    <span className="text-red-300">
+                                                        {result.error}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {result.runtime && (
+                                                <div className="mt-1 text-xs opacity-75">
+                                                    Runtime: {result.runtime}ms | Memory:{' '}
+                                                    {result.memory}MB
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </>
                             ) : (
                                 <div className="py-8 text-center text-gray-400">
                                     No test results yet. Click &quot;Run&quot; to execute your code.

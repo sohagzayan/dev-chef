@@ -161,7 +161,12 @@ export async function POST(request: NextRequest) {
         await updateUserProblemAttempts(tokenPayload.userId, problemId);
 
         // Execute code against test cases using real code execution
-        await executeCodeAgainstTestCases(submission.id, code, language, problem.testCases);
+        const testResults = await executeCodeAgainstTestCases(
+            submission.id,
+            code,
+            language,
+            problem.testCases,
+        );
 
         return NextResponse.json(
             {
@@ -170,6 +175,7 @@ export async function POST(request: NextRequest) {
                     id: submission.id,
                     status: submission.status,
                     message: 'Submission received and being processed',
+                    testResults: testResults, // Return test results for immediate feedback
                 },
             },
             { status: 201 },
@@ -249,6 +255,18 @@ async function executeCodeAgainstTestCases(
 
         // Update user problem status
         await updateUserProblemStatus(submissionId, finalStatus, score);
+
+        // Return the results for immediate feedback
+        return results.map((result, index) => ({
+            case: index + 1,
+            status: result.status,
+            input: result.input,
+            output: result.actualOutput || 'No output',
+            expected: result.expectedOutput,
+            runtime: result.runtime,
+            memory: result.memory,
+            error: result.error,
+        }));
     } catch (error) {
         console.error('Error in code execution:', error);
 
@@ -260,6 +278,15 @@ async function executeCodeAgainstTestCases(
                 error: 'Code execution failed',
             },
         });
+
+        // Return error result
+        return [
+            {
+                case: 1,
+                status: 'ERROR',
+                error: 'Code execution failed',
+            },
+        ];
     }
 }
 

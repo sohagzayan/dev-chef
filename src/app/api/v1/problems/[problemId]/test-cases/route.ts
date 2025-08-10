@@ -140,9 +140,24 @@ export async function POST(
         });
     } catch (error) {
         console.error('Error running test cases:', error);
-        return NextResponse.json(
-            { success: false, message: 'Failed to run test cases' },
-            { status: 500 },
-        );
+
+        // Provide more specific error messages
+        let errorMessage = 'Failed to run test cases';
+
+        if (error instanceof Error) {
+            if (error.message.includes('ENOENT')) {
+                errorMessage =
+                    'Required language runtime not found. Please ensure Python3, Node.js, Java, or GCC is installed.';
+            } else if (error.message.includes('timeout')) {
+                errorMessage =
+                    'Code execution timed out. Please check for infinite loops or very slow algorithms.';
+            } else if (error.message.includes('permission denied')) {
+                errorMessage = 'Permission denied. Please check file permissions.';
+            } else {
+                errorMessage = `Execution error: ${error.message}`;
+            }
+        }
+
+        return NextResponse.json({ success: false, message: errorMessage }, { status: 500 });
     }
 }
