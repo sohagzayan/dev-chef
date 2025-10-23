@@ -13,15 +13,15 @@ interface LogoProps {
 
 const Logo: React.FC<LogoProps> = ({ authState }) => {
     return (
-        <Link href="/" className="group mr-6 flex items-center gap-3">
+        <Link href="/" className="group mr-4 flex items-center gap-2">
             <motion.div
-                className="bg-fresh-lime relative flex h-10 w-10 items-center justify-center rounded-xl shadow-lg"
+                className="relative flex h-8 w-8 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-500 shadow-md"
                 whileHover={{
-                    scale: 1.05,
-                    rotate: [0, -5, 5, 0],
-                    transition: { duration: 0.3 },
+                    scale: 1.08,
+                    rotate: [0, -3, 3, 0],
+                    transition: { duration: 0.4, ease: 'easeOut' },
                 }}
-                whileTap={{ scale: 0.95 }}
+                whileTap={{ scale: 0.92 }}
                 initial={false}
                 animate={{
                     boxShadow: authState.isAuthenticated
@@ -46,11 +46,11 @@ const Logo: React.FC<LogoProps> = ({ authState }) => {
                         scale: { duration: 0.4, ease: 'easeInOut' },
                     }}
                 >
-                    <Code className="h-5 w-5 text-white" strokeWidth={2.5} />
+                    <Code className="h-4 w-4 text-white" strokeWidth={2} />
                 </motion.div>
 
                 <motion.div
-                    className="absolute -top-1 -right-1 h-3 w-3 rounded-full"
+                    className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full"
                     initial={false}
                     animate={{
                         backgroundColor: authState.isAuthenticated ? '#10b981' : '#06b6d4',
@@ -69,11 +69,11 @@ const Logo: React.FC<LogoProps> = ({ authState }) => {
 
             <motion.div
                 className="relative hidden sm:block"
-                whileHover={{ x: 2 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                whileHover={{ x: 1 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
             >
                 <motion.span
-                    className="relative text-2xl font-bold tracking-tight"
+                    className="relative text-xl font-semibold tracking-wide"
                     initial={false}
                     animate={{
                         color: authState.isAuthenticated ? '#065f46' : 'rgba(0, 55, 32, 1)',

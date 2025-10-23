@@ -38,6 +38,7 @@ export default function Navbar() {
     const [hoveredItem, setHoveredItem] = useState<string | null>(null);
     const [searchFocused, setSearchFocused] = useState(false);
     const [loginDropdownOpen, setLoginDropdownOpen] = useState(false);
+    const [isEmployerMode, setIsEmployerMode] = useState(true);
     const router = useRouter();
 
     // Create auth state object for compatibility with existing components
@@ -80,16 +81,18 @@ export default function Navbar() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: 'easeOut' }}
-                className={cn(
-                    'sticky top-0 z-50 w-full border-b border-gray-200/50 backdrop-blur-xl transition-all duration-700',
-                    isAuthenticated ? 'bg-white/90 shadow-lg' : 'bg-white/90 shadow-md',
-                )}
+                className="sticky top-0 z-50 w-full border-b border-gray-200/50 bg-white/90 backdrop-blur-xl transition-all duration-700"
             >
-                <div className="container mx-auto flex h-16 items-center px-6">
+                <motion.div
+                    className="flex h-16 items-center px-5"
+                    layout
+                    transition={{ duration: 0.4, ease: 'easeInOut' }}
+                >
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.6, delay: 0.1 }}
+                        className="flex items-center gap-2"
                     >
                         <Logo authState={authState} />
                     </motion.div>
@@ -107,47 +110,75 @@ export default function Navbar() {
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.2 }}
+                        className="ml-8 flex items-center gap-6 text-gray-900"
+                        layout
                     >
-                        <DesktopMenu
-                            navItems={navItems}
-                            authState={authState}
-                            pathname={pathname}
-                            hoveredItem={hoveredItem}
-                            setHoveredItem={setHoveredItem}
-                        />
+                        <AnimatePresence mode="wait">
+                            {isEmployerMode ? (
+                                <motion.div
+                                    key="employer-menu"
+                                    initial={{ opacity: 0, x: -20, scale: 0.95 }}
+                                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                                    exit={{ opacity: 0, x: 20, scale: 0.95 }}
+                                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                                    className="flex items-center gap-6"
+                                >
+                                    <motion.div
+                                        whileHover={{ scale: 1.05, y: -2 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="cursor-pointer font-medium transition-colors duration-200 hover:text-blue-600"
+                                        onClick={() => router.push('/post-a-remote-job')}
+                                    >
+                                        Post a Job
+                                    </motion.div>
+                                    <motion.div
+                                        whileHover={{ scale: 1.05, y: -2 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="cursor-pointer font-medium transition-colors duration-200 hover:text-blue-600"
+                                        onClick={() => router.push('/how-to-find-remote-jobs')}
+                                    >
+                                        Remote Recruiting
+                                    </motion.div>
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    key="candidate-menu"
+                                    initial={{ opacity: 0, x: -20, scale: 0.95 }}
+                                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                                    exit={{ opacity: 0, x: 20, scale: 0.95 }}
+                                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                                    className="flex items-center gap-6"
+                                >
+                                    <motion.div
+                                        whileHover={{ scale: 1.05, y: -2 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="cursor-pointer font-medium transition-colors duration-200 hover:text-blue-600"
+                                        onClick={() => router.push('/remote-jobs')}
+                                    >
+                                        Remote Jobs
+                                    </motion.div>
+                                    <motion.div
+                                        whileHover={{ scale: 1.05, y: -2 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="cursor-pointer font-medium transition-colors duration-200 hover:text-blue-600"
+                                        onClick={() => router.push('/find-a-remote-job')}
+                                    >
+                                        Find a Remote Job
+                                    </motion.div>
+                                    <motion.div
+                                        whileHover={{ scale: 1.05, y: -2 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="cursor-pointer font-medium transition-colors duration-200 hover:text-blue-600"
+                                        onClick={() => router.push('/remote-resources')}
+                                    >
+                                        Remote Resources
+                                    </motion.div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </motion.div>
 
-                    <div className="ml-auto flex items-center gap-3">
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.5, delay: 0.3 }}
-                            whileHover={{ scale: 1.05, rotate: 5 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="hidden sm:block"
-                        >
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className={cn(
-                                    'rounded-xl transition-all duration-500 ease-out',
-                                    searchFocused
-                                        ? 'bg-emerald-100 text-emerald-600 shadow-md'
-                                        : 'text-gray-600 hover:bg-gray-100 hover:shadow-sm',
-                                )}
-                                onMouseEnter={() => setSearchFocused(true)}
-                                onMouseLeave={() => setSearchFocused(false)}
-                            >
-                                <Search
-                                    className={cn(
-                                        'h-4 w-4 transition-all duration-500',
-                                        searchFocused ? 'scale-110 rotate-12' : '',
-                                    )}
-                                />
-                                <span className="sr-only">Search</span>
-                            </Button>
-                        </motion.div>
-
+                    <div className="ml-auto flex items-center gap-4">
                         <AnimatePresence mode="wait">
                             {isAuthenticated ? (
                                 <motion.div
@@ -285,19 +316,61 @@ export default function Navbar() {
                                 </motion.div>
                             ) : (
                                 <motion.div
-                                    className="flex items-center gap-3"
+                                    className="flex items-center gap-4"
                                     key="unauthenticated"
                                     initial={{ opacity: 0, x: 30, scale: 0.8 }}
                                     animate={{ opacity: 1, x: 0, scale: 1 }}
                                     exit={{ opacity: 0, x: 30, scale: 0.8 }}
                                     transition={{ duration: 0.5, ease: 'easeOut' }}
                                 >
-                                    <motion.div
-                                        whileHover={{ scale: 1.05, x: -2 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        transition={{ type: 'spring', stiffness: 400, damping: 10 }}
-                                        className="hidden sm:block"
+                                    {/* Post a job here! text */}
+                                    <div
+                                        className="hidden cursor-pointer items-center gap-1 sm:flex"
+                                        onClick={() => {
+                                            setIsEmployerMode(true);
+                                            router.push('/post-a-remote-job');
+                                        }}
                                     >
+                                        <span className="font-medium text-yellow-500 underline">
+                                            Post a job here!
+                                        </span>
+                                        <motion.div
+                                            animate={{ x: [0, 3, 0] }}
+                                            transition={{ duration: 1.5, repeat: Infinity }}
+                                            className="text-yellow-500"
+                                        >
+                                            →
+                                        </motion.div>
+                                    </div>
+
+                                    {/* Toggle button */}
+                                    <motion.div
+                                        whileHover={{ scale: 1.02, y: -1 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                                    >
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="cursor-pointer rounded-lg border border-gray-300 bg-white font-medium text-gray-700 transition-all duration-300 hover:bg-gray-50 hover:shadow-sm"
+                                            onClick={() => setIsEmployerMode(!isEmployerMode)}
+                                        >
+                                            <motion.span
+                                                key={isEmployerMode ? 'employers' : 'candidates'}
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                transition={{ duration: 0.2 }}
+                                            >
+                                                {isEmployerMode
+                                                    ? 'For Employers'
+                                                    : 'For Candidates'}
+                                            </motion.span>
+                                        </Button>
+                                    </motion.div>
+
+                                    {/* Login dropdown */}
+                                    <div className="hidden sm:block">
                                         <DropdownMenu
                                             open={loginDropdownOpen}
                                             onOpenChange={setLoginDropdownOpen}
@@ -305,10 +378,10 @@ export default function Navbar() {
                                             <DropdownMenuTrigger asChild>
                                                 <Button
                                                     variant="ghost"
-                                                    className="cursor-pointer rounded-xl font-medium text-gray-700 transition-all duration-300 hover:bg-gray-100 hover:text-gray-900 hover:shadow-sm"
+                                                    size="sm"
+                                                    className="cursor-pointer rounded-lg font-medium text-gray-700 transition-all duration-300 hover:bg-gray-100 hover:text-gray-900"
                                                 >
-                                                    Sign in
-                                                    <ChevronDown className="ml-1 h-4 w-4" />
+                                                    Login
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent
@@ -353,34 +426,21 @@ export default function Navbar() {
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
-                                    </motion.div>
-                                    <motion.div
-                                        whileHover={{ scale: 1.05, y: -2 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                                    </div>
+
+                                    {/* Sign Up */}
+                                    <Button
+                                        onClick={handleSignUp}
+                                        size="sm"
+                                        className="cursor-pointer rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 font-medium text-white shadow-lg transition-all duration-300 hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl"
                                     >
-                                        <Button
-                                            onClick={handleSignUp}
-                                            className="cursor-pointer rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 font-medium text-white shadow-lg transition-all duration-500 hover:scale-105 hover:from-emerald-700 hover:to-teal-700 hover:shadow-xl"
-                                        >
-                                            <motion.div
-                                                animate={{ rotate: [0, 5, -5, 0] }}
-                                                transition={{
-                                                    duration: 2,
-                                                    repeat: Infinity,
-                                                    ease: 'easeInOut',
-                                                }}
-                                            >
-                                                <MdOutlineSyncLock className="mr-2 h-4 w-4" />
-                                            </motion.div>
-                                            Sign up
-                                        </Button>
-                                    </motion.div>
+                                        Sign up
+                                    </Button>
                                 </motion.div>
                             )}
                         </AnimatePresence>
                     </div>
-                </div>
+                </motion.div>
             </motion.header>
 
             {/* Session Expiry Modal */}

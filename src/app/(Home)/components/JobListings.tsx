@@ -91,16 +91,58 @@ const JobListings = () => {
             transition: {
                 duration: 0.6,
                 staggerChildren: 0.1,
+                delayChildren: 0.2,
             },
         },
     };
 
-    const itemVariants = {
-        hidden: { opacity: 0, y: 20 },
+    const jobCardVariants = {
+        hidden: {
+            opacity: 0,
+            y: 40,
+            scale: 0.9,
+        },
         visible: {
             opacity: 1,
             y: 0,
-            transition: { duration: 0.5 },
+            scale: 1,
+        },
+    };
+
+    const logoVariants = {
+        hidden: {
+            opacity: 0,
+            scale: 0.5,
+            rotate: -180,
+        },
+        visible: {
+            opacity: 1,
+            scale: 1,
+            rotate: 0,
+        },
+    };
+
+    const contentVariants = {
+        hidden: {
+            opacity: 0,
+            x: -20,
+        },
+        visible: {
+            opacity: 1,
+            x: 0,
+        },
+    };
+
+    const statusVariants = {
+        hidden: {
+            opacity: 0,
+            scale: 0.8,
+            y: 10,
+        },
+        visible: {
+            opacity: 1,
+            scale: 1,
+            y: 0,
         },
     };
 
@@ -114,11 +156,19 @@ const JobListings = () => {
                     whileInView="visible"
                     viewport={{ once: true }}
                 >
-                    <motion.div className="flex flex-row items-end" variants={itemVariants}>
+                    <motion.div className="flex flex-row items-end" variants={contentVariants}>
                         <div className="flex items-center space-x-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-[#8BC34A] to-[#7CB342] shadow-lg">
+                            <motion.div
+                                className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-[#8BC34A] to-[#7CB342] shadow-lg"
+                                variants={logoVariants}
+                                whileHover={{
+                                    scale: 1.1,
+                                    rotate: 360,
+                                    transition: { duration: 0.5 },
+                                }}
+                            >
                                 <span className="text-lg font-bold text-white">💼</span>
-                            </div>
+                            </motion.div>
                             <div>
                                 <h2 className="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
                                     Top DevChef Jobs
@@ -138,7 +188,7 @@ const JobListings = () => {
                     <motion.a
                         href="/enter/sign-up/candidate"
                         className="inline-flex items-center gap-2 rounded-lg bg-[#8BC34A] px-4 py-2 text-sm font-semibold text-white transition-all duration-300 hover:bg-[#7CB342] hover:shadow-lg"
-                        variants={itemVariants}
+                        variants={contentVariants}
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -159,27 +209,64 @@ const JobListings = () => {
                     </motion.a>
                 </motion.div>
 
-                <div className="space-y-4">
+                <motion.div
+                    className="space-y-4"
+                    variants={containerVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, margin: '-100px' }}
+                >
                     {mockJobs.map((job, index) => (
                         <motion.div
                             key={job.id}
-                            variants={itemVariants}
-                            className="relative rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
+                            variants={jobCardVariants}
+                            transition={{ duration: 0.7, ease: 'easeOut', delay: index * 0.1 }}
+                            className="relative rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-lg"
+                            whileHover={{
+                                scale: 1.02,
+                                y: -2,
+                                transition: { duration: 0.2 },
+                            }}
                         >
+                            {/* Subtle light animation background */}
+                            <motion.div
+                                className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0"
+                                animate={{
+                                    opacity: [0, 0.3, 0],
+                                    x: ['-100%', '100%'],
+                                }}
+                                transition={{
+                                    duration: 2,
+                                    repeat: Infinity,
+                                    repeatDelay: 3,
+                                    ease: 'easeInOut',
+                                }}
+                            />
                             <div className="relative flex items-start space-x-4">
                                 {/* Company Logo */}
                                 <div className="flex-shrink-0">
-                                    <div
+                                    <motion.div
                                         className={`${job.logoColor} flex h-14 w-14 items-center justify-center rounded-lg shadow-sm`}
+                                        variants={logoVariants}
+                                        transition={{ duration: 0.8, ease: 'easeOut', delay: 0.3 }}
+                                        whileHover={{
+                                            scale: 1.1,
+                                            rotate: 5,
+                                            transition: { duration: 0.2 },
+                                        }}
                                     >
                                         <span className="text-sm font-semibold text-white">
                                             {job.logo}
                                         </span>
-                                    </div>
+                                    </motion.div>
                                 </div>
 
                                 {/* Job Details */}
-                                <div className="min-w-0 flex-1">
+                                <motion.div
+                                    className="min-w-0 flex-1"
+                                    variants={contentVariants}
+                                    transition={{ duration: 0.6, ease: 'easeOut', delay: 0.4 }}
+                                >
                                     <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between">
                                         <div className="flex-1">
                                             <div className="space-y-2">
@@ -260,31 +347,54 @@ const JobListings = () => {
                                         </div>
 
                                         {/* Status Tags */}
-                                        <div className="mt-4 flex flex-col items-end space-y-2 lg:mt-0 lg:ml-4">
+                                        <motion.div
+                                            className="mt-4 flex flex-col items-end space-y-2 lg:mt-0 lg:ml-4"
+                                            variants={statusVariants}
+                                            transition={{
+                                                duration: 0.5,
+                                                ease: 'easeOut',
+                                                delay: 0.6,
+                                            }}
+                                        >
                                             <div className="flex flex-wrap justify-end gap-2">
                                                 {job.status.includes('New Job!') && (
-                                                    <span className="inline-flex items-center rounded-md bg-[#8BC34A] px-2 py-1 text-xs font-medium text-white">
+                                                    <motion.span
+                                                        className="inline-flex items-center rounded-md bg-[#8BC34A] px-2 py-1 text-xs font-medium text-white"
+                                                        initial={{ scale: 0 }}
+                                                        animate={{ scale: 1 }}
+                                                        transition={{ delay: 0.8, duration: 0.3 }}
+                                                    >
                                                         New Job!
-                                                    </span>
+                                                    </motion.span>
                                                 )}
                                                 {job.status.includes('Featured Job') && (
-                                                    <span className="inline-flex items-center rounded-md bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">
+                                                    <motion.span
+                                                        className="inline-flex items-center rounded-md bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800"
+                                                        initial={{ scale: 0 }}
+                                                        animate={{ scale: 1 }}
+                                                        transition={{ delay: 0.9, duration: 0.3 }}
+                                                    >
                                                         Featured Job
-                                                    </span>
+                                                    </motion.span>
                                                 )}
                                             </div>
                                             {job.postedDays && (
-                                                <span className="text-xs text-gray-500">
+                                                <motion.span
+                                                    className="text-xs text-gray-500"
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    transition={{ delay: 1.0, duration: 0.3 }}
+                                                >
                                                     Posted {job.postedDays} days ago
-                                                </span>
+                                                </motion.span>
                                             )}
-                                        </div>
+                                        </motion.div>
                                     </div>
-                                </div>
+                                </motion.div>
                             </div>
                         </motion.div>
                     ))}
-                </div>
+                </motion.div>
                 <div className="mt-8 flex items-center justify-center">
                     <a
                         href="/remote-jobs"
