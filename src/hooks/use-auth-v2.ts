@@ -1,6 +1,13 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import React, {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
+    type ReactNode,
+} from 'react';
 import type { AuthenticatedUser, LoginRequest, RegisterRequest } from '@/types/api/api';
 
 interface AuthContextType {
@@ -22,6 +29,71 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const verifyToken = useCallback(async (token: string) => {
+        try {
+            const response = await fetch('/api/v1/auth/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ token }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setUser(data.user);
+                setAccessToken(token);
+                setLoading(false);
+            } else {
+                // Token is invalid, try to refresh
+                refreshToken();
+            }
+        } catch (error) {
+            console.error('Token verification failed:', error);
+            refreshToken();
+        }
+    }, []);
+
+    const refreshToken = useCallback(async () => {
+        try {
+            const refreshTokenValue = localStorage.getItem('refreshToken');
+            if (!refreshTokenValue) {
+                setLoading(false);
+                return;
+            }
+
+            const response = await fetch('/api/v1/auth/refresh', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ refreshToken: refreshTokenValue }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                localStorage.setItem('accessToken', data.accessToken);
+                localStorage.setItem('refreshToken', data.refreshToken);
+                setAccessToken(data.accessToken);
+                verifyToken(data.accessToken);
+            } else {
+                // Refresh failed, clear tokens and redirect to login
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                setAccessToken(null);
+                setUser(null);
+                setLoading(false);
+            }
+        } catch (error) {
+            console.error('Token refresh failed:', error);
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            setAccessToken(null);
+            setUser(null);
+            setLoading(false);
+        }
+    }, [verifyToken]);
+
     // Initialize auth state
     useEffect(() => {
         const token = localStorage.getItem('accessToken');
@@ -31,28 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
             refreshToken();
         }
-    }, []);
-
-    const verifyToken = async (token: string) => {
-        try {
-            const response = await fetch('/api/v1/auth/verify-token', {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                setUser(data.data.user);
-                setAccessToken(token);
-            } else {
-                await refreshToken();
-            }
-        } catch (error) {
-            console.error('Token verification failed:', error);
-            await refreshToken();
-        } finally {
-            setLoading(false);
-        }
-    };
+    }, [verifyToken, refreshToken]);
 
     const login = async (data: LoginRequest) => {
         try {
@@ -122,32 +173,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUser(null);
             setAccessToken(null);
             localStorage.removeItem('accessToken');
-        }
-    };
-
-    const refreshToken = async () => {
-        try {
-            const response = await fetch('/api/v1/auth/refresh', {
-                method: 'POST',
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                setUser(result.data.user);
-                setAccessToken(result.data.accessToken);
-                localStorage.setItem('accessToken', result.data.accessToken);
-            } else {
-                setUser(null);
-                setAccessToken(null);
-                localStorage.removeItem('accessToken');
-            }
-        } catch (error) {
-            console.error('Token refresh failed:', error);
-            setUser(null);
-            setAccessToken(null);
-            localStorage.removeItem('accessToken');
-        } finally {
-            setLoading(false);
         }
     };
 

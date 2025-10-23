@@ -25,13 +25,18 @@ export function useAuth(): UseAuthReturn {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const router = useRouter();
 
-    // Initialize auth state
+    // Clear user data
+    const clearUser = useCallback(() => {
+        setUser(null);
+        setIsAuthenticated(false);
+        ClientCookies.clearUserData();
+    }, []);
+
+    // Initialize auth on mount
     useEffect(() => {
         const initializeAuth = async () => {
             try {
-                // Get user data from client-side cookie
                 const userData = ClientCookies.getUserData();
-
                 if (userData) {
                     setUser(userData);
                     setIsAuthenticated(true);
@@ -45,7 +50,7 @@ export function useAuth(): UseAuthReturn {
         };
 
         initializeAuth();
-    }, []);
+    }, [clearUser]);
 
     // Refresh tokens function
     const refreshTokens = useCallback(async (): Promise<boolean> => {
@@ -97,14 +102,7 @@ export function useAuth(): UseAuthReturn {
             // Redirect to home page
             router.push('/');
         }
-    }, [router]);
-
-    // Clear user data
-    const clearUser = useCallback(() => {
-        setUser(null);
-        setIsAuthenticated(false);
-        ClientCookies.clearUserData();
-    }, []);
+    }, [router, clearUser]);
 
     // Auto-refresh tokens when they're about to expire
     useEffect(() => {

@@ -1,18 +1,17 @@
 'use client';
 
 import { motion, Variants } from 'framer-motion';
-import HeroButtonGroup from './HeroButtonGroup';
 
 const Hero = () => {
     const containerVariants: Variants = {
-        hidden: { opacity: 0, y: 50 }, // Start a bit below the screen for a smooth bounce effect
+        hidden: { opacity: 0, y: 50 },
         visible: {
             opacity: 1,
             y: 0,
             transition: {
                 duration: 0.8,
                 staggerChildren: 0.2,
-                delayChildren: 0.3, // Delay children to appear after the container
+                delayChildren: 0.3,
             },
         },
     };
@@ -34,25 +33,6 @@ const Hero = () => {
         },
     };
 
-    const badgeVariants: Variants = {
-        hidden: {
-            opacity: 0,
-            y: -20,
-            scale: 0.8,
-        },
-        visible: {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            transition: {
-                duration: 0.6,
-                ease: 'easeOut',
-                type: 'spring',
-                stiffness: 100,
-            },
-        },
-    };
-
     const titleVariants: Variants = {
         hidden: {
             opacity: 0,
@@ -68,115 +48,111 @@ const Hero = () => {
         },
     };
 
-    const floatingVariants: Variants = {
-        animate: {
-            y: [-2, 2, -2],
-            transition: {
-                duration: 4,
-                repeat: Infinity,
-                ease: 'easeInOut',
-            },
-        },
-    };
-
     return (
         <div>
             <motion.div
-                className="bg-glow-radial flex flex-col items-center justify-center gap-4 px-6 pt-28 pb-12 md:pt-40 lg:gap-8 lg:pt-40 lg:pb-16"
+                className="relative px-6 pt-10 sm:px-12 sm:pt-14 lg:pt-20"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
             >
-                <motion.a
-                    className="flex cursor-pointer items-center gap-1 rounded-full border px-3 py-1.5 font-medium text-gray-700 transition-colors hover:bg-neutral-100"
-                    href="/blog/two-dot-zero"
-                    variants={badgeVariants}
-                    whileHover="hover"
-                    whileTap={{ scale: 0.95 }}
-                >
-                    <motion.span variants={floatingVariants} animate="animate">
-                        🎉
-                    </motion.span>
-                    {" 1M+ Coders solved today's challenge"}
-                    <motion.svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        aria-hidden="true"
-                        data-slot="icon"
-                        animate={{ x: [0, 3, 0], rotate: [0, 10, -10, 0], scale: [1, 1.2, 1] }}
-                        transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: 'easeInOut',
-                        }}
-                        className="h-6 w-6" // Smaller icon
+                <div className="sm:text-center">
+                    <motion.h2
+                        className="text-center text-3xl font-extrabold tracking-tight text-gray-900 sm:text-5xl"
+                        variants={titleVariants}
                     >
-                        <path
-                            fillRule="evenodd"
-                            d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z"
-                            clipRule="evenodd"
-                        />
-                    </motion.svg>
-                </motion.a>
+                        Find Your Next Job & Master Your Skills.
+                    </motion.h2>
 
-                <motion.h1
-                    className="text-center text-4xl leading-[1.2] font-bold tracking-[-0.020em] text-gray-900 md:text-5xl lg:text-7xl"
-                    variants={titleVariants}
-                >
-                    <motion.span
-                        className="text-[rgba(175,183,180,1)]"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.8, delay: 0.5 }}
+                    <motion.p
+                        className="mx-auto mt-6 max-w-3xl text-center text-lg font-medium text-gray-900"
+                        variants={itemVariants}
                     >
-                        The
-                    </motion.span>
-                    <motion.span
-                        className="text-[rgba(0,55,32,1)]"
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{
-                            duration: 0.8,
-                            delay: 0.7,
-                            type: 'spring',
-                            stiffness: 100,
-                        }}
-                    >
-                        {' perfect '}
-                    </motion.span>
-                    <motion.span
-                        className="text-[rgba(175,183,180,1)]"
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.8, delay: 0.9 }}
-                    >
-                        ultimate platform
-                    </motion.span>
-                    <br className="hidden md:block" />
-                    <motion.span
-                        className="text-[rgba(0,55,32,1)]"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{
-                            duration: 0.8,
-                            delay: 1.1,
-                            type: 'spring',
-                            stiffness: 80,
-                        }}
-                    >
-                        for coders on the go.
-                    </motion.span>
-                </motion.h1>
+                        Discover <strong>remote and onsite</strong> opportunities while{' '}
+                        <strong>solving problems</strong> and advancing your skills.
+                        <br />
+                        Start your journey by{' '}
+                        <a
+                            href="/enter/sign-up/candidate"
+                            className="text-gray-900 underline decoration-[rgba(0,55,32,1)] decoration-1 underline-offset-2 hover:decoration-2"
+                        >
+                            creating&nbsp;your&nbsp;free&nbsp;profile!
+                        </a>
+                    </motion.p>
 
-                <motion.h2
-                    className="w-full max-w-2xl px-14 text-center text-lg leading-tight font-medium text-gray-600 lg:text-2xl"
-                    variants={itemVariants}
-                >
-                    Transform your coding challenges into mastered skills with ease
-                </motion.h2>
+                    {/* Search Input */}
+                    <motion.div
+                        className="mt-6 sm:mx-auto sm:flex sm:max-w-xl"
+                        variants={itemVariants}
+                    >
+                        <div className="min-w-0 flex-1">
+                            <form action="/remote-jobs" method="GET">
+                                <label htmlFor="search" className="sr-only">
+                                    Search Remote Jobs
+                                </label>
+                                <div className="group relative">
+                                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 transition-all group-focus-within:-left-4 group-focus-within:opacity-0 group-focus:-left-4 group-focus:opacity-0 group-active:-left-4 group-active:opacity-0">
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            strokeWidth="1.5"
+                                            stroke="currentColor"
+                                            aria-hidden="true"
+                                            data-slot="icon"
+                                            className="h-6 w-6 text-gray-400"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <input
+                                        autoComplete="off"
+                                        name="text"
+                                        placeholder="Search remote jobs ..."
+                                        type="search"
+                                        className="block w-full rounded-full border-2 border-[rgba(175,183,180,0.3)] py-4 pr-6 pl-14 text-base text-gray-900 placeholder-gray-500 transition-all duration-300 focus:border-[#8BC34A] focus:pl-6 focus:outline-none"
+                                    />
+                                </div>
+                            </form>
+                        </div>
+                    </motion.div>
 
-                <HeroButtonGroup />
+                    {/* Trending Categories */}
+                    <motion.div
+                        className="mt-4 flex flex-row flex-wrap items-center justify-start md:justify-center"
+                        variants={itemVariants}
+                    >
+                        <span className="mr-4 w-full text-base font-medium text-gray-800 md:w-auto">
+                            Trending categories:
+                        </span>
+                        {[
+                            { name: 'Developer / Engineer', href: '/category/development' },
+                            {
+                                name: 'Management / Operations',
+                                href: '/category/management-operations',
+                            },
+                            { name: 'Admin / Virtual Assistant', href: '/category/admin-va' },
+                            { name: 'Marketing', href: '/category/marketing' },
+                            { name: 'Writing', href: '/category/writing-editing' },
+                            { name: 'Sales', href: '/category/business-development' },
+                        ].map((category, index) => (
+                            <motion.a
+                                key={category.name}
+                                href={category.href}
+                                className="my-1 mr-2 rounded-md bg-[rgba(175,183,180,0.2)] px-2.5 py-1 text-xs font-semibold text-[rgba(0,55,32,1)] transition-colors hover:bg-[rgba(0,55,32,1)] hover:text-white"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5, delay: 1.5 + index * 0.1 }}
+                            >
+                                {category.name}
+                            </motion.a>
+                        ))}
+                    </motion.div>
+                </div>
             </motion.div>
         </div>
     );

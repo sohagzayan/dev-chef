@@ -25,7 +25,7 @@ export function useAuthClient() {
     // Check authentication status on mount
     useEffect(() => {
         checkAuth();
-    }, []);
+    }, [checkAuth]);
 
     const checkAuth = useCallback(async () => {
         try {

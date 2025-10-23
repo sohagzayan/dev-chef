@@ -26,6 +26,16 @@ module.exports = {
         'plugin:import/typescript',
         'plugin:prettier/recommended',
     ],
+    ignorePatterns: [
+        'node_modules/',
+        '.next/',
+        'dist/',
+        'coverage/',
+        'public/',
+        'src/generated/**/*',
+        '**/*.generated.*',
+        '**/*.prisma.*',
+    ],
     rules: {
         // Prettier strict
         'prettier/prettier': 'error',
