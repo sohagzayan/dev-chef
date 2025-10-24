@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Bell, Building2, ChevronDown, Search, ShoppingCart, User } from 'lucide-react';
+import { Bell, Building2, ShoppingCart, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,14 +14,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { SessionExpiryModal } from '@/components/ui/session-expiry-modal';
 import { useAuth } from '@/context/AuthContext';
-import { cn } from '@/lib/utils';
 import { getNavItems } from '@/utils/client/common/navbar';
 import Logo from '../Logo';
-import DesktopMenu from './components/DesktopMenu';
 import MobileMenu from './components/MobileMenu';
 import UserMenu from './components/UserMenu';
 import '@/app/globals.css';
-import { MdOutlineSyncLock } from 'react-icons/md';
 
 export default function Navbar() {
     const {
@@ -35,8 +32,6 @@ export default function Navbar() {
 
     const pathname = usePathname();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [hoveredItem, setHoveredItem] = useState<string | null>(null);
-    const [searchFocused, setSearchFocused] = useState(false);
     const [loginDropdownOpen, setLoginDropdownOpen] = useState(false);
     const [isEmployerMode, setIsEmployerMode] = useState(true);
     const router = useRouter();
@@ -67,12 +62,8 @@ export default function Navbar() {
     };
 
     const handleSignUp = () => {
-        // Redirect to appropriate signup page based on current path
-        if (pathname.includes('/companies/') || pathname.includes('/admin/')) {
-            router.push('/companies/trial');
-        } else {
-            router.push('/access-account');
-        }
+        // Redirect to v2 candidate signup flow
+        router.push('/enter/sign-up/candidate');
     };
 
     return (
@@ -97,20 +88,24 @@ export default function Navbar() {
                         <Logo authState={authState} />
                     </motion.div>
 
-                    <MobileMenu
-                        isOpen={isMobileMenuOpen}
-                        setIsOpen={setIsMobileMenuOpen}
-                        navItems={navItems}
-                        authState={authState}
-                        toggleAuth={() => {}} // Remove this as we're using context now
-                        pathname={pathname}
-                    />
+                    {/* Mobile Menu - Visible on lg and below */}
+                    <div className="lg:hidden">
+                        <MobileMenu
+                            isOpen={isMobileMenuOpen}
+                            setIsOpen={setIsMobileMenuOpen}
+                            navItems={navItems}
+                            authState={authState}
+                            toggleAuth={() => {}} // Remove this as we're using context now
+                            pathname={pathname}
+                        />
+                    </div>
 
+                    {/* Desktop Menu - Hidden on mobile */}
                     <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.2 }}
-                        className="ml-8 flex items-center gap-6 text-gray-900"
+                        className="hidden lg:ml-8 lg:flex lg:items-center lg:gap-6 lg:text-gray-900"
                         layout
                     >
                         <AnimatePresence mode="wait">
@@ -178,7 +173,8 @@ export default function Navbar() {
                         </AnimatePresence>
                     </motion.div>
 
-                    <div className="ml-auto flex items-center gap-4">
+                    {/* Right side - Auth buttons and menu */}
+                    <div className="ml-auto flex items-center gap-2 sm:gap-4">
                         <AnimatePresence mode="wait">
                             {isAuthenticated ? (
                                 <motion.div
@@ -323,9 +319,9 @@ export default function Navbar() {
                                     exit={{ opacity: 0, x: 30, scale: 0.8 }}
                                     transition={{ duration: 0.5, ease: 'easeOut' }}
                                 >
-                                    {/* Post a job here! text */}
+                                    {/* Post a job here! text - Hidden on mobile */}
                                     <div
-                                        className="hidden cursor-pointer items-center gap-1 sm:flex"
+                                        className="hidden cursor-pointer items-center gap-1 lg:flex"
                                         onClick={() => {
                                             setIsEmployerMode(true);
                                             router.push('/post-a-remote-job');
@@ -343,7 +339,7 @@ export default function Navbar() {
                                         </motion.div>
                                     </div>
 
-                                    {/* Toggle button */}
+                                    {/* Toggle button - Show text on md+ screens */}
                                     <motion.div
                                         whileHover={{ scale: 1.02, y: -1 }}
                                         whileTap={{ scale: 0.98 }}
@@ -361,16 +357,20 @@ export default function Navbar() {
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, y: -10 }}
                                                 transition={{ duration: 0.2 }}
+                                                className="hidden md:inline"
                                             >
                                                 {isEmployerMode
                                                     ? 'For Employers'
                                                     : 'For Candidates'}
                                             </motion.span>
+                                            <span className="md:hidden">
+                                                {isEmployerMode ? 'Employers' : 'Candidates'}
+                                            </span>
                                         </Button>
                                     </motion.div>
 
-                                    {/* Login dropdown */}
-                                    <div className="hidden sm:block">
+                                    {/* Login dropdown - Hidden on mobile */}
+                                    <div className="hidden lg:block">
                                         <DropdownMenu
                                             open={loginDropdownOpen}
                                             onOpenChange={setLoginDropdownOpen}
@@ -428,11 +428,11 @@ export default function Navbar() {
                                         </DropdownMenu>
                                     </div>
 
-                                    {/* Sign Up */}
+                                    {/* Sign Up - Hidden on mobile */}
                                     <Button
                                         onClick={handleSignUp}
                                         size="sm"
-                                        className="cursor-pointer rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 font-medium text-white shadow-lg transition-all duration-300 hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl"
+                                        className="hidden cursor-pointer rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 font-medium text-white shadow-lg transition-all duration-300 hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl sm:block"
                                     >
                                         Sign up
                                     </Button>

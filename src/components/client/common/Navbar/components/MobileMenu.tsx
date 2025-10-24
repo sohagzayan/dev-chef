@@ -8,7 +8,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { AuthState, NavItem } from '@/types/client/common/navbar-types';
 
@@ -31,7 +31,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
 }) => {
     return (
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild className="md:hidden">
+            <SheetTrigger asChild className="lg:hidden">
                 <Button variant="ghost" size="icon" className="mr-2">
                     <AnimatePresence mode="wait">
                         <motion.div
@@ -56,6 +56,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
                         : 'bg-gray-900/95 text-white backdrop-blur-md',
                 )}
             >
+                <SheetHeader>
+                    <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                </SheetHeader>
                 <nav className="mt-8 flex flex-col gap-4">
                     <AnimatePresence>
                         {navItems.map((item, index) => (
