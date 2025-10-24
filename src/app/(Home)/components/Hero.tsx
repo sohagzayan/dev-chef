@@ -58,7 +58,7 @@ const Hero = () => {
             <div className="absolute bottom-0 left-0 h-96 w-96 -translate-x-1/2 translate-y-1/2 rounded-full bg-gradient-to-tr from-[rgba(139,195,74,0.08)] to-transparent blur-3xl" />
 
             <motion.div
-                className="relative px-6 pt-16 pb-8 sm:px-12 sm:pt-20 sm:pb-12 lg:pt-28 lg:pb-16"
+                className="relative px-6 pt-16 pb-0 sm:px-12 sm:pt-20 sm:pb-4 lg:pt-28 lg:pb-8"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
