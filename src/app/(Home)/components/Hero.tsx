@@ -49,9 +49,16 @@ const Hero = () => {
     };
 
     return (
-        <div>
+        <div className="relative overflow-hidden">
+            {/* Light gradient background */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[rgba(148,242,127,0.05)] via-white to-[rgba(139,195,74,0.03)]" />
+
+            {/* Decorative elements */}
+            <div className="absolute top-0 right-0 h-96 w-96 translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-[rgba(148,242,127,0.1)] to-transparent blur-3xl" />
+            <div className="absolute bottom-0 left-0 h-96 w-96 -translate-x-1/2 translate-y-1/2 rounded-full bg-gradient-to-tr from-[rgba(139,195,74,0.08)] to-transparent blur-3xl" />
+
             <motion.div
-                className="relative px-6 pt-10 sm:px-12 sm:pt-14 lg:pt-20"
+                className="relative px-6 pt-16 pb-8 sm:px-12 sm:pt-20 sm:pb-12 lg:pt-28 lg:pb-16"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"

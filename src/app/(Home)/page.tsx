@@ -6,7 +6,6 @@ import { HeroSection } from './components/HeroSection';
 import JobListings from './components/JobListings';
 import { LearningPathsSection } from './components/LearningPathsSection';
 import { MentorsSection } from './components/MentorsSection';
-import { ProjectsSection } from './components/ProjectsSection';
 
 export default function Home() {
     return (
@@ -16,7 +15,6 @@ export default function Home() {
             <HeroSection />
             <AchievementsSection />
             <MentorsSection />
-            <ProjectsSection />
             <LearningPathsSection />
             <CommunityStatsSection />
             <CareerCTA />
