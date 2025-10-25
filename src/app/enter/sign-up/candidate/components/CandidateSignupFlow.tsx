@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { AlertCircle, Eye, EyeOff, Tag, X } from 'lucide-react';
+import { AlertCircle, ChevronDown, Eye, EyeOff, Tag, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,7 +29,7 @@ export default function CandidateSignupFlow({
     const [formData, setFormData] = useState({
         fullName: '',
         password: '',
-        categories: [] as string[],
+        selectedCategory: '',
         alertFrequency: 'weekly' as 'daily' | 'weekly',
         jobAlertsSubscribed: true,
         instantAlertsSubscribed: true,
@@ -45,13 +45,203 @@ export default function CandidateSignupFlow({
     const [skillInput, setSkillInput] = useState('');
     const [categoryInput, setCategoryInput] = useState('');
     const [errors, setErrors] = useState<string[]>([]);
+    const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+    const [filteredCategories, setFilteredCategories] = useState<string[]>([]);
     const router = useRouter();
+
+    // Comprehensive list of job categories based on the provided images
+    const jobCategories = useMemo(
+        () => [
+            // Admin/Virtual Assistant Group
+            'Admin and Virtual Assistant',
+            'Admin, Virtual Assistant and Executive Assistant',
+            'Admin, Virtual Assistant and General Administration',
+            'Virtual Assistant',
+
+            // Business Development/Sales Group
+            'Business Development and Sales',
+            'Business Development, Sales and Account Management',
+            'Sales',
+
+            // Community Manager Group
+            'Community Manager',
+
+            // Crypto Group
+            'Crypto, Web3 and Blockchain',
+            'Crypto Data and Analysis',
+            'Crypto Development',
+            'Crypto Finance',
+            'Crypto Marketing',
+            'Crypto Ops and Management',
+            'Crypto Product',
+            'Crypto Sales and Support',
+
+            // Customer Support Group
+            'Customer Support',
+
+            // Data Analysis Group
+            'Data Analyst',
+            'Data Analyst and Business Analysis',
+            'Data Analyst and Data Analysis',
+
+            // Design Group
+            'Design',
+            'Design and Graphic Design',
+            'Design, UI/UX Design and Web Design',
+
+            // Developer/Engineer Group
+            'Developer and Engineer',
+            'Developer, Engineer and Back-end',
+            'Developer, Engineer and Dev-Ops',
+            'Developer, Engineer and Front-end',
+            'Developer, Engineer and Full-Stack',
+            'Developer, Engineer and System Admin',
+
+            // E-Commerce Group
+            'E-Commerce',
+
+            // Finance/Accounting Group
+            'Finance and Accounting',
+            'Accounting',
+            'Finance, Accounting and Bookkeeper',
+
+            // HR/Recruiter Group
+            'HR and Recruiter',
+            'HR, Recruiter and Human Resources',
+            'HR, Recruiter, Recruiter and Talent Sourcing',
+
+            // Management/Operations Group
+            'Management and Operations',
+            'Management, Operations and Business Manager',
+            'Management, Operations and Operations Manager',
+            'Management, Operations and Project Manager',
+            'Management, Operations, Supply Chain and Logistics',
+
+            // Marketing Group
+            'Marketing',
+            'Marketing and Email Marketing',
+            'Marketing and General Digital Marketing',
+            'Marketing and Social Media',
+
+            // Multimedia Production Group
+            'Multimedia Production',
+            'Multimedia Production and Audio',
+            'Multimedia Production and Motion Design',
+            'Multimedia Production and Multimedia Content Creator',
+            'Multimedia Production and Producer',
+            'Multimedia Production and Video',
+
+            // Paid Ads/PPC Group
+            'Paid Ads and PPC',
+            'Paid Ads, PPC and Amazon PPC',
+            'Paid Ads, PPC and Facebook Ads',
+            'Paid Ads, PPC and Google Ads',
+            'Paid Ads, PPC and Instagram Ads',
+            'Paid Ads, PPC and YouTube Ads',
+
+            // Product Group
+            'Product',
+            'Product Design',
+            'Product Engineer',
+            'Product Management',
+
+            // SEO/Content Marketing Group
+            'SEO and Content Marketing',
+            'SEO, Content Marketing and Content Management',
+            'SEO, Content Marketing and Link Building',
+            'SEO, Content Marketing, On Page and Off Page',
+            'SEO, Content Marketing and Technical SEO',
+
+            // Teaching/Coaching Group
+            'Teacher and Coach',
+
+            // Technical Support Group
+            'Technical Support',
+
+            // Writing/Editing Group
+            'Writing and Editing',
+            'Writing, Editing and Copywriting',
+            'Editing',
+            'Writing, Editing and Journalism',
+            'Writing, Editing and SEO Writing',
+        ],
+        [],
+    );
 
     useEffect(() => {
         if (onStepChange) {
             onStepChange(step);
         }
     }, [step, onStepChange]);
+
+    // Filter categories based on input
+    useEffect(() => {
+        if (categoryInput.trim() === '') {
+            setFilteredCategories(jobCategories);
+        } else {
+            const filtered = jobCategories.filter((category) =>
+                category.toLowerCase().includes(categoryInput.toLowerCase()),
+            );
+            setFilteredCategories(filtered);
+        }
+    }, [categoryInput, jobCategories]);
+
+    // Handle category input focus
+    const handleCategoryFocus = () => {
+        setShowCategoryDropdown(true);
+        setFilteredCategories(jobCategories);
+    };
+
+    // Handle category input blur
+    const handleCategoryBlur = () => {
+        // Delay hiding dropdown to allow for clicks
+        setTimeout(() => {
+            setShowCategoryDropdown(false);
+
+            // If user has manually typed extra text after a selection, clear it
+            if (formData.selectedCategory && categoryInput !== formData.selectedCategory) {
+                // Check if the input contains the selected category plus extra text
+                if (
+                    categoryInput.startsWith(formData.selectedCategory) &&
+                    categoryInput.length > formData.selectedCategory.length
+                ) {
+                    setCategoryInput(formData.selectedCategory);
+                } else if (!categoryInput.startsWith(formData.selectedCategory)) {
+                    // If user typed something completely different, clear the selection
+                    setFormData((prev) => ({
+                        ...prev,
+                        selectedCategory: '',
+                    }));
+                }
+            }
+        }, 200);
+    };
+
+    // Handle category selection
+    const handleCategorySelect = (category: string) => {
+        setFormData((prev) => ({
+            ...prev,
+            selectedCategory: category,
+        }));
+        setCategoryInput(category);
+        setShowCategoryDropdown(false);
+    };
+
+    // Handle category input change
+    const handleCategoryInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setCategoryInput(value);
+        setShowCategoryDropdown(true);
+
+        // Don't clear selected category when user is typing extra text after selection
+        // Only clear if user types something completely different from the start
+        if (value !== formData.selectedCategory && !value.startsWith(formData.selectedCategory)) {
+            setFormData((prev) => ({
+                ...prev,
+                selectedCategory: '',
+            }));
+        }
+    };
 
     const handleInfoSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -102,27 +292,6 @@ export default function CandidateSignupFlow({
         setFormData({
             ...formData,
             skills: formData.skills.filter((s) => s !== skill),
-        });
-    };
-
-    const handleAddCategory = () => {
-        if (
-            categoryInput.trim() &&
-            !formData.categories.includes(categoryInput.trim()) &&
-            formData.categories.length < 5
-        ) {
-            setFormData({
-                ...formData,
-                categories: [...formData.categories, categoryInput.trim()],
-            });
-            setCategoryInput('');
-        }
-    };
-
-    const handleRemoveCategory = (category: string) => {
-        setFormData({
-            ...formData,
-            categories: formData.categories.filter((c) => c !== category),
         });
     };
 
@@ -342,8 +511,8 @@ export default function CandidateSignupFlow({
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: 20 }}
                             >
-                                <CardHeader className="pb-6">
-                                    <CardTitle className="text-2xl font-bold">
+                                <CardHeader className="pb-2 pl-0">
+                                    <CardTitle className="text-base font-bold">
                                         Choose your job preferences
                                     </CardTitle>
                                     <CardDescription>
@@ -354,61 +523,80 @@ export default function CandidateSignupFlow({
 
                                 <form onSubmit={handlePreferencesSubmit} className="space-y-6">
                                     <div className="space-y-4">
-                                        {/* Category Input */}
-                                        <div className="space-y-2">
-                                            <Input
-                                                type="text"
-                                                placeholder="Type to search for category..."
-                                                value={categoryInput}
-                                                onChange={(e) => setCategoryInput(e.target.value)}
-                                                onKeyDown={(e) => {
-                                                    if (e.key === 'Enter') {
-                                                        e.preventDefault();
-                                                        handleAddCategory();
+                                        {/* Category Input with Dropdown */}
+                                        <div className="relative space-y-2">
+                                            <div className="relative">
+                                                <Input
+                                                    type="text"
+                                                    placeholder="Type to search for category..."
+                                                    value={
+                                                        formData.selectedCategory || categoryInput
                                                     }
-                                                }}
-                                            />
+                                                    onChange={handleCategoryInputChange}
+                                                    onFocus={handleCategoryFocus}
+                                                    onBlur={handleCategoryBlur}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') {
+                                                            e.preventDefault();
+                                                            if (filteredCategories.length > 0) {
+                                                                handleCategorySelect(
+                                                                    filteredCategories[0],
+                                                                );
+                                                            }
+                                                        }
+                                                    }}
+                                                    className="rounded-lg border-gray-200 bg-white pr-10 shadow-sm focus:border-green-400 focus:ring-green-400"
+                                                />
+                                                <ChevronDown className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                            </div>
+
+                                            {/* Dropdown */}
+                                            {showCategoryDropdown && (
+                                                <div
+                                                    className="absolute z-50 w-full rounded-lg border border-gray-200 bg-white shadow-lg"
+                                                    onMouseDown={(e) => e.preventDefault()} // Prevent input blur when clicking dropdown
+                                                >
+                                                    <div className="max-h-60 overflow-y-auto">
+                                                        {filteredCategories.length > 0 ? (
+                                                            filteredCategories.map((category) => (
+                                                                <div
+                                                                    key={category}
+                                                                    className="cursor-pointer border-b border-gray-100 px-4 py-3 text-sm text-gray-700 last:border-b-0 hover:bg-gray-50"
+                                                                    onClick={() =>
+                                                                        handleCategorySelect(
+                                                                            category,
+                                                                        )
+                                                                    }
+                                                                    onMouseDown={(e) =>
+                                                                        e.preventDefault()
+                                                                    } // Prevent input blur
+                                                                >
+                                                                    {category}
+                                                                </div>
+                                                            ))
+                                                        ) : (
+                                                            <div className="px-4 py-3 text-sm text-gray-500">
+                                                                Nothing found.
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
 
-                                        {/* Selected Categories */}
-                                        {formData.categories.length > 0 && (
-                                            <div className="flex flex-wrap gap-2">
-                                                {formData.categories.map((category) => (
-                                                    <Badge
-                                                        key={category}
-                                                        variant="secondary"
-                                                        className="flex items-center gap-2 px-3 py-1"
-                                                    >
-                                                        {category}
-                                                        <button
-                                                            type="button"
-                                                            onClick={() =>
-                                                                handleRemoveCategory(category)
-                                                            }
-                                                            className="ml-1 hover:text-red-600"
-                                                        >
-                                                            <X className="h-3 w-3" />
-                                                        </button>
-                                                    </Badge>
-                                                ))}
-                                            </div>
-                                        )}
-
-                                        {/* Add Category Info */}
+                                        {/* Category Info */}
                                         <div className="space-y-2">
                                             <p className="text-sm text-gray-600">
-                                                Want to receive alerts from multiple categories?
-                                                Select up to 4 other areas of interest:
+                                                Select your primary job category to receive relevant
+                                                alerts:
                                             </p>
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                onClick={handleAddCategory}
-                                                disabled={formData.categories.length >= 5}
-                                                className="text-sm"
-                                            >
-                                                + add category
-                                            </Button>
+                                            {formData.selectedCategory && (
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-sm font-medium text-green-600">
+                                                        ✓ {formData.selectedCategory}
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* Job Alerts Settings */}
