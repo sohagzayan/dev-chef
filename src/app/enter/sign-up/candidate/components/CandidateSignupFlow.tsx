@@ -46,6 +46,8 @@ export default function CandidateSignupFlow({
     const [skillInput, setSkillInput] = useState('');
     const [categoryInput, setCategoryInput] = useState('');
     const [errors, setErrors] = useState<string[]>([]);
+    const [showSkillDropdown, setShowSkillDropdown] = useState(false);
+    const [filteredSkills, setFilteredSkills] = useState<string[]>([]);
     const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
     const [filteredCategories, setFilteredCategories] = useState<string[]>([]);
     const [additionalCategoryInputs, setAdditionalCategoryInputs] = useState<string[]>(['']);
@@ -56,6 +58,59 @@ export default function CandidateSignupFlow({
         [],
     );
     const router = useRouter();
+
+    // Comprehensive list of skills
+    const skillsList = useMemo(
+        () => [
+            'Java',
+            'Basic java',
+            'Basic Java Programming',
+            'Basic Java Script',
+            'Core Java',
+            'Java developer',
+            'Python',
+            'JavaScript',
+            'TypeScript',
+            'React',
+            'Node.js',
+            'Express',
+            'MongoDB',
+            'PostgreSQL',
+            'Git',
+            'Docker',
+            'AWS',
+            'HTML',
+            'CSS',
+            'Vue.js',
+            'Angular',
+            'Redux',
+            'GraphQL',
+            'REST API',
+            'CI/CD',
+            'Linux',
+            'Agile',
+            'Scrum',
+            'Jira',
+            'Figma',
+            'Photoshop',
+            'Illustrator',
+            'Content Writing',
+            'SEO',
+            'Digital Marketing',
+            'Google Ads',
+            'Social Media Management',
+            'Data Analysis',
+            'Excel',
+            'PowerBI',
+            'Salesforce',
+            'Customer Service',
+            'Project Management',
+            'Business Development',
+            'Account Management',
+            'UI/UX Design',
+        ],
+        [],
+    );
 
     // Comprehensive list of job categories based on the provided images
     const jobCategories = useMemo(
@@ -193,6 +248,18 @@ export default function CandidateSignupFlow({
             setFilteredCategories(filtered);
         }
     }, [categoryInput, jobCategories]);
+
+    // Filter skills based on input
+    useEffect(() => {
+        if (skillInput.trim() === '') {
+            setFilteredSkills(skillsList);
+        } else {
+            const filtered = skillsList.filter((skill) =>
+                skill.toLowerCase().includes(skillInput.toLowerCase()),
+            );
+            setFilteredSkills(filtered);
+        }
+    }, [skillInput, skillsList]);
 
     // Initialize dropdown arrays when inputs change
     useEffect(() => {
@@ -387,14 +454,35 @@ export default function CandidateSignupFlow({
         }
     };
 
-    const handleAddSkill = () => {
-        if (skillInput.trim() && !formData.skills.includes(skillInput.trim())) {
+    // Handle skills input focus
+    const handleSkillFocus = () => {
+        setShowSkillDropdown(true);
+        setFilteredSkills(skillsList);
+    };
+
+    // Handle skills input blur
+    const handleSkillBlur = () => {
+        setTimeout(() => {
+            setShowSkillDropdown(false);
+        }, 200);
+    };
+
+    // Handle skill selection
+    const handleSkillSelect = (skill: string) => {
+        if (!formData.skills.includes(skill)) {
             setFormData({
                 ...formData,
-                skills: [...formData.skills, skillInput.trim()],
+                skills: [...formData.skills, skill],
             });
-            setSkillInput('');
         }
+        setSkillInput('');
+        setShowSkillDropdown(false);
+    };
+
+    // Handle skills input change
+    const handleSkillInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSkillInput(e.target.value);
+        setShowSkillDropdown(true);
     };
 
     const handleRemoveSkill = (skill: string) => {
@@ -408,15 +496,56 @@ export default function CandidateSignupFlow({
         e.preventDefault();
         setIsSubmitting(true);
 
-        // TODO: Implement API call to register candidate
-        console.log('Candidate signup:', { email, ...formData });
+        try {
+            // Call API to register candidate (using developer register endpoint)
+            const response = await fetch('/api/v1/auth/developer/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    fullName: formData.fullName,
+                    email,
+                    password: formData.password,
+                    agreeToTerms: agreeToTerms,
+                    subscribeNewsletter: false,
+                }),
+            });
 
-        // Simulate API call
-        setTimeout(() => {
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Registration error details:', errorData);
+
+                // Show detailed validation errors if available
+                if (errorData.errors) {
+                    const errorMessages = Object.entries(errorData.errors)
+                        .map(
+                            ([field, errors]: [string, any]) =>
+                                `${field}: ${Array.isArray(errors) ? errors.join(', ') : errors}`,
+                        )
+                        .join('\n');
+                    alert(`Registration failed:\n${errorMessages}`);
+                } else if (errorData.message) {
+                    alert(`Registration failed: ${errorData.message}`);
+                } else {
+                    alert(errorData.error || 'Registration failed. Please try again.');
+                }
+
+                setIsSubmitting(false);
+                return;
+            }
+
+            const data = await response.json();
+            console.log('Registration response:', data);
+
+            // Navigate to candidate dashboard
+            console.log('Navigating to candidate dashboard');
+            router.push('/candidate/dashboard');
+        } catch (error) {
+            console.error('Error registering candidate:', error);
+            alert('Registration failed. Please try again.');
             setIsSubmitting(false);
-            onClose();
-            router.push('/profile/complete');
-        }, 1000);
+        }
     };
 
     const handleSalaryPeriodChange = (period: 'year' | 'month' | 'hour') => {
@@ -436,7 +565,13 @@ export default function CandidateSignupFlow({
                 </div>
             )}
             <Card className="mx-auto w-full max-w-xl border-0 bg-white/80 shadow-xl backdrop-blur-sm">
-                <div className={step === 'preferences' ? '' : 'max-h-[90vh] overflow-y-auto'}>
+                <div
+                    className={
+                        step === 'preferences' || step === 'skills'
+                            ? ''
+                            : 'max-h-[90vh] overflow-y-auto'
+                    }
+                >
                     <div className="px-6 py-0">
                         {/* Step 1: Profile Information */}
                         {step === 'info' && (
@@ -1004,7 +1139,7 @@ export default function CandidateSignupFlow({
                                 </CardHeader>
 
                                 <form onSubmit={handleSkillsSubmit} className="space-y-6">
-                                    <div className="space-y-4">
+                                    <div className="relative space-y-4">
                                         {formData.skills.length > 0 && (
                                             <div className="flex flex-wrap gap-2">
                                                 {formData.skills.map((skill) => (
@@ -1026,34 +1161,58 @@ export default function CandidateSignupFlow({
                                             </div>
                                         )}
 
-                                        <div className="flex gap-2">
-                                            <div className="relative flex-1">
-                                                <Tag className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                                                <Input
-                                                    type="text"
-                                                    placeholder="Type to search for a skill"
-                                                    value={skillInput}
-                                                    onChange={(e) => setSkillInput(e.target.value)}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter') {
-                                                            e.preventDefault();
-                                                            handleAddSkill();
+                                        <div className="relative">
+                                            <Tag className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                            <Input
+                                                type="text"
+                                                placeholder="Type to search for a skill"
+                                                value={skillInput}
+                                                onChange={handleSkillInputChange}
+                                                onFocus={handleSkillFocus}
+                                                onBlur={handleSkillBlur}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                        if (filteredSkills.length > 0) {
+                                                            handleSkillSelect(filteredSkills[0]);
                                                         }
-                                                    }}
-                                                    className="pl-10"
-                                                />
-                                            </div>
-                                            <Button
-                                                type="button"
-                                                onClick={handleAddSkill}
-                                                variant="outline"
-                                            >
-                                                Add
-                                            </Button>
+                                                    }
+                                                }}
+                                                className="border-green-400 pl-10 focus:border-green-400 focus:ring-green-400"
+                                            />
+
+                                            {/* Skills Dropdown */}
+                                            {showSkillDropdown && filteredSkills.length > 0 && (
+                                                <div className="absolute z-50 mt-1 w-full rounded-lg border border-gray-200 bg-white shadow-lg">
+                                                    <div className="max-h-60 overflow-y-auto">
+                                                        {filteredSkills
+                                                            .filter(
+                                                                (skill) =>
+                                                                    !formData.skills.includes(
+                                                                        skill,
+                                                                    ),
+                                                            )
+                                                            .map((skill) => (
+                                                                <div
+                                                                    key={skill}
+                                                                    className="cursor-pointer border-b border-gray-100 px-4 py-3 text-sm text-gray-700 last:border-b-0 hover:bg-gray-50"
+                                                                    onClick={() =>
+                                                                        handleSkillSelect(skill)
+                                                                    }
+                                                                    onMouseDown={(e) =>
+                                                                        e.preventDefault()
+                                                                    }
+                                                                >
+                                                                    {skill}
+                                                                </div>
+                                                            ))}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
 
                                         {formData.skills.length < 3 && (
-                                            <p className="text-sm text-gray-500">
+                                            <p className="pb-4 text-base text-gray-900">
                                                 Add at least {3 - formData.skills.length} more skill
                                                 {3 - formData.skills.length !== 1 ? 's' : ''} to
                                                 continue.
@@ -1118,7 +1277,7 @@ export default function CandidateSignupFlow({
 
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
-                                                <Label>Yearly From</Label>
+                                                <Label className="text-gray-700">Yearly From</Label>
                                                 <div className="relative">
                                                     <span className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-500">
                                                         $
@@ -1133,7 +1292,7 @@ export default function CandidateSignupFlow({
                                                                 salaryFrom: e.target.value,
                                                             })
                                                         }
-                                                        className="pr-12 pl-8"
+                                                        className="rounded-lg border-gray-300 bg-gray-50 pr-12 pl-8"
                                                     />
                                                     <span className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500">
                                                         USD
@@ -1141,7 +1300,9 @@ export default function CandidateSignupFlow({
                                                 </div>
                                             </div>
                                             <div className="space-y-2">
-                                                <Label>To (optional)</Label>
+                                                <Label className="text-gray-700">
+                                                    To (optional)
+                                                </Label>
                                                 <div className="relative">
                                                     <span className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-500">
                                                         $
@@ -1156,7 +1317,7 @@ export default function CandidateSignupFlow({
                                                                 salaryTo: e.target.value,
                                                             })
                                                         }
-                                                        className="pr-12 pl-8"
+                                                        className="rounded-lg border-gray-300 bg-gray-50 pr-12 pl-8"
                                                     />
                                                     <span className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500">
                                                         USD

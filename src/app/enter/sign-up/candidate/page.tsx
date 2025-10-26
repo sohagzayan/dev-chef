@@ -39,9 +39,12 @@ export default function CandidateSignUpPage() {
         <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-green-50 p-4">
             <div
                 className={`grid w-full gap-8 ${
-                    showCandidateFlow && currentStep === 'preferences'
+                    showCandidateFlow && currentStep === 'skills'
                         ? 'max-w-4xl grid-cols-1'
-                        : 'max-w-6xl grid-cols-1 lg:grid-cols-2'
+                        : showCandidateFlow &&
+                            (currentStep === 'preferences' || currentStep === 'salary')
+                          ? 'max-w-4xl grid-cols-1'
+                          : 'max-w-6xl grid-cols-1 lg:grid-cols-2'
                 }`}
             >
                 {/* Left Side - Sign Up Form */}
@@ -158,8 +161,13 @@ export default function CandidateSignUpPage() {
                     )}
                 </AnimatePresence>
 
-                {/* Right Side - Testimonials (Hide on preferences step) */}
-                {!(showCandidateFlow && currentStep === 'preferences') && (
+                {/* Right Side - Testimonials (Hide on preferences, skills, and salary steps) */}
+                {!(
+                    showCandidateFlow &&
+                    (currentStep === 'preferences' ||
+                        currentStep === 'skills' ||
+                        currentStep === 'salary')
+                ) && (
                     <motion.div
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
