@@ -30,6 +30,7 @@ export default function CandidateSignupFlow({
         fullName: '',
         password: '',
         selectedCategory: '',
+        additionalCategories: [] as string[],
         alertFrequency: 'weekly' as 'daily' | 'weekly',
         jobAlertsSubscribed: true,
         instantAlertsSubscribed: true,
@@ -47,6 +48,13 @@ export default function CandidateSignupFlow({
     const [errors, setErrors] = useState<string[]>([]);
     const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
     const [filteredCategories, setFilteredCategories] = useState<string[]>([]);
+    const [additionalCategoryInputs, setAdditionalCategoryInputs] = useState<string[]>(['']);
+    const [showAdditionalCategoryDropdowns, setShowAdditionalCategoryDropdowns] = useState<
+        boolean[]
+    >([]);
+    const [filteredAdditionalCategories, setFilteredAdditionalCategories] = useState<string[][]>(
+        [],
+    );
     const router = useRouter();
 
     // Comprehensive list of job categories based on the provided images
@@ -186,6 +194,12 @@ export default function CandidateSignupFlow({
         }
     }, [categoryInput, jobCategories]);
 
+    // Initialize dropdown arrays when inputs change
+    useEffect(() => {
+        setShowAdditionalCategoryDropdowns(new Array(additionalCategoryInputs.length).fill(false));
+        setFilteredAdditionalCategories(additionalCategoryInputs.map(() => jobCategories));
+    }, [additionalCategoryInputs, jobCategories]);
+
     // Handle category input focus
     const handleCategoryFocus = () => {
         setShowCategoryDropdown(true);
@@ -225,6 +239,101 @@ export default function CandidateSignupFlow({
         }));
         setCategoryInput(category);
         setShowCategoryDropdown(false);
+    };
+
+    // Handle additional categories input change
+    const handleAdditionalCategoryInputChange = (index: number, value: string) => {
+        const newInputs = [...additionalCategoryInputs];
+        newInputs[index] = value;
+        setAdditionalCategoryInputs(newInputs);
+
+        // Update filtered categories for this specific input
+        const newFiltered = [...filteredAdditionalCategories];
+        if (value.trim() === '') {
+            newFiltered[index] = jobCategories;
+        } else {
+            newFiltered[index] = jobCategories.filter((category) =>
+                category.toLowerCase().includes(value.toLowerCase()),
+            );
+        }
+        setFilteredAdditionalCategories(newFiltered);
+
+        // Show dropdown for this input
+        const newDropdowns = [...showAdditionalCategoryDropdowns];
+        newDropdowns[index] = true;
+        setShowAdditionalCategoryDropdowns(newDropdowns);
+    };
+
+    // Handle additional category input focus
+    const handleAdditionalCategoryFocus = (index: number) => {
+        const newDropdowns = [...showAdditionalCategoryDropdowns];
+        newDropdowns[index] = true;
+        setShowAdditionalCategoryDropdowns(newDropdowns);
+
+        // Ensure filtered categories are set for this input
+        const newFiltered = [...filteredAdditionalCategories];
+        if (!newFiltered[index] || newFiltered[index].length === 0) {
+            newFiltered[index] = jobCategories;
+            setFilteredAdditionalCategories(newFiltered);
+        }
+    };
+
+    // Handle additional category input blur
+    const handleAdditionalCategoryBlur = (index: number) => {
+        setTimeout(() => {
+            const newDropdowns = [...showAdditionalCategoryDropdowns];
+            newDropdowns[index] = false;
+            setShowAdditionalCategoryDropdowns(newDropdowns);
+        }, 200);
+    };
+
+    // Handle additional category selection
+    const handleAdditionalCategorySelect = (index: number, category: string) => {
+        // Add to selected categories if not already selected
+        if (!formData.additionalCategories.includes(category)) {
+            setFormData((prev) => ({
+                ...prev,
+                additionalCategories: [...prev.additionalCategories, category],
+            }));
+
+            // Clear this input field
+            const newInputs = [...additionalCategoryInputs];
+            newInputs[index] = '';
+            setAdditionalCategoryInputs(newInputs);
+        }
+
+        // Hide dropdown for this input
+        const newDropdowns = [...showAdditionalCategoryDropdowns];
+        newDropdowns[index] = false;
+        setShowAdditionalCategoryDropdowns(newDropdowns);
+    };
+
+    // Handle adding a new input field
+    const handleAddCategoryInput = () => {
+        if (additionalCategoryInputs.length < 4) {
+            setAdditionalCategoryInputs([...additionalCategoryInputs, '']);
+        }
+    };
+
+    // Handle remove additional category
+    const handleRemoveAdditionalCategory = (category: string, index: number) => {
+        // Remove from selected categories
+        setFormData((prev) => ({
+            ...prev,
+            additionalCategories: prev.additionalCategories.filter((c) => c !== category),
+        }));
+
+        // Remove this input field
+        const newInputs = additionalCategoryInputs.filter((_, i) => i !== index);
+        setAdditionalCategoryInputs(newInputs);
+
+        // Clean up dropdown states
+        const newDropdowns = showAdditionalCategoryDropdowns.filter((_, i) => i !== index);
+        setShowAdditionalCategoryDropdowns(newDropdowns);
+
+        // Clean up filtered categories
+        const newFiltered = filteredAdditionalCategories.filter((_, i) => i !== index);
+        setFilteredAdditionalCategories(newFiltered);
     };
 
     // Handle category input change
@@ -289,10 +398,10 @@ export default function CandidateSignupFlow({
     };
 
     const handleRemoveSkill = (skill: string) => {
-        setFormData({
-            ...formData,
-            skills: formData.skills.filter((s) => s !== skill),
-        });
+        setFormData((prev) => ({
+            ...prev,
+            skills: prev.skills.filter((s) => s !== skill),
+        }));
     };
 
     const handleFinalSubmit = async (e: React.FormEvent) => {
@@ -599,6 +708,157 @@ export default function CandidateSignupFlow({
                                             )}
                                         </div>
 
+                                        {/* Additional Categories Section */}
+                                        <div className="space-y-4">
+                                            <p className="text-sm text-gray-600">
+                                                Want to receive alerts from multiple categories?
+                                                Select up to 4 other areas of interest:
+                                            </p>
+
+                                            {/* Individual Category Input Fields */}
+                                            <div className="space-y-2">
+                                                {additionalCategoryInputs.map(
+                                                    (inputValue, index) => {
+                                                        const category =
+                                                            formData.additionalCategories[index];
+                                                        const isSelected = !!category;
+
+                                                        return (
+                                                            <div key={index} className="relative">
+                                                                <div className="relative flex items-center gap-2">
+                                                                    <Input
+                                                                        type="text"
+                                                                        placeholder="Type to search for category..."
+                                                                        value={
+                                                                            category || inputValue
+                                                                        }
+                                                                        onChange={(e) =>
+                                                                            handleAdditionalCategoryInputChange(
+                                                                                index,
+                                                                                e.target.value,
+                                                                            )
+                                                                        }
+                                                                        onFocus={() =>
+                                                                            handleAdditionalCategoryFocus(
+                                                                                index,
+                                                                            )
+                                                                        }
+                                                                        onBlur={() =>
+                                                                            handleAdditionalCategoryBlur(
+                                                                                index,
+                                                                            )
+                                                                        }
+                                                                        onKeyDown={(e) => {
+                                                                            if (e.key === 'Enter') {
+                                                                                e.preventDefault();
+                                                                                if (
+                                                                                    filteredAdditionalCategories[
+                                                                                        index
+                                                                                    ]?.length > 0
+                                                                                ) {
+                                                                                    handleAdditionalCategorySelect(
+                                                                                        index,
+                                                                                        filteredAdditionalCategories[
+                                                                                            index
+                                                                                        ][0],
+                                                                                    );
+                                                                                }
+                                                                            }
+                                                                        }}
+                                                                        className="flex-1 rounded-lg border-gray-200 bg-white pr-10 shadow-sm focus:border-green-400 focus:ring-green-400"
+                                                                        readOnly={isSelected}
+                                                                    />
+                                                                    {category && (
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() =>
+                                                                                handleRemoveAdditionalCategory(
+                                                                                    category,
+                                                                                    index,
+                                                                                )
+                                                                            }
+                                                                            className="rounded p-1 hover:bg-red-50"
+                                                                        >
+                                                                            <X className="h-4 w-4 text-gray-400 hover:text-red-600" />
+                                                                        </button>
+                                                                    )}
+                                                                </div>
+
+                                                                {/* Dropdown for this input */}
+                                                                {showAdditionalCategoryDropdowns[
+                                                                    index
+                                                                ] &&
+                                                                    filteredAdditionalCategories[
+                                                                        index
+                                                                    ]?.length > 0 && (
+                                                                        <div
+                                                                            className="absolute z-50 w-full rounded-lg border border-gray-200 bg-white shadow-lg"
+                                                                            onMouseDown={(e) =>
+                                                                                e.preventDefault()
+                                                                            }
+                                                                        >
+                                                                            <div className="max-h-60 overflow-y-auto">
+                                                                                {filteredAdditionalCategories[
+                                                                                    index
+                                                                                ]
+                                                                                    ?.filter(
+                                                                                        (cat) =>
+                                                                                            !formData.additionalCategories.includes(
+                                                                                                cat,
+                                                                                            ),
+                                                                                    )
+                                                                                    .map((cat) => (
+                                                                                        <div
+                                                                                            key={
+                                                                                                cat
+                                                                                            }
+                                                                                            className="cursor-pointer border-b border-gray-100 px-4 py-3 text-sm text-gray-700 last:border-b-0 hover:bg-gray-50"
+                                                                                            onClick={() =>
+                                                                                                handleAdditionalCategorySelect(
+                                                                                                    index,
+                                                                                                    cat,
+                                                                                                )
+                                                                                            }
+                                                                                            onMouseDown={(
+                                                                                                e,
+                                                                                            ) =>
+                                                                                                e.preventDefault()
+                                                                                            }
+                                                                                        >
+                                                                                            {cat}
+                                                                                        </div>
+                                                                                    ))}
+
+                                                                                {filteredAdditionalCategories[
+                                                                                    index
+                                                                                ]?.length === 0 && (
+                                                                                    <div className="px-4 py-3 text-sm text-gray-500">
+                                                                                        Nothing
+                                                                                        found.
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                            </div>
+                                                        );
+                                                    },
+                                                )}
+                                            </div>
+
+                                            {/* Add Category Button (Full Width) */}
+                                            {additionalCategoryInputs.length < 4 && (
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    onClick={handleAddCategoryInput}
+                                                    className="w-full text-sm"
+                                                >
+                                                    + add category
+                                                </Button>
+                                            )}
+                                        </div>
+
                                         {/* Job Alerts Settings */}
                                         <div className="space-y-4 pt-4">
                                             <h3 className="text-lg font-semibold">
@@ -609,8 +869,9 @@ export default function CandidateSignupFlow({
                                                 these alerts if you found your dream job.
                                             </p>
 
-                                            <div className="flex items-center gap-4">
-                                                <div className="flex rounded-lg border border-gray-200 bg-gray-50 p-1">
+                                            <div className="flex w-full items-center justify-between">
+                                                {/* Frequency Selector - Green Design */}
+                                                <div className="flex flex-1 rounded-lg border border-gray-200 bg-gray-50 p-1">
                                                     <button
                                                         type="button"
                                                         onClick={() =>
@@ -619,10 +880,10 @@ export default function CandidateSignupFlow({
                                                                 alertFrequency: 'daily',
                                                             })
                                                         }
-                                                        className={`rounded-md px-4 py-2 text-sm font-medium transition-all ${
+                                                        className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${
                                                             formData.alertFrequency === 'daily'
-                                                                ? 'bg-green-100 text-green-800'
-                                                                : 'text-gray-600 hover:text-gray-900'
+                                                                ? 'bg-green-500 text-white'
+                                                                : 'bg-transparent text-gray-600 hover:text-gray-900'
                                                         }`}
                                                     >
                                                         Daily
@@ -635,18 +896,21 @@ export default function CandidateSignupFlow({
                                                                 alertFrequency: 'weekly',
                                                             })
                                                         }
-                                                        className={`rounded-md px-4 py-2 text-sm font-medium transition-all ${
+                                                        className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${
                                                             formData.alertFrequency === 'weekly'
-                                                                ? 'bg-green-100 text-green-800'
-                                                                : 'text-gray-600 hover:text-gray-900'
+                                                                ? 'bg-green-500 text-white'
+                                                                : 'bg-transparent text-gray-600 hover:text-gray-900'
                                                         }`}
                                                     >
                                                         Weekly
                                                     </button>
                                                 </div>
 
-                                                <div className="flex items-center gap-2">
-                                                    <Label className="text-sm">Subscribed</Label>
+                                                {/* Subscription Toggle - Orange Design */}
+                                                <div className="ml-6 flex items-center gap-2">
+                                                    <Label className="text-sm text-gray-900">
+                                                        Subscribed
+                                                    </Label>
                                                     <Switch
                                                         checked={formData.jobAlertsSubscribed}
                                                         onCheckedChange={(checked) =>
@@ -655,40 +919,50 @@ export default function CandidateSignupFlow({
                                                                 jobAlertsSubscribed: checked,
                                                             })
                                                         }
+                                                        className="data-[state=checked]:bg-orange-500"
                                                     />
                                                 </div>
                                             </div>
 
-                                            <Button
-                                                type="button"
-                                                variant="link"
-                                                className="px-0 text-sm"
-                                            >
-                                                Send me the 1st email now
-                                            </Button>
+                                            <div className="text-right">
+                                                <Button
+                                                    type="button"
+                                                    variant="link"
+                                                    className="px-0 text-xs text-gray-600 underline"
+                                                >
+                                                    Send me the 1st email now
+                                                </Button>
+                                            </div>
                                         </div>
 
                                         {/* Instant Alerts */}
                                         <div className="space-y-4 pt-4">
-                                            <h3 className="text-lg font-semibold">
-                                                Instant Alerts
-                                            </h3>
-                                            <p className="text-sm text-gray-600">
-                                                Instantly receive alerts for jobs for which you are
-                                                a strong candidate.
-                                            </p>
+                                            <div className="flex w-full items-center justify-between">
+                                                <div>
+                                                    <h3 className="text-lg font-semibold">
+                                                        Instant Alerts
+                                                    </h3>
+                                                    <p className="text-sm text-gray-600">
+                                                        Instantly receive alerts for jobs for which
+                                                        you are a strong candidate.
+                                                    </p>
+                                                </div>
 
-                                            <div className="flex items-center gap-2">
-                                                <Label className="text-sm">Subscribed</Label>
-                                                <Switch
-                                                    checked={formData.instantAlertsSubscribed}
-                                                    onCheckedChange={(checked) =>
-                                                        setFormData({
-                                                            ...formData,
-                                                            instantAlertsSubscribed: checked,
-                                                        })
-                                                    }
-                                                />
+                                                <div className="flex items-center gap-2">
+                                                    <Label className="text-sm font-semibold text-gray-900">
+                                                        Subscribed
+                                                    </Label>
+                                                    <Switch
+                                                        checked={formData.instantAlertsSubscribed}
+                                                        onCheckedChange={(checked) =>
+                                                            setFormData({
+                                                                ...formData,
+                                                                instantAlertsSubscribed: checked,
+                                                            })
+                                                        }
+                                                        className="data-[state=checked]:bg-orange-500"
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
