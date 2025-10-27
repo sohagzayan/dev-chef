@@ -20,6 +20,7 @@ import {
     Plus,
     Save,
     Search,
+    Star,
     Trash2,
     Upload,
     User,
@@ -171,6 +172,49 @@ export default function UserProfilePage() {
     const [showSkillInput, setShowSkillInput] = useState(false);
     const [showEndDate, setShowEndDate] = useState(false);
     const [isShaking, setIsShaking] = useState(false);
+
+    // Education Modal State
+    const [showEducationModal, setShowEducationModal] = useState(false);
+    const [educationForm, setEducationForm] = useState({
+        fieldOfStudy: '',
+        school: '',
+        summary: '',
+        currentEducation: false,
+        startYear: '',
+        startMonth: '',
+        endYear: '',
+        endMonth: '',
+    });
+    const [educationErrors, setEducationErrors] = useState<{
+        [key: string]: string;
+    }>({});
+    const [showEducationEndDate, setShowEducationEndDate] = useState(false);
+    const [isEducationShaking, setIsEducationShaking] = useState(false);
+
+    // Job Application Answers Modal State
+    const [showJobAnswersModal, setShowJobAnswersModal] = useState(false);
+    const [jobAnswerForm, setJobAnswerForm] = useState({
+        question: '',
+        answer: '',
+        privateAnswer: false,
+    });
+    const [isJobAnswerShaking, setIsJobAnswerShaking] = useState(false);
+
+    // Languages Modal State
+    const [showLanguagesModal, setShowLanguagesModal] = useState(false);
+    const [languageForm, setLanguageForm] = useState({
+        language: '',
+        proficiency: '',
+    });
+
+    // Profile Links Modal State
+    const [showProfileLinksModal, setShowProfileLinksModal] = useState(false);
+    const [profileLinkForm, setProfileLinkForm] = useState({
+        type: '',
+        username: '',
+    });
+    const [isProfileLinkShaking, setIsProfileLinkShaking] = useState(false);
+
     const [workSkillsList] = useState([
         'Ajax.js',
         'Angular.js',
@@ -209,6 +253,136 @@ export default function UserProfilePage() {
     const handleShakeModal = () => {
         setIsShaking(true);
         setTimeout(() => setIsShaking(false), 500);
+    };
+
+    const handleOpenEducationModal = () => {
+        setShowEducationModal(true);
+        setEducationErrors({});
+        setShowEducationEndDate(false);
+        setIsEducationShaking(false);
+    };
+
+    const handleShakeEducationModal = () => {
+        setIsEducationShaking(true);
+        setTimeout(() => setIsEducationShaking(false), 500);
+    };
+
+    const handleOpenJobAnswersModal = () => {
+        setShowJobAnswersModal(true);
+        setIsJobAnswerShaking(false);
+    };
+
+    const handleShakeJobAnswerModal = () => {
+        setIsJobAnswerShaking(true);
+        setTimeout(() => setIsJobAnswerShaking(false), 500);
+    };
+
+    const handleJobAnswerFieldChange = (field: string, value: string | boolean) => {
+        setJobAnswerForm({ ...jobAnswerForm, [field]: value });
+    };
+
+    const handleSaveJobAnswer = () => {
+        console.log('Saving job answer:', jobAnswerForm);
+        setShowJobAnswersModal(false);
+        setJobAnswerForm({
+            question: '',
+            answer: '',
+            privateAnswer: false,
+        });
+    };
+
+    const handleOpenLanguagesModal = () => {
+        setShowLanguagesModal(true);
+    };
+
+    const handleLanguageFieldChange = (field: string, value: string) => {
+        setLanguageForm({ ...languageForm, [field]: value });
+    };
+
+    const handleSaveLanguage = () => {
+        console.log('Saving language:', languageForm);
+        setShowLanguagesModal(false);
+        setLanguageForm({
+            language: '',
+            proficiency: '',
+        });
+    };
+
+    const handleOpenProfileLinksModal = () => {
+        setShowProfileLinksModal(true);
+        setIsProfileLinkShaking(false);
+    };
+
+    const handleShakeProfileLinkModal = () => {
+        setIsProfileLinkShaking(true);
+        setTimeout(() => setIsProfileLinkShaking(false), 500);
+    };
+
+    const handleProfileLinkFieldChange = (field: string, value: string) => {
+        setProfileLinkForm({ ...profileLinkForm, [field]: value });
+    };
+
+    const handleSaveProfileLink = () => {
+        console.log('Saving profile link:', profileLinkForm);
+        setShowProfileLinksModal(false);
+        setProfileLinkForm({
+            type: '',
+            username: '',
+        });
+    };
+
+    const getSocialMediaUrl = (type: string) => {
+        const urls: { [key: string]: string } = {
+            facebook: 'https://facebook.com/',
+            twitter: 'https://twitter.com/',
+            linkedin: 'https://linkedin.com/in/',
+            github: 'https://github.com/',
+            instagram: 'https://instagram.com/',
+            youtube: 'https://youtube.com/@',
+            portfolio: 'https://',
+            blog: 'https://',
+            website: 'https://',
+        };
+        return urls[type] || 'https://';
+    };
+
+    const handleEducationFieldChange = (field: string, value: string | boolean) => {
+        setEducationForm({ ...educationForm, [field]: value });
+        // Clear error for this field when user starts typing
+        if (educationErrors[field]) {
+            setEducationErrors({ ...educationErrors, [field]: '' });
+        }
+    };
+
+    const handleSaveEducation = () => {
+        const errors: { [key: string]: string } = {};
+
+        if (!educationForm.fieldOfStudy.trim()) {
+            errors.fieldOfStudy = 'Field of Study is a required field';
+        }
+        if (!educationForm.school.trim()) {
+            errors.school = 'School is a required field';
+        }
+
+        if (Object.keys(errors).length > 0) {
+            setEducationErrors(errors);
+            return;
+        }
+
+        // Here you would save the education
+        console.log('Saving education:', educationForm);
+        setShowEducationModal(false);
+        // Reset form
+        setEducationForm({
+            fieldOfStudy: '',
+            school: '',
+            summary: '',
+            currentEducation: false,
+            startYear: '',
+            startMonth: '',
+            endYear: '',
+            endMonth: '',
+        });
     };
 
     const handleWorkExperienceFieldChange = (field: string, value: string | boolean) => {
@@ -524,7 +698,10 @@ export default function UserProfilePage() {
                             <p className="text-sm text-gray-500">Add your educational background</p>
                         </div>
                     </div>
-                    <button className="group flex w-full items-center gap-3 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-4 text-left transition-all hover:border-purple-400 hover:bg-purple-50">
+                    <button
+                        onClick={handleOpenEducationModal}
+                        className="group flex w-full items-center gap-3 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-4 text-left transition-all hover:border-purple-400 hover:bg-purple-50"
+                    >
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm transition-transform group-hover:scale-110">
                             <Plus className="h-5 w-5 text-gray-500 group-hover:text-purple-600" />
                         </div>
@@ -552,7 +729,10 @@ export default function UserProfilePage() {
                             </p>
                         </div>
                     </div>
-                    <button className="group flex w-full items-center gap-3 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-4 text-left transition-all hover:border-green-400 hover:bg-green-50">
+                    <button
+                        onClick={handleOpenJobAnswersModal}
+                        className="group flex w-full items-center gap-3 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-4 text-left transition-all hover:border-green-400 hover:bg-green-50"
+                    >
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm transition-transform group-hover:scale-110">
                             <Plus className="h-5 w-5 text-gray-500 group-hover:text-green-600" />
                         </div>
@@ -578,7 +758,10 @@ export default function UserProfilePage() {
                             </p>
                         </div>
                     </div>
-                    <button className="group flex w-full items-center gap-3 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-4 text-left transition-all hover:border-orange-400 hover:bg-orange-50">
+                    <button
+                        onClick={handleOpenLanguagesModal}
+                        className="group flex w-full items-center gap-3 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-4 text-left transition-all hover:border-orange-400 hover:bg-orange-50"
+                    >
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm transition-transform group-hover:scale-110">
                             <Plus className="h-5 w-5 text-gray-500 group-hover:text-orange-600" />
                         </div>
@@ -604,7 +787,10 @@ export default function UserProfilePage() {
                             </p>
                         </div>
                     </div>
-                    <button className="group flex w-full items-center gap-3 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-4 text-left transition-all hover:border-pink-400 hover:bg-pink-50">
+                    <button
+                        onClick={handleOpenProfileLinksModal}
+                        className="group flex w-full items-center gap-3 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-4 text-left transition-all hover:border-pink-400 hover:bg-pink-50"
+                    >
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm transition-transform group-hover:scale-110">
                             <Plus className="h-5 w-5 text-gray-500 group-hover:text-pink-600" />
                         </div>
@@ -1101,7 +1287,7 @@ export default function UserProfilePage() {
                                             <button
                                                 key={skill}
                                                 onClick={() => handleAddSkill(skill)}
-                                                className="rounded-full border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 transition-colors hover:border-blue-400 hover:bg-blue-50"
+                                                className="rounded-full border border-gray-300 bg-white px-3 py-1.5 text-xs text-gray-700 transition-colors hover:border-blue-400 hover:bg-blue-50"
                                             >
                                                 {skill}
                                             </button>
@@ -1142,9 +1328,7 @@ export default function UserProfilePage() {
                         >
                             {/* Header */}
                             <div className="shrink-0 border-b border-gray-200 bg-white px-6 py-4">
-                                <h2 className="text-2xl font-bold text-gray-900">
-                                    Work Experience
-                                </h2>
+                                <h2 className="text-xl font-bold text-gray-900">Work Experience</h2>
                             </div>
 
                             {/* Scrollable Content */}
@@ -1155,7 +1339,7 @@ export default function UserProfilePage() {
                             >
                                 {/* Job Title */}
                                 <div className="mb-4">
-                                    <Label className="mb-2 text-sm font-medium text-gray-700">
+                                    <Label className="mb-2 text-xs font-medium text-gray-700">
                                         Job Title
                                     </Label>
                                     <div className="relative">
@@ -1185,7 +1369,7 @@ export default function UserProfilePage() {
 
                                 {/* Company */}
                                 <div className="mb-4">
-                                    <Label className="mb-2 text-sm font-medium text-gray-700">
+                                    <Label className="mb-2 text-xs font-medium text-gray-700">
                                         Company
                                     </Label>
                                     <div className="relative">
@@ -1215,7 +1399,7 @@ export default function UserProfilePage() {
 
                                 {/* Industry */}
                                 <div className="mb-4">
-                                    <Label className="mb-2 text-sm font-medium text-gray-700">
+                                    <Label className="mb-2 text-xs font-medium text-gray-700">
                                         Industry
                                     </Label>
                                     <div className="relative">
@@ -1245,7 +1429,7 @@ export default function UserProfilePage() {
 
                                 {/* Skills */}
                                 <div className="mb-4">
-                                    <Label className="mb-2 text-sm font-medium text-gray-700">
+                                    <Label className="mb-2 text-xs font-medium text-gray-700">
                                         Skills
                                     </Label>
 
@@ -1255,7 +1439,7 @@ export default function UserProfilePage() {
                                             {workExperienceForm.skills.map((skill) => (
                                                 <div
                                                     key={skill}
-                                                    className="flex items-center gap-1 rounded-md bg-gray-100 px-3 py-1.5 text-sm text-gray-700"
+                                                    className="flex items-center gap-1 rounded-md bg-gray-100 px-3 py-1.5 text-xs text-gray-700"
                                                 >
                                                     <span>{skill}</span>
                                                     <button
@@ -1330,7 +1514,7 @@ export default function UserProfilePage() {
                                                                     onClick={() =>
                                                                         handleAddWorkSkill(skill)
                                                                     }
-                                                                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                                                                    className="w-full px-4 py-2 text-left text-xs text-gray-700 hover:bg-gray-50"
                                                                 >
                                                                     {skill}
                                                                 </button>
@@ -1357,7 +1541,7 @@ export default function UserProfilePage() {
                                         />
                                         <Label
                                             htmlFor="remoteWork"
-                                            className="text-sm text-gray-700"
+                                            className="text-xs text-gray-700"
                                         >
                                             This was a remote work position
                                         </Label>
@@ -1375,7 +1559,7 @@ export default function UserProfilePage() {
                                         />
                                         <Label
                                             htmlFor="currentPosition"
-                                            className="text-sm text-gray-700"
+                                            className="text-xs text-gray-700"
                                         >
                                             This is my current position
                                         </Label>
@@ -1386,7 +1570,7 @@ export default function UserProfilePage() {
                                 <div className="mb-4">
                                     <div className="mb-3 flex flex-col gap-3 md:flex-row md:gap-6">
                                         <div className="flex-1">
-                                            <Label className="mb-1 text-sm font-medium text-gray-700 md:mb-2">
+                                            <Label className="mb-1 text-xs font-medium text-gray-700 md:mb-2">
                                                 From
                                             </Label>
                                             <div className="flex gap-2">
@@ -1398,7 +1582,7 @@ export default function UserProfilePage() {
                                                             e.target.value,
                                                         )
                                                     }
-                                                    className="flex-1 rounded-lg border-2 border-gray-300 bg-white px-3 py-2 pr-8 text-sm"
+                                                    className="flex-1 rounded-lg border-2 border-gray-300 bg-white px-3 py-2 pr-8 text-xs"
                                                     style={{
                                                         backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http:// Konum/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
                                                         backgroundRepeat: 'no-repeat',
@@ -1420,7 +1604,7 @@ export default function UserProfilePage() {
                                                             e.target.value,
                                                         )
                                                     }
-                                                    className="flex-1 rounded-lg border-2 border-green-200 bg-white px-3 py-2 pr-8 text-sm"
+                                                    className="flex-1 rounded-lg border-2 border-green-200 bg-white px-3 py-2 pr-8 text-xs"
                                                     style={{
                                                         backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
                                                         backgroundRepeat: 'no-repeat',
@@ -1444,13 +1628,13 @@ export default function UserProfilePage() {
                                             </div>
                                         </div>
                                         <div className="flex-1">
-                                            <Label className="mb-1 text-sm font-medium text-gray-700 md:mb-2">
+                                            <Label className="mb-1 text-xs font-medium text-gray-700 md:mb-2">
                                                 To
                                             </Label>
                                             {!showEndDate ? (
                                                 <button
                                                     onClick={() => setShowEndDate(true)}
-                                                    className="flex w-full items-center justify-start gap-2 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100"
+                                                    className="flex w-full items-center justify-start gap-2 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-3 py-2 text-xs text-gray-700 transition-colors hover:bg-gray-100"
                                                 >
                                                     <Plus className="h-4 w-4" />
                                                     Add end
@@ -1465,7 +1649,7 @@ export default function UserProfilePage() {
                                                                 e.target.value,
                                                             )
                                                         }
-                                                        className="flex-1 rounded-lg border-2 border-gray-300 bg-white px-3 py-2 pr-8 text-sm"
+                                                        className="flex-1 rounded-lg border-2 border-gray-300 bg-white px-3 py-2 pr-8 text-xs"
                                                         style={{
                                                             backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
                                                             backgroundRepeat: 'no-repeat',
@@ -1488,9 +1672,9 @@ export default function UserProfilePage() {
                                                                 e.target.value,
                                                             )
                                                         }
-                                                        className="flex-1 rounded-lg border-2 border-green-200 bg-white px-3 py-2 pr-8 text-sm"
+                                                        className="flex-1 rounded-lg border-2 border-green-200 bg-white px-3 py-2 pr-8 text-xs"
                                                         style={{
-                                                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' itsBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                                                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
                                                             backgroundRepeat: 'no-repeat',
                                                             backgroundPosition:
                                                                 'right 0.5rem center',
@@ -1518,7 +1702,7 @@ export default function UserProfilePage() {
 
                                 {/* Work Experience Summary */}
                                 <div className="mb-6">
-                                    <Label className="mb-2 text-sm font-medium text-gray-700">
+                                    <Label className="mb-2 text-xs font-medium text-gray-700">
                                         Work Experience Summary
                                     </Label>
                                     <textarea
@@ -1530,7 +1714,7 @@ export default function UserProfilePage() {
                                                 e.target.value,
                                             )
                                         }
-                                        className="h-32 w-full rounded-lg border-2 border-gray-300 bg-gray-50 px-3 py-2 text-sm"
+                                        className="h-32 w-full rounded-lg border-2 border-gray-300 bg-gray-50 px-3 py-2 text-xs"
                                         rows={4}
                                     />
                                 </div>
@@ -1554,6 +1738,811 @@ export default function UserProfilePage() {
                                 </div>
                                 <Button
                                     onClick={handleSaveWorkExperience}
+                                    className="flex items-center gap-2 bg-orange-500 text-white hover:bg-orange-600"
+                                >
+                                    <Save className="h-4 w-4" />
+                                    Save
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Education Modal */}
+                {showEducationModal && (
+                    <div
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+                        onClick={handleShakeEducationModal}
+                    >
+                        <div
+                            className="relative flex h-[90vh] max-h-[700px] w-full max-w-3xl flex-col overflow-hidden rounded-lg bg-white shadow-xl"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Header */}
+                            <div className="shrink-0 border-b border-gray-200 bg-white px-6 py-4">
+                                <h2 className="text-xl font-bold text-gray-900">Education</h2>
+                            </div>
+
+                            {/* Scrollable Content */}
+                            <motion.div
+                                className="flex-1 overflow-y-auto px-6 py-6"
+                                animate={
+                                    isEducationShaking ? { x: [-10, 10, -10, 10, 0] } : { x: 0 }
+                                }
+                                transition={{ duration: 0.5, ease: 'easeInOut' }}
+                            >
+                                {/* Field of Study */}
+                                <div className="mb-4">
+                                    <Label className="mb-2 text-xs font-medium text-gray-700">
+                                        Field of Study
+                                    </Label>
+                                    <div className="relative">
+                                        <GraduationCap className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-orange-500" />
+                                        <Input
+                                            type="text"
+                                            placeholder="Field of Study"
+                                            value={educationForm.fieldOfStudy}
+                                            onChange={(e) =>
+                                                handleEducationFieldChange(
+                                                    'fieldOfStudy',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className="rounded-lg border-2 border-orange-200 bg-gray-50 pr-10 pl-10"
+                                        />
+                                        {educationErrors.fieldOfStudy && (
+                                            <AlertTriangle className="absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 text-orange-500" />
+                                        )}
+                                    </div>
+                                    {educationErrors.fieldOfStudy && (
+                                        <p className="mt-1 text-xs text-red-500">
+                                            {educationErrors.fieldOfStudy}
+                                        </p>
+                                    )}
+                                </div>
+
+                                {/* School */}
+                                <div className="mb-4">
+                                    <Label className="mb-2 text-xs font-medium text-gray-700">
+                                        School
+                                    </Label>
+                                    <div className="relative">
+                                        <Building2 className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-orange-500" />
+                                        <Input
+                                            type="text"
+                                            placeholder="School"
+                                            value={educationForm.school}
+                                            onChange={(e) =>
+                                                handleEducationFieldChange('school', e.target.value)
+                                            }
+                                            className="rounded-lg border-2 border-orange-200 bg-gray-50 pr-10 pl-10"
+                                        />
+                                        {educationErrors.school && (
+                                            <AlertTriangle className="absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 text-orange-500" />
+                                        )}
+                                    </div>
+                                    {educationErrors.school && (
+                                        <p className="mt-1 text-xs text-red-500">
+                                            {educationErrors.school}
+                                        </p>
+                                    )}
+                                </div>
+
+                                {/* Summary */}
+                                <div className="mb-4">
+                                    <Label className="mb-2 text-xs font-medium text-gray-700">
+                                        Achieved Education or Certificate Summary
+                                    </Label>
+                                    <textarea
+                                        placeholder="Write a few sentences about your education"
+                                        value={educationForm.summary}
+                                        onChange={(e) =>
+                                            handleEducationFieldChange('summary', e.target.value)
+                                        }
+                                        className="h-32 w-full rounded-lg border-2 border-gray-300 bg-gray-50 px-3 py-2 text-xs"
+                                        rows={4}
+                                    />
+                                </div>
+
+                                {/* Toggle Switch */}
+                                <div className="mb-4">
+                                    <div className="flex items-center justify-between">
+                                        <Label
+                                            htmlFor="currentEducation"
+                                            className="text-xs text-gray-700"
+                                        >
+                                            This is my current education
+                                        </Label>
+                                        <Switch
+                                            id="currentEducation"
+                                            checked={educationForm.currentEducation}
+                                            onCheckedChange={(checked) =>
+                                                handleEducationFieldChange(
+                                                    'currentEducation',
+                                                    checked,
+                                                )
+                                            }
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Date Range */}
+                                <div className="mb-4">
+                                    <div className="mb-3 flex flex-col gap-3 md:flex-row md:gap-6">
+                                        <div className="flex-1">
+                                            <Label className="mb-1 text-xs font-medium text-gray-700 md:mb-2">
+                                                From
+                                            </Label>
+                                            <div className="flex gap-2">
+                                                <select
+                                                    value={educationForm.startYear}
+                                                    onChange={(e) =>
+                                                        handleEducationFieldChange(
+                                                            'startYear',
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                    className="flex-1 rounded-lg border-2 border-gray-300 bg-white px-3 py-2 pr-8 text-xs"
+                                                    style={{
+                                                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                                                        backgroundRepeat: 'no-repeat',
+                                                        backgroundPosition: 'right 0.5rem center',
+                                                    }}
+                                                >
+                                                    <option value="">Year</option>
+                                                    {Array.from({ length: 30 }, (_, i) => (
+                                                        <option key={2025 - i} value={2025 - i}>
+                                                            {2025 - i}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <select
+                                                    value={educationForm.startMonth}
+                                                    onChange={(e) =>
+                                                        handleEducationFieldChange(
+                                                            'startMonth',
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                    className="flex-1 rounded-lg border-2 border-green-200 bg-white px-3 py-2 pr-8 text-xs"
+                                                    style={{
+                                                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'就只能/svg%3E")`,
+                                                        backgroundRepeat: 'no-repeat',
+                                                        backgroundPosition: 'right 0.5rem center',
+                                                    }}
+                                                >
+                                                    <option value="">---</option>
+                                                    <option value="01">January</option>
+                                                    <option value="02">February</option>
+                                                    <option value="03">March</option>
+                                                    <option value="04">April</option>
+                                                    <option value="05">May</option>
+                                                    <option value="06">June</option>
+                                                    <option value="07">July</option>
+                                                    <option value="08">August</option>
+                                                    <option value="09">September</option>
+                                                    <option value="10">October</option>
+                                                    <option value="11">November</option>
+                                                    <option value="12">December</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div className="flex-1">
+                                            <Label className="mb-1 text-xs font-medium text-gray-700 md:mb-2">
+                                                To
+                                            </Label>
+                                            {!showEducationEndDate ? (
+                                                <button
+                                                    onClick={() => setShowEducationEndDate(true)}
+                                                    className="flex w-full items-center justify-start gap-2 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-3 py-2 text-xs text-gray-700 transition-colors hover:bg-gray-100"
+                                                >
+                                                    <Plus className="h-4 w-4" />
+                                                    Add end
+                                                </button>
+                                            ) : (
+                                                <div className="flex gap-2">
+                                                    <select
+                                                        value={educationForm.endYear}
+                                                        onChange={(e) =>
+                                                            handleEducationFieldChange(
+                                                                'endYear',
+                                                                e.target.value,
+                                                            )
+                                                        }
+                                                        className="flex-1 rounded-lg border-2 border-gray-300 bg-white px-3 py-2 pr-8 text-xs"
+                                                        style={{
+                                                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                                                            backgroundRepeat: 'no-repeat',
+                                                            backgroundPosition:
+                                                                'right 0.5rem center',
+                                                        }}
+                                                    >
+                                                        <option value="">Year</option>
+                                                        {Array.from({ length: 30 }, (_, i) => (
+                                                            <option key={2025 - i} value={2025 - i}>
+                                                                {2025 - i}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                    <select
+                                                        value={educationForm.endMonth}
+                                                        onChange={(e) =>
+                                                            handleEducationFieldChange(
+                                                                'endMonth',
+                                                                e.target.value,
+                                                            )
+                                                        }
+                                                        className="flex-1 rounded-lg border-2 border-green-200 bg-white px-3 py-2 pr-8 text-xs"
+                                                        style={{
+                                                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                                                            backgroundRepeat: 'no-repeat',
+                                                            backgroundPosition:
+                                                                'right 0.5rem center',
+                                                        }}
+                                                    >
+                                                        <option value="">---</option>
+                                                        <option value="01">January</option>
+                                                        <option value="02">February</option>
+                                                        <option value="03">March</option>
+                                                        <option value="04">April</option>
+                                                        <option value="05">May</option>
+                                                        <option value="06">June</option>
+                                                        <option value="07">July</option>
+                                                        <option value="08">August</option>
+                                                        <option value="09">September</option>
+                                                        <option value="10">October</option>
+                                                        <option value="11">November</option>
+                                                        <option value="12">December</option>
+                                                    </select>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+
+                            {/* Footer */}
+                            <div className="flex shrink-0 items-center justify-between border-t border-gray-200 bg-white px-6 py-4">
+                                <div className="flex flex-col gap-1">
+                                    <Button
+                                        variant="ghost"
+                                        onClick={() => setShowEducationModal(false)}
+                                        className="text-gray-600"
+                                    >
+                                        Cancel
+                                    </Button>
+                                    {educationErrors.school && (
+                                        <p className="text-xs text-red-500">
+                                            School is a required field
+                                        </p>
+                                    )}
+                                </div>
+                                <Button
+                                    onClick={handleSaveEducation}
+                                    className="flex items-center gap-2 bg-orange-500 text-white hover:bg-orange-600"
+                                >
+                                    <Save className="h-4 w-4" />
+                                    Save
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Job Application Answers Modal */}
+                {showJobAnswersModal && (
+                    <div
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+                        onClick={handleShakeJobAnswerModal}
+                    >
+                        <div
+                            className="relative flex h-[90vh] max-h-[700px] w-full max-w-3xl flex-col overflow-hidden rounded-lg bg-white shadow-xl"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Header */}
+                            <div className="shrink-0 border-b border-gray-200 bg-white px-6 py-4">
+                                <h2 className="text-xl font-bold text-gray-900">
+                                    Job Application Answers
+                                </h2>
+                            </div>
+
+                            {/* Scrollable Content */}
+                            <motion.div
+                                className="flex-1 overflow-y-auto px-6 py-6"
+                                animate={
+                                    isJobAnswerShaking ? { x: [-10, 10, -10, 10, 0] } : { x: 0 }
+                                }
+                                transition={{ duration: 0.5, ease: 'easeInOut' }}
+                            >
+                                {/* Question */}
+                                <div className="mb-4">
+                                    <Label className="mb-2 text-xs font-medium text-gray-700">
+                                        Question
+                                    </Label>
+                                    <select
+                                        value={jobAnswerForm.question}
+                                        onChange={(e) =>
+                                            handleJobAnswerFieldChange('question', e.target.value)
+                                        }
+                                        className="w-full rounded-lg border-2 border-gray-300 bg-white px-3 py-2 pr-8 text-xs"
+                                        style={{
+                                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                                            backgroundRepeat: 'no-repeat',
+                                            backgroundPosition: 'right 0.5rem center',
+                                        }}
+                                    >
+                                        <option value="">Select a question</option>
+                                        <option value="location">Where are you located?</option>
+                                        <option value="remote">Are you open to remote work?</option>
+                                        <option value="availability">
+                                            When are you available to start?
+                                        </option>
+                                        <option value="relocation">
+                                            Are you willing to relocate?
+                                        </option>
+                                    </select>
+                                </div>
+
+                                {/* Answer */}
+                                <div className="mb-4">
+                                    <Label className="mb-2 text-xs font-medium text-gray-700">
+                                        My Answer
+                                    </Label>
+                                    <textarea
+                                        placeholder="Write your best answer"
+                                        value={jobAnswerForm.answer}
+                                        onChange={(e) =>
+                                            handleJobAnswerFieldChange('answer', e.target.value)
+                                        }
+                                        className="h-32 w-full rounded-lg border-2 border-gray-300 bg-gray-50 px-3 py-2 text-xs"
+                                        rows={6}
+                                    />
+                                    <p className="mt-2 text-xs text-gray-500">
+                                        Answering this question helps you apply for a job faster and
+                                        also makes your profile stand out!
+                                    </p>
+                                </div>
+
+                                {/* Private Answer */}
+                                <div className="mb-4">
+                                    <div className="mb-4 flex items-center gap-3">
+                                        <input
+                                            type="checkbox"
+                                            id="privateAnswer"
+                                            checked={jobAnswerForm.privateAnswer}
+                                            onChange={(e) =>
+                                                handleJobAnswerFieldChange(
+                                                    'privateAnswer',
+                                                    e.target.checked,
+                                                )
+                                            }
+                                            className="h-4 w-4 rounded border-gray-300 text-orange-500"
+                                        />
+                                        <Label
+                                            htmlFor="privateAnswer"
+                                            className="text-xs text-gray-700"
+                                        >
+                                            Private Answer
+                                        </Label>
+                                    </div>
+                                    <p className="text-xs text-gray-500">
+                                        We will only use this answer to help you fill application
+                                        forms faster. Only you can see it.
+                                    </p>
+                                </div>
+                            </motion.div>
+
+                            {/* Footer */}
+                            <div className="flex shrink-0 items-center justify-between border-t border-gray-200 bg-white px-6 py-4">
+                                <Button
+                                    variant="ghost"
+                                    onClick={() => setShowJobAnswersModal(false)}
+                                    className="text-gray-600"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={handleSaveJobAnswer}
+                                    className="flex items-center gap-2 bg-orange-500 text-white hover:bg-orange-600"
+                                >
+                                    <Save className="h-4 w-4" />
+                                    Save
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Languages Modal */}
+                {showLanguagesModal && (
+                    <div
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+                        onClick={() => setShowLanguagesModal(false)}
+                    >
+                        <div
+                            className="relative flex h-[90vh] max-h-[700px] w-full max-w-3xl flex-col overflow-hidden rounded-lg bg-white shadow-xl"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Header */}
+                            <div className="shrink-0 border-b border-gray-200 bg-white px-6 py-4">
+                                <h2 className="text-xl font-bold text-gray-900">
+                                    Language Work Proficiency Level
+                                </h2>
+                            </div>
+
+                            {/* Scrollable Content */}
+                            <div className="flex-1 overflow-y-auto px-6 py-6">
+                                {/* Language Selection */}
+                                <div className="mb-6">
+                                    <Label className="mb-2 text-xs font-medium text-gray-700">
+                                        Language
+                                    </Label>
+                                    <select
+                                        value={languageForm.language}
+                                        onChange={(e) =>
+                                            handleLanguageFieldChange('language', e.target.value)
+                                        }
+                                        className="w-full rounded-lg border-2 border-gray-300 bg-white px-3 py-2 pr-8 text-xs"
+                                        style={{
+                                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                                            backgroundRepeat: 'no-repeat',
+                                            backgroundPosition: 'right 0.5rem center',
+                                        }}
+                                    >
+                                        <option value="">Select a language</option>
+                                        <option value="english">English</option>
+                                        <option value="spanish">Spanish</option>
+                                        <option value="french">French</option>
+                                        <option value="german">German</option>
+                                        <option value="chinese">Chinese</option>
+                                        <option value="japanese">Japanese</option>
+                                        <option value="portuguese">Portuguese</option>
+                                        <option value="russian">Russian</option>
+                                        <option value="arabic">Arabic</option>
+                                        <option value="hindi">Hindi</option>
+                                    </select>
+                                </div>
+
+                                {/* Proficiency Levels */}
+                                <div className="mb-4">
+                                    <Label className="mb-3 text-xs font-medium text-gray-700">
+                                        Proficiency
+                                    </Label>
+
+                                    {/* Native or bilingual */}
+                                    <div className="mb-4 rounded-lg border border-gray-200 p-4">
+                                        <label className="flex cursor-pointer gap-3">
+                                            <input
+                                                type="radio"
+                                                name="proficiency"
+                                                value="native"
+                                                checked={languageForm.proficiency === 'native'}
+                                                onChange={(e) =>
+                                                    handleLanguageFieldChange(
+                                                        'proficiency',
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                className="mt-0.5 h-4 w-4 border-gray-300 text-orange-500"
+                                            />
+                                            <div className="flex-1">
+                                                <div className="mb-2 flex items-center gap-1">
+                                                    {[...Array(5)].map((_, i) => (
+                                                        <Star
+                                                            key={i}
+                                                            className="h-4 w-4 fill-gray-300 text-gray-300"
+                                                        />
+                                                    ))}
+                                                    <span className="ml-2 text-xs font-medium text-gray-900">
+                                                        Native or bilingual
+                                                    </span>
+                                                </div>
+                                                <p className="text-xs text-gray-600">
+                                                    A native language skill refers to a language you
+                                                    have grown up speaking. As far as you remember,
+                                                    this is a language you always have been able to
+                                                    communicate with. You have spent your life
+                                                    speaking this language and have honed in on your
+                                                    ability to communicate with it through formal
+                                                    education and so on.
+                                                </p>
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    {/* Full professional */}
+                                    <div className="mb-4 rounded-lg border border-gray-200 p-4">
+                                        <label className="flex cursor-pointer gap-3">
+                                            <input
+                                                type="radio"
+                                                name="proficiency"
+                                                value="full-professional"
+                                                checked={
+                                                    languageForm.proficiency === 'full-professional'
+                                                }
+                                                onChange={(e) =>
+                                                    handleLanguageFieldChange(
+                                                        'proficiency',
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                className="mt-0.5 h-4 w-4 border-gray-300 text-orange-500"
+                                            />
+                                            <div className="flex-1">
+                                                <div className="mb-2 flex items-center gap-1">
+                                                    {[...Array(4)].map((_, i) => (
+                                                        <Star
+                                                            key={i}
+                                                            className="h-4 w-4 fill-gray-300 text-gray-300"
+                                                        />
+                                                    ))}
+                                                    <Star className="h-4 w-4 text-gray-300" />
+                                                    <span className="ml-2 text-xs font-medium text-gray-900">
+                                                        Full professional
+                                                    </span>
+                                                </div>
+                                                <p className="text-xs text-gray-600">
+                                                    A fluent language skill means you can read,
+                                                    write, and speak a language fluidly and without
+                                                    hesitation.
+                                                </p>
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    {/* Professional working */}
+                                    <div className="mb-4 rounded-lg border-2 border-orange-500 p-4">
+                                        <label className="flex cursor-pointer gap-3">
+                                            <input
+                                                type="radio"
+                                                name="proficiency"
+                                                value="professional"
+                                                checked={
+                                                    languageForm.proficiency === 'professional'
+                                                }
+                                                onChange={(e) =>
+                                                    handleLanguageFieldChange(
+                                                        'proficiency',
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                className="mt-0.5 h-4 w-4 border-gray-300 text-orange-500"
+                                            />
+                                            <div className="flex-1">
+                                                <div className="mb-2 flex items-center gap-1">
+                                                    {[...Array(3)].map((_, i) => (
+                                                        <Star
+                                                            key={i}
+                                                            className="h-4 w-4 fill-orange-500 text-orange-500"
+                                                        />
+                                                    ))}
+                                                    {[...Array(2)].map((_, i) => (
+                                                        <Star
+                                                            key={i}
+                                                            className="h-4 w-4 text-gray-300"
+                                                        />
+                                                    ))}
+                                                    <span className="ml-2 text-xs font-medium text-gray-900">
+                                                        Professional working
+                                                    </span>
+                                                </div>
+                                                <p className="text-xs text-gray-600">
+                                                    A proficient language skill refers to an ability
+                                                    to speak, write, and read a language without
+                                                    much difficulty at all. You don&apos;t foresee
+                                                    yourself having an issue using the languages
+                                                    listed in your role, however, you&apos;re not
+                                                    fluent. You may need native speakers to repeat
+                                                    things and may struggle understanding
+                                                    colloquialisms.
+                                                </p>
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    {/* Limited working */}
+                                    <div className="mb-4 rounded-lg border border-gray-200 p-4">
+                                        <label className="flex cursor-pointer gap-3">
+                                            <input
+                                                type="radio"
+                                                name="proficiency"
+                                                value="limited"
+                                                checked={languageForm.proficiency === 'limited'}
+                                                onChange={(e) =>
+                                                    handleLanguageFieldChange(
+                                                        'proficiency',
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                className="mt-0.5 h-4 w-4 border-gray-300 text-orange-500"
+                                            />
+                                            <div className="flex-1">
+                                                <div className="mb-2 flex items-center gap-1">
+                                                    {[...Array(2)].map((_, i) => (
+                                                        <Star
+                                                            key={i}
+                                                            className="h-4 w-4 fill-gray-300 text-gray-300"
+                                                        />
+                                                    ))}
+                                                    {[...Array(3)].map((_, i) => (
+                                                        <Star
+                                                            key={i}
+                                                            className="h-4 w-4 text-gray-300"
+                                                        />
+                                                    ))}
+                                                    <span className="ml-2 text-xs font-medium text-gray-900">
+                                                        Limited working
+                                                    </span>
+                                                </div>
+                                                <p className="text-xs text-gray-600">
+                                                    An intermediate language skill refers to being
+                                                    able to speak a language but with some
+                                                    difficulty. You can&apos;t speak with the speed
+                                                    of a native and your vocabulary is somewhat
+                                                    limited. However, you&apos;re able to hold
+                                                    conversations in the language and have adequate
+                                                    reading proficiency.
+                                                </p>
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    {/* Elementary */}
+                                    <div className="rounded-lg border border-gray-200 p-4">
+                                        <label className="flex cursor-pointer gap-3">
+                                            <input
+                                                type="radio"
+                                                name="proficiency"
+                                                value="elementary"
+                                                checked={languageForm.proficiency === 'elementary'}
+                                                onChange={(e) =>
+                                                    handleLanguageFieldChange(
+                                                        'proficiency',
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                className="mt-0.5 h-4 w-4 border-gray-300 text-orange-500"
+                                            />
+                                            <div className="flex-1">
+                                                <div className="mb-2 flex items-center gap-1">
+                                                    <Star className="h-4 w-4 fill-gray-300 text-gray-300" />
+                                                    {[...Array(4)].map((_, i) => (
+                                                        <Star
+                                                            key={i}
+                                                            className="h-4 w-4 text-gray-300"
+                                                        />
+                                                    ))}
+                                                    <span className="ml-2 text-xs font-medium text-gray-900">
+                                                        Elementary
+                                                    </span>
+                                                </div>
+                                                <p className="text-xs text-gray-600">
+                                                    A beginner language skill ability means
+                                                    you&apos;re starting to learn a new language.
+                                                    You might know some basic words and phrases, but
+                                                    you have no real understanding of grammar.
+                                                </p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Footer */}
+                            <div className="flex shrink-0 items-center justify-between border-t border-gray-200 bg-white px-6 py-4">
+                                <Button
+                                    variant="ghost"
+                                    onClick={() => setShowLanguagesModal(false)}
+                                    className="text-gray-600"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={handleSaveLanguage}
+                                    className="flex items-center gap-2 bg-orange-500 text-white hover:bg-orange-600"
+                                >
+                                    <Save className="h-4 w-4" />
+                                    Save
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Profile Links Modal */}
+                {showProfileLinksModal && (
+                    <div
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+                        onClick={handleShakeProfileLinkModal}
+                    >
+                        <div
+                            className="relative flex h-[90vh] max-h-[700px] w-full max-w-3xl flex-col overflow-hidden rounded-lg bg-white shadow-xl"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Header */}
+                            <div className="shrink-0 border-b border-gray-200 bg-white px-6 py-4">
+                                <h2 className="text-xl font-bold text-gray-900">Profile Link</h2>
+                            </div>
+
+                            {/* Scrollable Content */}
+                            <motion.div
+                                className="flex-1 overflow-y-auto px-6 py-4"
+                                animate={
+                                    isProfileLinkShaking ? { x: [-10, 10, -10, 10, 0] } : { x: 0 }
+                                }
+                                transition={{ duration: 0.5, ease: 'easeInOut' }}
+                            >
+                                {/* Type Selection */}
+                                <div className="mb-4">
+                                    <Label className="mb-2 text-xs font-medium text-gray-700">
+                                        Type
+                                    </Label>
+                                    <select
+                                        value={profileLinkForm.type}
+                                        onChange={(e) =>
+                                            handleProfileLinkFieldChange('type', e.target.value)
+                                        }
+                                        className="w-full rounded-lg border-2 border-gray-300 bg-white px-3 py-2 pr-8 text-xs"
+                                        style={{
+                                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                                            backgroundRepeat: 'no-repeat',
+                                            backgroundPosition: 'right 0.5rem center',
+                                        }}
+                                    >
+                                        <option value="">Select a platform</option>
+                                        <option value="facebook">Facebook</option>
+                                        <option value="twitter">Twitter</option>
+                                        <option value="linkedin">LinkedIn</option>
+                                        <option value="github">GitHub</option>
+                                        <option value="instagram">Instagram</option>
+                                        <option value="youtube">YouTube</option>
+                                        <option value="portfolio">Portfolio</option>
+                                        <option value="blog">Blog</option>
+                                        <option value="website">Website</option>
+                                    </select>
+                                </div>
+
+                                {/* Username Input */}
+                                <div className="mb-0">
+                                    <Label className="mb-2 text-xs font-medium text-gray-700">
+                                        Username
+                                    </Label>
+                                    <div className="flex items-center">
+                                        <div className="flex items-center rounded-l-lg border-2 border-r-0 border-gray-300 bg-gray-100 px-3 py-2 text-xs text-gray-600">
+                                            {getSocialMediaUrl(profileLinkForm.type)}
+                                        </div>
+                                        <Input
+                                            type="text"
+                                            placeholder="UserName"
+                                            value={profileLinkForm.username}
+                                            onChange={(e) =>
+                                                handleProfileLinkFieldChange(
+                                                    'username',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className="rounded-r-lg border-2 border-gray-300 bg-white text-xs"
+                                        />
+                                    </div>
+                                    <p className="mt-2 text-xs text-gray-500">
+                                        If you are adding social network profile only add the
+                                        username. Please do not link to anything inappropriate or
+                                        risk having your profile banned.
+                                    </p>
+                                </div>
+                            </motion.div>
+
+                            {/* Footer */}
+                            <div className="flex shrink-0 items-center justify-between border-t border-gray-200 bg-white px-6 py-4">
+                                <Button
+                                    variant="ghost"
+                                    onClick={() => setShowProfileLinksModal(false)}
+                                    className="text-gray-600"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={handleSaveProfileLink}
                                     className="flex items-center gap-2 bg-orange-500 text-white hover:bg-orange-600"
                                 >
                                     <Save className="h-4 w-4" />
