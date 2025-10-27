@@ -2456,17 +2456,17 @@ export default function UserProfilePage() {
                         onClick={handleShakeProfileLinkModal}
                     >
                         <div
-                            className="relative flex h-[90vh] max-h-[700px] w-full max-w-3xl flex-col overflow-hidden rounded-lg bg-white shadow-xl"
+                            className="relative flex w-full max-w-3xl flex-col overflow-hidden rounded-lg bg-white shadow-xl"
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* Header */}
-                            <div className="shrink-0 border-b border-gray-200 bg-white px-6 py-4">
+                            <div className="shrink-0 border-b border-gray-200 bg-white px-6 py-3">
                                 <h2 className="text-xl font-bold text-gray-900">Profile Link</h2>
                             </div>
 
                             {/* Scrollable Content */}
                             <motion.div
-                                className="flex-1 overflow-y-auto px-6 py-4"
+                                className="px-6 py-3"
                                 animate={
                                     isProfileLinkShaking ? { x: [-10, 10, -10, 10, 0] } : { x: 0 }
                                 }
@@ -2524,7 +2524,7 @@ export default function UserProfilePage() {
                                             className="rounded-r-lg border-2 border-gray-300 bg-white text-xs"
                                         />
                                     </div>
-                                    <p className="mt-2 text-xs text-gray-500">
+                                    <p className="mt-1 text-xs text-gray-500">
                                         If you are adding social network profile only add the
                                         username. Please do not link to anything inappropriate or
                                         risk having your profile banned.
@@ -2533,7 +2533,7 @@ export default function UserProfilePage() {
                             </motion.div>
 
                             {/* Footer */}
-                            <div className="flex shrink-0 items-center justify-between border-t border-gray-200 bg-white px-6 py-4">
+                            <div className="flex shrink-0 items-center justify-between border-t border-gray-200 bg-white px-6 py-3">
                                 <Button
                                     variant="ghost"
                                     onClick={() => setShowProfileLinksModal(false)}
