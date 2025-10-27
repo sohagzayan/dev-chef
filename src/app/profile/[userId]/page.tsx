@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
     AlertTriangle,
     Briefcase,
+    Building2,
     Camera,
     ChevronDown,
     Edit2,
@@ -17,9 +18,11 @@ import {
     MessageSquare,
     Pencil,
     Plus,
+    Save,
     Search,
     Trash2,
     Upload,
+    User,
     X,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -143,6 +146,132 @@ export default function UserProfilePage() {
         (skill) =>
             skill.toLowerCase().includes(skillSearchQuery.toLowerCase()) &&
             !selectedSkills.includes(skill),
+    );
+
+    // Work Experience Modal State
+    const [showWorkExperienceModal, setShowWorkExperienceModal] = useState(false);
+    const [workExperienceForm, setWorkExperienceForm] = useState({
+        jobTitle: '',
+        company: '',
+        industry: '',
+        skills: [] as string[],
+        remoteWork: false,
+        currentPosition: false,
+        startYear: '',
+        startMonth: '',
+        endYear: '',
+        endMonth: '',
+        summary: '',
+    });
+    const [workExperienceErrors, setWorkExperienceErrors] = useState<{
+        [key: string]: string;
+    }>({});
+    const [skillSearch, setSkillSearch] = useState('');
+    const [showSkillDropdown, setShowSkillDropdown] = useState(false);
+    const [showSkillInput, setShowSkillInput] = useState(false);
+    const [showEndDate, setShowEndDate] = useState(false);
+    const [workSkillsList] = useState([
+        'Ajax.js',
+        'Angular.js',
+        'Apache JMeter',
+        'Asesoría Jurídica',
+        'Backbone.js',
+        'Basic java',
+        'JavaScript',
+        'Python',
+        'React',
+        'Node.js',
+        'Vue.js',
+        'TypeScript',
+        'HTML',
+        'CSS',
+        'SQL',
+        'MongoDB',
+        'Express',
+        'Django',
+        'Flask',
+        'AWS',
+        'Docker',
+        'Git',
+    ]);
+
+    const handleOpenWorkExperienceModal = () => {
+        setShowWorkExperienceModal(true);
+        setWorkExperienceErrors({});
+        setSkillSearch('');
+        setShowSkillDropdown(false);
+        setShowSkillInput(false);
+        setShowEndDate(false);
+    };
+
+    const handleWorkExperienceFieldChange = (field: string, value: string | boolean) => {
+        setWorkExperienceForm({ ...workExperienceForm, [field]: value });
+        // Clear error for this field when user starts typing
+        if (workExperienceErrors[field]) {
+            setWorkExperienceErrors({ ...workExperienceErrors, [field]: '' });
+        }
+    };
+
+    const handleSaveWorkExperience = () => {
+        const errors: { [key: string]: string } = {};
+
+        if (!workExperienceForm.jobTitle.trim()) {
+            errors.jobTitle = 'Job Title is a required field';
+        }
+        if (!workExperienceForm.company.trim()) {
+            errors.company = 'Company is a required field';
+        }
+        if (!workExperienceForm.industry.trim()) {
+            errors.industry = 'Industry is a required field';
+        }
+
+        if (Object.keys(errors).length > 0) {
+            setWorkExperienceErrors(errors);
+            return;
+        }
+
+        // Here you would save the work experience
+        console.log('Saving work experience:', workExperienceForm);
+        setShowWorkExperienceModal(false);
+        // Reset form
+        setWorkExperienceForm({
+            jobTitle: '',
+            company: '',
+            industry: '',
+            skills: [],
+            remoteWork: false,
+            currentPosition: false,
+            startYear: '',
+            startMonth: '',
+            endYear: '',
+            endMonth: '',
+            summary: '',
+        });
+    };
+
+    const handleAddWorkSkill = (skill: string) => {
+        if (!workExperienceForm.skills.includes(skill)) {
+            setWorkExperienceForm({
+                ...workExperienceForm,
+                skills: [...workExperienceForm.skills, skill],
+            });
+        }
+        setSkillSearch('');
+        setShowSkillDropdown(false);
+        setShowSkillInput(false);
+    };
+
+    const handleRemoveWorkSkill = (skillToRemove: string) => {
+        setWorkExperienceForm({
+            ...workExperienceForm,
+            skills: workExperienceForm.skills.filter((skill) => skill !== skillToRemove),
+        });
+    };
+
+    const filteredWorkSkills = workSkillsList.filter(
+        (skill) =>
+            skill.toLowerCase().includes(skillSearch.toLowerCase()) &&
+            !workExperienceForm.skills.includes(skill),
     );
 
     return (
@@ -357,7 +486,10 @@ export default function UserProfilePage() {
                             </p>
                         </div>
                     </div>
-                    <button className="group flex w-full items-center gap-3 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-4 text-left transition-all hover:border-blue-400 hover:bg-blue-50">
+                    <button
+                        onClick={handleOpenWorkExperienceModal}
+                        className="group flex w-full items-center gap-3 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-4 text-left transition-all hover:border-blue-400 hover:bg-blue-50"
+                    >
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm transition-transform group-hover:scale-110">
                             <Plus className="h-5 w-5 text-gray-500 group-hover:text-blue-600" />
                         </div>
@@ -984,6 +1116,436 @@ export default function UserProfilePage() {
                                     disabled={selectedSkills.length < 3}
                                     className="rounded-lg bg-orange-500 px-6 text-white hover:bg-orange-600 disabled:opacity-50"
                                 >
+                                    Save
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Work Experience Modal */}
+                {showWorkExperienceModal && (
+                    <div
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+                        onClick={() => setShowWorkExperienceModal(false)}
+                    >
+                        <div
+                            className="relative flex h-[90vh] max-h-[700px] w-full max-w-3xl flex-col overflow-hidden rounded-lg bg-white shadow-xl"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Header */}
+                            <div className="shrink-0 border-b border-gray-200 bg-white px-6 py-4">
+                                <h2 className="text-2xl font-bold text-gray-900">
+                                    Work Experience
+                                </h2>
+                            </div>
+
+                            {/* Scrollable Content */}
+                            <div className="flex-1 overflow-y-auto px-6 py-6">
+                                {/* Job Title */}
+                                <div className="mb-4">
+                                    <Label className="mb-2 text-sm font-medium text-gray-700">
+                                        Job Title
+                                    </Label>
+                                    <div className="relative">
+                                        <User className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-orange-500" />
+                                        <Input
+                                            type="text"
+                                            placeholder="Job Title"
+                                            value={workExperienceForm.jobTitle}
+                                            onChange={(e) =>
+                                                handleWorkExperienceFieldChange(
+                                                    'jobTitle',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className="rounded-lg border-2 border-gray-300 bg-gray-50 pr-10 pl-10"
+                                        />
+                                        {workExperienceErrors.jobTitle && (
+                                            <AlertTriangle className="absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 text-orange-500" />
+                                        )}
+                                    </div>
+                                    {workExperienceErrors.jobTitle && (
+                                        <p className="mt-1 text-xs text-red-500">
+                                            {workExperienceErrors.jobTitle}
+                                        </p>
+                                    )}
+                                </div>
+
+                                {/* Company */}
+                                <div className="mb-4">
+                                    <Label className="mb-2 text-sm font-medium text-gray-700">
+                                        Company
+                                    </Label>
+                                    <div className="relative">
+                                        <Building2 className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-orange-500" />
+                                        <Input
+                                            type="text"
+                                            placeholder="Company"
+                                            value={workExperienceForm.company}
+                                            onChange={(e) =>
+                                                handleWorkExperienceFieldChange(
+                                                    'company',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className="rounded-lg border-2 border-gray-300 bg-gray-50 pr-10 pl-10"
+                                        />
+                                        {workExperienceErrors.company && (
+                                            <AlertTriangle className="absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 text-orange-500" />
+                                        )}
+                                    </div>
+                                    {workExperienceErrors.company && (
+                                        <p className="mt-1 text-xs text-red-500">
+                                            {workExperienceErrors.company}
+                                        </p>
+                                    )}
+                                </div>
+
+                                {/* Industry */}
+                                <div className="mb-4">
+                                    <Label className="mb-2 text-sm font-medium text-gray-700">
+                                        Industry
+                                    </Label>
+                                    <div className="relative">
+                                        <Briefcase className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-orange-500" />
+                                        <Input
+                                            type="text"
+                                            placeholder="Industry"
+                                            value={workExperienceForm.industry}
+                                            onChange={(e) =>
+                                                handleWorkExperienceFieldChange(
+                                                    'industry',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className="rounded-lg border-2 border-gray-300 bg-gray-50 pr-10 pl-10"
+                                        />
+                                        {workExperienceErrors.industry && (
+                                            <AlertTriangle className="absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 text-orange-500" />
+                                        )}
+                                    </div>
+                                    {workExperienceErrors.industry && (
+                                        <p className="mt-1 text-xs text-red-500">
+                                            {workExperienceErrors.industry}
+                                        </p>
+                                    )}
+                                </div>
+
+                                {/* Skills */}
+                                <div className="mb-4">
+                                    <Label className="mb-2 text-sm font-medium text-gray-700">
+                                        Skills
+                                    </Label>
+
+                                    {/* Selected Skills */}
+                                    {workExperienceForm.skills.length > 0 && (
+                                        <div className="mb-2 flex flex-wrap gap-2">
+                                            {workExperienceForm.skills.map((skill) => (
+                                                <div
+                                                    key={skill}
+                                                    className="flex items-center gap-1 rounded-md bg-gray-100 px-3 py-1.5 text-sm text-gray-700"
+                                                >
+                                                    <span>{skill}</span>
+                                                    <button
+                                                        onClick={() => handleRemoveWorkSkill(skill)}
+                                                        className="text-orange-500 hover:text-orange-600"
+                                                    >
+                                                        <X className="h-4 w-4" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* Conditional: Button or Input */}
+                                    <AnimatePresence mode="wait">
+                                        {!showSkillInput ? (
+                                            <motion.div
+                                                key="button"
+                                                initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                                transition={{ duration: 0.2, ease: 'easeInOut' }}
+                                            >
+                                                <Button
+                                                    onClick={() => setShowSkillInput(true)}
+                                                    className="w-full justify-start bg-orange-500 text-white hover:bg-orange-600"
+                                                >
+                                                    <div className="mr-2 flex h-5 w-5 items-center justify-center rounded-full bg-white">
+                                                        <Plus className="h-4 w-4 text-orange-500" />
+                                                    </div>
+                                                    Add skill, software, or tool
+                                                </Button>
+                                            </motion.div>
+                                        ) : (
+                                            <motion.div
+                                                key="input"
+                                                initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                                transition={{ duration: 0.2, ease: 'easeInOut' }}
+                                                className="relative"
+                                            >
+                                                <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                                <Input
+                                                    type="text"
+                                                    placeholder="Type to search for a skill"
+                                                    value={skillSearch}
+                                                    onChange={(e) => {
+                                                        setSkillSearch(e.target.value);
+                                                        setShowSkillDropdown(true);
+                                                    }}
+                                                    onFocus={() => setShowSkillDropdown(true)}
+                                                    onBlur={() => {
+                                                        setTimeout(() => {
+                                                            setShowSkillDropdown(false);
+                                                            setShowSkillInput(false);
+                                                            setSkillSearch('');
+                                                        }, 200);
+                                                    }}
+                                                    autoFocus
+                                                    className="rounded-lg border-2 border-green-200 bg-gray-50 pr-4 pl-10"
+                                                />
+
+                                                {/* Dropdown Suggestions */}
+                                                {showSkillDropdown &&
+                                                    skillSearch &&
+                                                    filteredWorkSkills.length > 0 && (
+                                                        <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+                                                            {filteredWorkSkills.map((skill) => (
+                                                                <button
+                                                                    key={skill}
+                                                                    onClick={() =>
+                                                                        handleAddWorkSkill(skill)
+                                                                    }
+                                                                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                                                                >
+                                                                    {skill}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+
+                                {/* Toggle Switches */}
+                                <div className="mb-4 flex flex-col gap-3">
+                                    <div className="flex items-center gap-3">
+                                        <Switch
+                                            id="remoteWork"
+                                            checked={workExperienceForm.remoteWork}
+                                            onCheckedChange={(checked) =>
+                                                handleWorkExperienceFieldChange(
+                                                    'remoteWork',
+                                                    checked,
+                                                )
+                                            }
+                                        />
+                                        <Label
+                                            htmlFor="remoteWork"
+                                            className="text-sm text-gray-700"
+                                        >
+                                            This was a remote work position
+                                        </Label>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <Switch
+                                            id="currentPosition"
+                                            checked={workExperienceForm.currentPosition}
+                                            onCheckedChange={(checked) =>
+                                                handleWorkExperienceFieldChange(
+                                                    'currentPosition',
+                                                    checked,
+                                                )
+                                            }
+                                        />
+                                        <Label
+                                            htmlFor="currentPosition"
+                                            className="text-sm text-gray-700"
+                                        >
+                                            This is my current position
+                                        </Label>
+                                    </div>
+                                </div>
+
+                                {/* Date Range */}
+                                <div className="mb-4">
+                                    <div className="mb-3 flex flex-col gap-3 md:flex-row md:gap-6">
+                                        <div className="flex-1">
+                                            <Label className="mb-1 text-sm font-medium text-gray-700 md:mb-2">
+                                                From
+                                            </Label>
+                                            <div className="flex gap-2">
+                                                <select
+                                                    value={workExperienceForm.startYear}
+                                                    onChange={(e) =>
+                                                        handleWorkExperienceFieldChange(
+                                                            'startYear',
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                    className="flex-1 rounded-lg border-2 border-gray-300 bg-white px-3 py-2 pr-8 text-sm"
+                                                    style={{
+                                                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http:// Konum/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                                                        backgroundRepeat: 'no-repeat',
+                                                        backgroundPosition: 'right 0.5rem center',
+                                                    }}
+                                                >
+                                                    <option value="">Year</option>
+                                                    {Array.from({ length: 30 }, (_, i) => (
+                                                        <option key={2025 - i} value={2025 - i}>
+                                                            {2025 - i}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <select
+                                                    value={workExperienceForm.startMonth}
+                                                    onChange={(e) =>
+                                                        handleWorkExperienceFieldChange(
+                                                            'startMonth',
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                    className="flex-1 rounded-lg border-2 border-green-200 bg-white px-3 py-2 pr-8 text-sm"
+                                                    style={{
+                                                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                                                        backgroundRepeat: 'no-repeat',
+                                                        backgroundPosition: 'right 0.5rem center',
+                                                    }}
+                                                >
+                                                    <option value="">---</option>
+                                                    <option value="01">January</option>
+                                                    <option value="02">February</option>
+                                                    <option value="03">March</option>
+                                                    <option value="04">April</option>
+                                                    <option value="05">May</option>
+                                                    <option value="06">June</option>
+                                                    <option value="07">July</option>
+                                                    <option value="08">August</option>
+                                                    <option value="09">September</option>
+                                                    <option value="10">October</option>
+                                                    <option value="11">November</option>
+                                                    <option value="12">December</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div className="flex-1">
+                                            <Label className="mb-1 text-sm font-medium text-gray-700 md:mb-2">
+                                                To
+                                            </Label>
+                                            {!showEndDate ? (
+                                                <button
+                                                    onClick={() => setShowEndDate(true)}
+                                                    className="flex w-full items-center justify-start gap-2 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100"
+                                                >
+                                                    <Plus className="h-4 w-4" />
+                                                    Add end
+                                                </button>
+                                            ) : (
+                                                <div className="flex gap-2">
+                                                    <select
+                                                        value={workExperienceForm.endYear}
+                                                        onChange={(e) =>
+                                                            handleWorkExperienceFieldChange(
+                                                                'endYear',
+                                                                e.target.value,
+                                                            )
+                                                        }
+                                                        className="flex-1 rounded-lg border-2 border-gray-300 bg-white px-3 py-2 pr-8 text-sm"
+                                                        style={{
+                                                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                                                            backgroundRepeat: 'no-repeat',
+                                                            backgroundPosition:
+                                                                'right 0.5rem center',
+                                                        }}
+                                                    >
+                                                        <option value="">Year</option>
+                                                        {Array.from({ length: 30 }, (_, i) => (
+                                                            <option key={2025 - i} value={2025 - i}>
+                                                                {2025 - i}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                    <select
+                                                        value={workExperienceForm.endMonth}
+                                                        onChange={(e) =>
+                                                            handleWorkExperienceFieldChange(
+                                                                'endMonth',
+                                                                e.target.value,
+                                                            )
+                                                        }
+                                                        className="flex-1 rounded-lg border-2 border-green-200 bg-white px-3 py-2 pr-8 text-sm"
+                                                        style={{
+                                                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' itsBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                                                            backgroundRepeat: 'no-repeat',
+                                                            backgroundPosition:
+                                                                'right 0.5rem center',
+                                                        }}
+                                                    >
+                                                        <option value="">---</option>
+                                                        <option value="01">January</option>
+                                                        <option value="02">February</option>
+                                                        <option value="03">March</option>
+                                                        <option value="04">April</option>
+                                                        <option value="05">May</option>
+                                                        <option value="06">June</option>
+                                                        <option value="07">July</option>
+                                                        <option value="08">August</option>
+                                                        <option value="09">September</option>
+                                                        <option value="10">October</option>
+                                                        <option value="11">November</option>
+                                                        <option value="12">December</option>
+                                                    </select>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Work Experience Summary */}
+                                <div className="mb-6">
+                                    <Label className="mb-2 text-sm font-medium text-gray-700">
+                                        Work Experience Summary
+                                    </Label>
+                                    <textarea
+                                        placeholder="Write a few sentences about your work experience"
+                                        value={workExperienceForm.summary}
+                                        onChange={(e) =>
+                                            handleWorkExperienceFieldChange(
+                                                'summary',
+                                                e.target.value,
+                                            )
+                                        }
+                                        className="h-32 w-full rounded-lg border-2 border-gray-300 bg-gray-50 px-3 py-2 text-sm"
+                                        rows={4}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Footer */}
+                            <div className="flex shrink-0 items-center justify-between border-t border-gray-200 bg-white px-6 py-4">
+                                <div className="flex flex-col gap-1">
+                                    <Button
+                                        variant="ghost"
+                                        onClick={() => setShowWorkExperienceModal(false)}
+                                        className="text-gray-600"
+                                    >
+                                        Cancel
+                                    </Button>
+                                    {workExperienceErrors.company && (
+                                        <p className="text-xs text-red-500">
+                                            {workExperienceErrors.company}
+                                        </p>
+                                    )}
+                                </div>
+                                <Button
+                                    onClick={handleSaveWorkExperience}
+                                    className="flex items-center gap-2 bg-orange-500 text-white hover:bg-orange-600"
+                                >
+                                    <Save className="h-4 w-4" />
                                     Save
                                 </Button>
                             </div>
