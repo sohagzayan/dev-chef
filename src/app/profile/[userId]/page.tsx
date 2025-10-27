@@ -170,6 +170,7 @@ export default function UserProfilePage() {
     const [showSkillDropdown, setShowSkillDropdown] = useState(false);
     const [showSkillInput, setShowSkillInput] = useState(false);
     const [showEndDate, setShowEndDate] = useState(false);
+    const [isShaking, setIsShaking] = useState(false);
     const [workSkillsList] = useState([
         'Ajax.js',
         'Angular.js',
@@ -202,6 +203,12 @@ export default function UserProfilePage() {
         setShowSkillDropdown(false);
         setShowSkillInput(false);
         setShowEndDate(false);
+        setIsShaking(false);
+    };
+
+    const handleShakeModal = () => {
+        setIsShaking(true);
+        setTimeout(() => setIsShaking(false), 500);
     };
 
     const handleWorkExperienceFieldChange = (field: string, value: string | boolean) => {
@@ -1127,7 +1134,7 @@ export default function UserProfilePage() {
                 {showWorkExperienceModal && (
                     <div
                         className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-                        onClick={() => setShowWorkExperienceModal(false)}
+                        onClick={handleShakeModal}
                     >
                         <div
                             className="relative flex h-[90vh] max-h-[700px] w-full max-w-3xl flex-col overflow-hidden rounded-lg bg-white shadow-xl"
@@ -1141,7 +1148,11 @@ export default function UserProfilePage() {
                             </div>
 
                             {/* Scrollable Content */}
-                            <div className="flex-1 overflow-y-auto px-6 py-6">
+                            <motion.div
+                                className="flex-1 overflow-y-auto px-6 py-6"
+                                animate={isShaking ? { x: [-10, 10, -10, 10, 0] } : { x: 0 }}
+                                transition={{ duration: 0.5, ease: 'easeInOut' }}
+                            >
                                 {/* Job Title */}
                                 <div className="mb-4">
                                     <Label className="mb-2 text-sm font-medium text-gray-700">
@@ -1523,7 +1534,7 @@ export default function UserProfilePage() {
                                         rows={4}
                                     />
                                 </div>
-                            </div>
+                            </motion.div>
 
                             {/* Footer */}
                             <div className="flex shrink-0 items-center justify-between border-t border-gray-200 bg-white px-6 py-4">
