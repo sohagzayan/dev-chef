@@ -3,6 +3,8 @@ generator client {
   output   = "../src/generated/prisma"
 }
 
+// Note: Update this path if you change the structure
+
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
