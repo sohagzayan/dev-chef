@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-    title: 'DevChef - Production Ready Platform',
+    title: 'Hirely.ai - Production Ready Platform',
     description: 'Scalable, production-ready application platform',
 };
 

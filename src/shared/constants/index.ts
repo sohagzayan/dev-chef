@@ -1,5 +1,5 @@
 // Shared constants
-export const APP_NAME = 'DevChef';
+export const APP_NAME = 'Hirely.ai';
 export const APP_VERSION = '1.0.0';
 
 // API Routes

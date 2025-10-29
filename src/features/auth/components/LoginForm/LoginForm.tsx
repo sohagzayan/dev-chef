@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { loginSchema, type LoginInput } from '../../lib/validators';
+import { useRouter } from 'next/navigation';
+import { loginAction, type LoginActionResult } from '../../actions';
 
 export function LoginForm() {
-    const [formData, setFormData] = useState<LoginInput>({
+    const router = useRouter();
+    const [formData, setFormData] = useState({
         email: '',
         password: '',
     });
@@ -17,12 +19,24 @@ export function LoginForm() {
         setErrors({});
 
         try {
-            const validated = loginSchema.parse(formData);
-            // TODO: Call authentication service
-            console.log('Login attempt:', validated);
+            const formDataObj = new FormData();
+            formDataObj.append('email', formData.email);
+            formDataObj.append('password', formData.password);
+
+            const result: LoginActionResult = await loginAction(formDataObj);
+
+            if (result.success) {
+                // Redirect to dashboard on success
+                router.push('/dashboard');
+                router.refresh();
+            } else {
+                setErrors({ form: result.error || 'Login failed' });
+            }
         } catch (error) {
             if (error instanceof Error) {
                 setErrors({ form: error.message });
+            } else {
+                setErrors({ form: 'An unexpected error occurred' });
             }
         } finally {
             setLoading(false);
