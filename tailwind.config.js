@@ -7,9 +7,14 @@ module.exports = {
         './src/shared/**/*.{js,ts,jsx,tsx,mdx}',
         './src/infrastructure/**/*.{js,ts,jsx,tsx,mdx}',
     ],
-    safelist: ['bg-fresh-lime'], // ✅ keep your custom class from being purged
     theme: {
-        extend: {},
+        extend: {
+            colors: {
+                background: 'hsl(var(--background))',
+                foreground: 'hsl(var(--foreground))',
+                border: 'hsl(var(--border))',
+            },
+        },
     },
     plugins: [],
 };
