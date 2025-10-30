@@ -1,4 +1,6 @@
-import { jobCategories, jobStats, topSkills } from '../lib/constants';
+'use client';
+
+import { useEffect, useMemo, useState } from 'react';
 import { SearchBar } from './SearchBar';
 
 interface HeroSectionProps {
@@ -6,130 +8,83 @@ interface HeroSectionProps {
 }
 
 export default function HeroSection({ className = '' }: HeroSectionProps) {
+    // Rotating subtitle lines
+    const subtitles = useMemo(
+        () => [
+            'Do it with AI Copilot',
+            'Automate your job search',
+            'Tailored resumes in seconds',
+            'Find insider connections fast',
+        ],
+        [],
+    );
+
+    const [currentIdx, setCurrentIdx] = useState(0);
+    const [animating, setAnimating] = useState(false);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setAnimating(true);
+            const timeout = setTimeout(() => {
+                setCurrentIdx((prev) => (prev + 1) % subtitles.length);
+                setAnimating(false);
+            }, 700); // matches transition duration
+            return () => clearTimeout(timeout);
+        }, 2500);
+        return () => clearInterval(interval);
+    }, [subtitles.length]);
     return (
         <section
-            className={`relative overflow-hidden py-14 md:py-20 ${className}`}
+            className={`relative overflow-hidden py-20 md:py-28 ${className}`}
             style={{
-                backgroundColor: '#ECF4FA',
+                backgroundColor: '#ffffff',
                 backgroundImage:
-                    'radial-gradient(1200px 600px at -10% -20%, #F5FAFF 0%, transparent 60%), radial-gradient(1000px 500px at 110% -10%, #F5FAFF 0%, transparent 60%)',
+                    'repeating-linear-gradient(90deg,#e2e2e2,#fafafa 1px,transparent 0,transparent 52px),repeating-linear-gradient(180deg,rgba(235,235,235,1) 0,rgba(235,235,235,1) 1px,transparent 0,transparent 52px)',
             }}
         >
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid items-center gap-10 lg:grid-cols-12">
-                    <div className="mx-auto max-w-3xl text-center lg:col-span-7 lg:mx-0 lg:text-left">
-                        {/* Top meta */}
-                        <div className="mb-4 flex items-center justify-center gap-2 text-xs text-gray-600 md:mb-6">
-                            <svg
-                                className="h-4 w-4 text-green-600"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
+            <div className="container mx-auto flex min-h-[70vh] items-center justify-center px-4 sm:px-6 lg:px-8">
+                <div className="w-full max-w-5xl text-center">
+                    <h1 className="mx-auto mb-3 max-w-4xl text-4xl leading-[1.1] font-extrabold text-black sm:text-5xl md:text-6xl">
+                        No More Solo Job Hunting
+                    </h1>
+                    <h2 className="mx-auto mb-6 max-w-3xl text-2xl font-extrabold text-black sm:text-3xl md:text-4xl">
+                        <span className="relative block h-[1.2em] overflow-hidden sm:h-[1.25em]">
+                            {/* current */}
+                            <span
+                                className={`absolute left-1/2 -translate-x-1/2 whitespace-nowrap transition-all duration-700 ease-out ${
+                                    animating
+                                        ? '-translate-y-full opacity-0'
+                                        : 'translate-y-0 opacity-100'
+                                }`}
                             >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                />
-                            </svg>
-                            <span className="font-medium">
-                                Trusted by {jobStats.totalJobs.toLocaleString()}+ companies
+                                {subtitles[currentIdx]}
                             </span>
-                        </div>
+                            {/* next */}
+                            <span
+                                className={`absolute left-1/2 -translate-x-1/2 whitespace-nowrap transition-all duration-700 ease-out ${
+                                    animating
+                                        ? 'translate-y-0 opacity-100'
+                                        : 'translate-y-full opacity-0'
+                                }`}
+                            >
+                                {subtitles[(currentIdx + 1) % subtitles.length]}
+                            </span>
+                        </span>
+                    </h2>
+                    <p className="mx-auto mb-10 max-w-3xl text-base leading-relaxed text-gray-700 sm:text-lg md:text-xl">
+                        Our AI makes landing job interviews dramatically easier and faster! - get
+                        matched jobs, tailored resume, and recommended insider connections in less
+                        than 1 min!
+                    </p>
 
-                        {/* Heading */}
-                        <h1 className="mx-auto mb-3 max-w-2xl text-3xl leading-tight font-semibold text-gray-900 sm:text-4xl md:text-5xl lg:mx-0">
-                            Find and hire top remote talent faster
-                        </h1>
-                        <p className="mx-auto mb-8 max-w-xl text-sm leading-relaxed text-gray-700 sm:text-base lg:mx-0">
-                            Post your job and get matched with qualified candidates instantly. Smart
-                            search, clean workflows, zero noise.
-                        </p>
-
-                        {/* Search */}
-                        <div className="mx-auto mb-8 max-w-2xl md:mb-10 lg:mx-0">
-                            <SearchBar />
-                        </div>
-
-                        {/* CTA */}
-                        <div className="mb-10 flex justify-center lg:justify-start">
-                            <button className="rounded-md bg-red-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none sm:px-8 sm:py-3.5">
-                                Post a job for $299
-                            </button>
-                        </div>
-
-                        {/* Stats */}
-                        <div className="mx-auto grid max-w-2xl grid-cols-3 gap-6 text-left text-sm text-gray-700 lg:mx-0">
-                            <div>
-                                <div className="text-2xl font-bold text-gray-900">
-                                    {jobStats.totalJobs.toLocaleString()}
-                                </div>
-                                <div className="mt-1">Active Jobs</div>
-                            </div>
-                            <div>
-                                <div className="text-2xl font-bold text-gray-900">
-                                    {jobStats.monthlyVisitors}
-                                </div>
-                                <div className="mt-1">Monthly Visitors</div>
-                            </div>
-                            <div>
-                                <div className="text-2xl font-bold text-gray-900">
-                                    {jobStats.yearsExperience}+
-                                </div>
-                                <div className="mt-1">Years Experience</div>
-                            </div>
-                        </div>
+                    <div className="mb-10 flex justify-center">
+                        <button className="cta-animated inline-flex cursor-pointer items-center justify-center rounded-2xl bg-[#e60000] px-7 py-4 text-base font-bold text-white shadow-md transition-all duration-200 hover:bg-[#d40000] active:translate-y-0.5 sm:px-9 sm:py-5 sm:text-lg">
+                            Post a job for $299
+                        </button>
                     </div>
-                    {/* Right side: simple decorative card to balance layout on desktop */}
-                    <div className="relative hidden lg:col-span-5 lg:block">
-                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/70 to-white/40 backdrop-blur-sm" />
-                        <div className="relative rounded-2xl border border-white/60 bg-white/80 p-6 shadow-sm">
-                            <div className="mb-4 text-xs font-semibold tracking-wide text-gray-500 uppercase">
-                                Recent matches
-                            </div>
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3">
-                                    <div>
-                                        <div className="text-sm font-medium text-gray-900">
-                                            Senior React Developer
-                                        </div>
-                                        <div className="text-xs text-gray-500">
-                                            Sanity • Remote (Global)
-                                        </div>
-                                    </div>
-                                    <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">
-                                        Matched
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3">
-                                    <div>
-                                        <div className="text-sm font-medium text-gray-900">
-                                            Product Designer
-                                        </div>
-                                        <div className="text-xs text-gray-500">
-                                            Linear • Remote (EU)
-                                        </div>
-                                    </div>
-                                    <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700">
-                                        Interviewing
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3">
-                                    <div>
-                                        <div className="text-sm font-medium text-gray-900">
-                                            Platform Engineer
-                                        </div>
-                                        <div className="text-xs text-gray-500">
-                                            Vercel • Remote (US)
-                                        </div>
-                                    </div>
-                                    <span className="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-semibold text-orange-700">
-                                        New
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+
+                    <div className="mx-auto max-w-xl">
+                        <SearchBar />
                     </div>
                 </div>
             </div>

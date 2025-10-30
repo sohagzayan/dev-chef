@@ -20,3 +20,46 @@
         font-family: var(--font-geist-sans);
     }
 }
+
+/* Animated CTA button styles */
+.cta-animated {
+    position: relative;
+    overflow: hidden;
+    animation: ctaPulse 2.8s ease-in-out infinite;
+}
+.cta-animated::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(
+        115deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.25) 30%,
+        transparent 60%
+    );
+    transform: translateX(-150%);
+    animation: ctaShine 3.5s ease-in-out infinite;
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+@keyframes ctaPulse {
+    0%,
+    100% {
+        box-shadow: 0 8px 20px rgba(230, 0, 0, 0.2);
+        transform: translateY(0);
+    }
+    50% {
+        box-shadow: 0 12px 28px rgba(230, 0, 0, 0.32);
+        transform: translateY(-1px);
+    }
+}
+
+@keyframes ctaShine {
+    0% {
+        transform: translateX(-150%);
+    }
+    100% {
+        transform: translateX(150%);
+    }
+}
