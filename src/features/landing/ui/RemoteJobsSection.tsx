@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useRef, useState } from 'react';
+import { topSkills as topSkillsSeed } from '../lib/constants';
 import type { Job } from '../model/types';
 import { JobCard } from './JobCard';
 
@@ -9,6 +10,180 @@ interface RemoteJobsSectionProps {
 }
 
 export default function RemoteJobsSection({ className = '' }: RemoteJobsSectionProps) {
+    // Job category suggestions (static list for now)
+    const categorySuggestions = useMemo(
+        () => [
+            'Sales and Marketing',
+            'Management and Finance',
+            'Product',
+            'All Other Remote',
+            'Design',
+            'Full-Stack Programming',
+            'Front-End Programming',
+            'Back-End Programming',
+            'Customer Support',
+            'DevOps and Sysadmin',
+        ],
+        [],
+    );
+
+    const [categoryQuery, setCategoryQuery] = useState('');
+    const [showCategoryList, setShowCategoryList] = useState(false);
+    const categoryWrapperRef = useRef<HTMLDivElement | null>(null);
+
+    // Countries suggestions (top 50 with flags)
+    const countrySuggestions = useMemo(
+        () => [
+            { name: 'United States', flag: '🇺🇸' },
+            { name: 'China', flag: '🇨🇳' },
+            { name: 'India', flag: '🇮🇳' },
+            { name: 'Indonesia', flag: '🇮🇩' },
+            { name: 'Pakistan', flag: '🇵🇰' },
+            { name: 'Nigeria', flag: '🇳🇬' },
+            { name: 'Brazil', flag: '🇧🇷' },
+            { name: 'Bangladesh', flag: '🇧🇩' },
+            { name: 'Russia', flag: '🇷🇺' },
+            { name: 'Mexico', flag: '🇲🇽' },
+            { name: 'Japan', flag: '🇯🇵' },
+            { name: 'Ethiopia', flag: '🇪🇹' },
+            { name: 'Philippines', flag: '🇵🇭' },
+            { name: 'Egypt', flag: '🇪🇬' },
+            { name: 'Vietnam', flag: '🇻🇳' },
+            { name: 'DR Congo', flag: '🇨🇩' },
+            { name: 'Turkey', flag: '🇹🇷' },
+            { name: 'Iran', flag: '🇮🇷' },
+            { name: 'Germany', flag: '🇩🇪' },
+            { name: 'Thailand', flag: '🇹🇭' },
+            { name: 'United Kingdom', flag: '🇬🇧' },
+            { name: 'France', flag: '🇫🇷' },
+            { name: 'Italy', flag: '🇮🇹' },
+            { name: 'Tanzania', flag: '🇹🇿' },
+            { name: 'South Africa', flag: '🇿🇦' },
+            { name: 'Myanmar', flag: '🇲🇲' },
+            { name: 'Kenya', flag: '🇰🇪' },
+            { name: 'South Korea', flag: '🇰🇷' },
+            { name: 'Colombia', flag: '🇨🇴' },
+            { name: 'Spain', flag: '🇪🇸' },
+            { name: 'Uganda', flag: '🇺🇬' },
+            { name: 'Argentina', flag: '🇦🇷' },
+            { name: 'Algeria', flag: '🇩🇿' },
+            { name: 'Sudan', flag: '🇸🇩' },
+            { name: 'Ukraine', flag: '🇺🇦' },
+            { name: 'Iraq', flag: '🇮🇶' },
+            { name: 'Afghanistan', flag: '🇦🇫' },
+            { name: 'Poland', flag: '🇵🇱' },
+            { name: 'Canada', flag: '🇨🇦' },
+            { name: 'Morocco', flag: '🇲🇦' },
+            { name: 'Saudi Arabia', flag: '🇸🇦' },
+            { name: 'Peru', flag: '🇵🇪' },
+            { name: 'Malaysia', flag: '🇲🇾' },
+            { name: 'Uzbekistan', flag: '🇺🇿' },
+            { name: 'Angola', flag: '🇦🇴' },
+            { name: 'Ghana', flag: '🇬🇭' },
+            { name: 'Yemen', flag: '🇾🇪' },
+            { name: 'Nepal', flag: '🇳🇵' },
+            { name: 'Venezuela', flag: '🇻🇪' },
+            { name: 'Madagascar', flag: '🇲🇬' },
+        ],
+        [],
+    );
+
+    const [countryQuery, setCountryQuery] = useState('');
+    const [showCountryList, setShowCountryList] = useState(false);
+    const countryWrapperRef = useRef<HTMLDivElement | null>(null);
+
+    const filteredCountries = useMemo(() => {
+        const q = countryQuery.trim().toLowerCase();
+        if (!q) return countrySuggestions;
+        return countrySuggestions.filter((c) => c.name.toLowerCase().includes(q));
+    }, [countryQuery, countrySuggestions]);
+
+    // Salary ranges dropdown
+    const salaryOptions = useMemo(
+        () => [
+            '$10,000 - $25,000 USD',
+            '$25,000 - $48,999 USD',
+            '$50,000 - $74,999 USD',
+            '$75,000 - $99,999 USD',
+            '$100,000 or more USD',
+        ],
+        [],
+    );
+    const [salaryQuery, setSalaryQuery] = useState('');
+    const [showSalaryList, setShowSalaryList] = useState(false);
+    const salaryWrapperRef = useRef<HTMLDivElement | null>(null);
+
+    // Skills multi-select
+    const skillsSuggestions = useMemo(() => {
+        const fromSeed = (topSkillsSeed || []).map((s) => s.name);
+        const extras = [
+            'JavaScript',
+            'TypeScript',
+            'Node.js',
+            'React',
+            'Next.js',
+            'Vue',
+            'Angular',
+            'Python',
+            'Django',
+            'Flask',
+            'Ruby on Rails',
+            'Go',
+            'Java',
+            'Spring Boot',
+            'Kotlin',
+            'Swift',
+            'Objective-C',
+            'React Native',
+            'Flutter',
+            'AWS',
+            'GCP',
+            'Azure',
+            'Docker',
+            'Kubernetes',
+            'PostgreSQL',
+            'MySQL',
+            'MongoDB',
+            'GraphQL',
+            'REST APIs',
+            'CI/CD',
+            'Terraform',
+            'Data Visualization',
+            'Amazon Seller Central',
+        ];
+        // Deduplicate
+        return Array.from(new Set([...fromSeed, ...extras]));
+    }, []);
+    const [skillsQuery, setSkillsQuery] = useState('');
+    const [showSkillsList, setShowSkillsList] = useState(false);
+    const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+    const skillsWrapperRef = useRef<HTMLDivElement | null>(null);
+    const filteredSkills = useMemo(() => {
+        const q = skillsQuery.trim().toLowerCase();
+        const base = q
+            ? skillsSuggestions.filter((s) => s.toLowerCase().includes(q))
+            : skillsSuggestions;
+        // Hide already selected
+        return base.filter((s) => !selectedSkills.includes(s));
+    }, [skillsQuery, skillsSuggestions, selectedSkills]);
+
+    const addSkill = (skill: string) => {
+        if (!selectedSkills.includes(skill)) {
+            setSelectedSkills([...selectedSkills, skill]);
+        }
+        setSkillsQuery('');
+        setShowSkillsList(true);
+    };
+    const removeSkill = (skill: string) => {
+        setSelectedSkills(selectedSkills.filter((s) => s !== skill));
+    };
+
+    // Filtered items
+    const filteredCategories = useMemo(() => {
+        const q = categoryQuery.trim().toLowerCase();
+        if (!q) return categorySuggestions;
+        return categorySuggestions.filter((c) => c.toLowerCase().includes(q));
+    }, [categoryQuery, categorySuggestions]);
     // Demo data – replace with real data fetching when available
     const jobs: Job[] = useMemo(
         () => [
@@ -171,7 +346,10 @@ export default function RemoteJobsSection({ className = '' }: RemoteJobsSectionP
 
                                 {/* Search */}
                                 <div className="mb-5">
-                                    <div className="flex items-center rounded-2xl border border-gray-200 bg-white px-4 py-2 text-gray-600">
+                                    <div
+                                        ref={categoryWrapperRef}
+                                        className="relative flex items-center rounded-2xl border border-gray-200 bg-white px-4 py-2 text-gray-600"
+                                    >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             fill="none"
@@ -207,25 +385,66 @@ export default function RemoteJobsSection({ className = '' }: RemoteJobsSectionP
                                         </svg>
                                         Job Categories
                                     </label>
-                                    <div className="flex items-center rounded-2xl border border-gray-200 bg-white px-4 py-2 text-gray-600">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth={1.5}
-                                            stroke="currentColor"
-                                            className="h-5 w-5"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.75 3.75a7.5 7.5 0 001.5 11.25 7.5 7.5 0 0012.9 1.65z"
+                                    <div ref={categoryWrapperRef} className="relative">
+                                        <div className="flex items-center rounded-2xl border border-gray-200 bg-white px-4 py-2 text-gray-600">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                strokeWidth={1.5}
+                                                stroke="currentColor"
+                                                className="h-5 w-5"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.75 3.75a7.5 7.5 0 0012.9 12.9z"
+                                                />
+                                            </svg>
+                                            <input
+                                                className="ml-3 w-full border-0 p-0 text-base outline-none placeholder:text-gray-400"
+                                                placeholder="Search job category..."
+                                                value={categoryQuery}
+                                                onChange={(e) => setCategoryQuery(e.target.value)}
+                                                onFocus={() => setShowCategoryList(true)}
+                                                onBlur={(e) => {
+                                                    // Delay hiding so click can register
+                                                    setTimeout(
+                                                        () => setShowCategoryList(false),
+                                                        100,
+                                                    );
+                                                }}
                                             />
-                                        </svg>
-                                        <input
-                                            className="ml-3 w-full border-0 p-0 text-base outline-none placeholder:text-gray-400"
-                                            placeholder="Search job category..."
-                                        />
+                                        </div>
+
+                                        {showCategoryList && (
+                                            <div className="absolute [top:calc(100%+0.5rem)] right-0 left-0 z-20 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl">
+                                                <ul className="max-h-64 overflow-y-auto py-2">
+                                                    {filteredCategories.length === 0 && (
+                                                        <li className="px-4 py-2 text-sm text-gray-500">
+                                                            No matches
+                                                        </li>
+                                                    )}
+                                                    {filteredCategories.map((item) => (
+                                                        <li key={item}>
+                                                            <button
+                                                                type="button"
+                                                                className="flex w-full items-center justify-between px-4 py-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                                                                onMouseDown={(e) =>
+                                                                    e.preventDefault()
+                                                                }
+                                                                onClick={() => {
+                                                                    setCategoryQuery(item);
+                                                                    setShowCategoryList(false);
+                                                                }}
+                                                            >
+                                                                <span>{item}</span>
+                                                            </button>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -244,25 +463,65 @@ export default function RemoteJobsSection({ className = '' }: RemoteJobsSectionP
                                         </svg>
                                         Countries
                                     </label>
-                                    <div className="flex items-center rounded-2xl border border-gray-200 bg-white px-4 py-2 text-gray-600">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth={1.5}
-                                            stroke="currentColor"
-                                            className="h-5 w-5"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.75 3.75a7.5 7.5 0 0012.9 12.9z"
+                                    <div ref={countryWrapperRef} className="relative">
+                                        <div className="flex items-center rounded-2xl border border-gray-200 bg-white px-4 py-2 text-gray-600">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                strokeWidth={1.5}
+                                                stroke="currentColor"
+                                                className="h-5 w-5"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.75 3.75a7.5 7.5 0 0012.9 12.9z"
+                                                />
+                                            </svg>
+                                            <input
+                                                className="ml-3 w-full border-0 p-0 text-base outline-none placeholder:text-gray-400"
+                                                placeholder="Search country..."
+                                                value={countryQuery}
+                                                onChange={(e) => setCountryQuery(e.target.value)}
+                                                onFocus={() => setShowCountryList(true)}
+                                                onBlur={() =>
+                                                    setTimeout(() => setShowCountryList(false), 100)
+                                                }
                                             />
-                                        </svg>
-                                        <input
-                                            className="ml-3 w-full border-0 p-0 text-base outline-none placeholder:text-gray-400"
-                                            placeholder="Search country..."
-                                        />
+                                        </div>
+
+                                        {showCountryList && (
+                                            <div className="absolute [top:calc(100%+0.5rem)] right-0 left-0 z-20 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl">
+                                                <ul className="max-h-64 overflow-y-auto py-2">
+                                                    {filteredCountries.length === 0 && (
+                                                        <li className="px-4 py-2 text-sm text-gray-500">
+                                                            No matches
+                                                        </li>
+                                                    )}
+                                                    {filteredCountries.map((c) => (
+                                                        <li key={c.name}>
+                                                            <button
+                                                                type="button"
+                                                                className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                                                                onMouseDown={(e) =>
+                                                                    e.preventDefault()
+                                                                }
+                                                                onClick={() => {
+                                                                    setCountryQuery(c.name);
+                                                                    setShowCountryList(false);
+                                                                }}
+                                                            >
+                                                                <span className="text-base">
+                                                                    {c.flag}
+                                                                </span>
+                                                                <span>{c.name}</span>
+                                                            </button>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -280,25 +539,67 @@ export default function RemoteJobsSection({ className = '' }: RemoteJobsSectionP
                                         </svg>
                                         Salary Range
                                     </label>
-                                    <div className="flex items-center rounded-2xl border border-gray-200 bg-white px-4 py-2 text-gray-600">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth={1.5}
-                                            stroke="currentColor"
-                                            className="h-5 w-5"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.75 3.75a7.5 7.5 0 0012.9 12.9z"
+                                    <div ref={salaryWrapperRef} className="relative">
+                                        <div className="flex items-center rounded-2xl border border-gray-200 bg-white px-4 py-2 text-gray-600">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                strokeWidth={1.5}
+                                                stroke="currentColor"
+                                                className="h-5 w-5"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.75 3.75a7.5 7.5 0 0012.9 12.9z"
+                                                />
+                                            </svg>
+                                            <input
+                                                className="ml-3 w-full border-0 p-0 text-base outline-none placeholder:text-gray-400"
+                                                placeholder="Search by salary range..."
+                                                value={salaryQuery}
+                                                onChange={(e) => setSalaryQuery(e.target.value)}
+                                                onFocus={() => setShowSalaryList(true)}
+                                                onBlur={() =>
+                                                    setTimeout(() => setShowSalaryList(false), 100)
+                                                }
                                             />
-                                        </svg>
-                                        <input
-                                            className="ml-3 w-full border-0 p-0 text-base outline-none placeholder:text-gray-400"
-                                            placeholder="Search by salary range..."
-                                        />
+                                        </div>
+
+                                        {showSalaryList && (
+                                            <div className="absolute [top:calc(100%+0.5rem)] right-0 left-0 z-20 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl">
+                                                <ul className="max-h-64 overflow-y-auto py-2">
+                                                    {salaryOptions
+                                                        .filter((o) =>
+                                                            o
+                                                                .toLowerCase()
+                                                                .includes(
+                                                                    salaryQuery
+                                                                        .trim()
+                                                                        .toLowerCase(),
+                                                                ),
+                                                        )
+                                                        .map((o) => (
+                                                            <li key={o}>
+                                                                <button
+                                                                    type="button"
+                                                                    className="flex w-full items-center justify-between px-4 py-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                                                                    onMouseDown={(e) =>
+                                                                        e.preventDefault()
+                                                                    }
+                                                                    onClick={() => {
+                                                                        setSalaryQuery(o);
+                                                                        setShowSalaryList(false);
+                                                                    }}
+                                                                >
+                                                                    <span>{o}</span>
+                                                                </button>
+                                                            </li>
+                                                        ))}
+                                                </ul>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -317,26 +618,92 @@ export default function RemoteJobsSection({ className = '' }: RemoteJobsSectionP
                                         </svg>
                                         Skills
                                     </label>
-                                    <div className="flex items-center rounded-2xl border border-gray-200 bg-white px-4 py-2 text-gray-600">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth={1.5}
-                                            stroke="currentColor"
-                                            className="h-5 w-5"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.75 3.75a7.5 7.5 0 0012.9 12.9z"
+
+                                    <div ref={skillsWrapperRef} className="relative">
+                                        <div className="flex items-center rounded-2xl border border-gray-200 bg-white px-4 py-2 text-gray-600">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                strokeWidth={1.5}
+                                                stroke="currentColor"
+                                                className="h-5 w-5"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.75 3.75a7.5 7.5 0 0012.9 12.9z"
+                                                />
+                                            </svg>
+                                            <input
+                                                className="ml-3 w-full border-0 p-0 text-base outline-none placeholder:text-gray-400"
+                                                placeholder="Search skills..."
+                                                value={skillsQuery}
+                                                onChange={(e) => {
+                                                    setSkillsQuery(e.target.value);
+                                                    setShowSkillsList(true);
+                                                }}
+                                                onFocus={() => setShowSkillsList(true)}
+                                                onBlur={() =>
+                                                    setTimeout(() => setShowSkillsList(false), 100)
+                                                }
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter' && skillsQuery.trim()) {
+                                                        e.preventDefault();
+                                                        addSkill(skillsQuery.trim());
+                                                    }
+                                                }}
                                             />
-                                        </svg>
-                                        <input
-                                            className="ml-3 w-full border-0 p-0 text-base outline-none placeholder:text-gray-400"
-                                            placeholder="Search skills..."
-                                        />
+                                        </div>
+
+                                        {showSkillsList && (
+                                            <div className="absolute [top:calc(100%+0.5rem)] right-0 left-0 z-20 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl">
+                                                <ul className="max-h-64 overflow-y-auto py-2">
+                                                    {filteredSkills.length === 0 && (
+                                                        <li className="px-4 py-2 text-sm text-gray-500">
+                                                            No matches
+                                                        </li>
+                                                    )}
+                                                    {filteredSkills.map((s) => (
+                                                        <li key={s}>
+                                                            <button
+                                                                type="button"
+                                                                className="flex w-full items-center justify-between px-4 py-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                                                                onMouseDown={(e) =>
+                                                                    e.preventDefault()
+                                                                }
+                                                                onClick={() => addSkill(s)}
+                                                            >
+                                                                <span>{s}</span>
+                                                            </button>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
                                     </div>
+
+                                    {/* Selected skills chips */}
+                                    {selectedSkills.length > 0 && (
+                                        <div className="mt-3 flex flex-wrap gap-3">
+                                            {selectedSkills.map((s) => (
+                                                <span
+                                                    key={s}
+                                                    className="inline-flex items-center gap-2 rounded-xl bg-blue-100 px-3 py-2 text-base font-semibold text-gray-900"
+                                                >
+                                                    {s}
+                                                    <button
+                                                        type="button"
+                                                        aria-label={`Remove ${s}`}
+                                                        className="text-gray-700 hover:text-gray-900"
+                                                        onClick={() => removeSkill(s)}
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="-mx-2 sm:-mx-3">
