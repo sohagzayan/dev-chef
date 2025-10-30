@@ -7,6 +7,8 @@ export interface Job {
     salaryRange: string;
     openings: number;
     tags: JobTag[];
+    isNew?: boolean;
+    isPinned?: boolean;
 }
 
 export type JobTag = {

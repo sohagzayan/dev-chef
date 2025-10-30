@@ -1,5 +1,6 @@
 // Feature public API
 export { default as HeroSection } from './ui/HeroSection';
+export { default as RemoteJobsSection } from './ui/RemoteJobsSection';
 export { JobCard } from './ui/JobCard';
 export { ProfileCard } from './ui/ProfileCard';
 export { CompanyLogoCard } from './ui/CompanyLogoCard';
