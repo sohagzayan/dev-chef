@@ -58,18 +58,18 @@ export default function LoginPage() {
                 </div>
 
                 {/* Top banner */}
-                <div className="border-t-2 border-blue-500 bg-blue-50 px-6 py-4">
-                    <div className="flex items-start gap-3">
+                <div className="border-t-2 border-blue-500 bg-blue-50 px-4 py-3 sm:px-6 sm:py-4">
+                    <div className="flex items-start gap-2 sm:gap-3">
                         {/* Circular Info Icon */}
-                        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white">
-                            <span className="text-sm font-bold">i</span>
+                        <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white sm:h-6 sm:w-6">
+                            <span className="text-xs font-bold sm:text-sm">i</span>
                         </div>
                         {/* Text Content */}
                         <div className="flex flex-col gap-0.5">
-                            <span className="font-bold text-gray-900">
+                            <span className="text-sm font-bold text-gray-900 sm:text-base">
                                 You have been logged out.
                             </span>
-                            <span className="text-gray-700">
+                            <span className="text-xs text-gray-700 sm:text-sm">
                                 Don&apos;t worry, you can log back in using the form below.
                             </span>
                         </div>
