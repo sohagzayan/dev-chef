@@ -1,14 +1,10 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import Header from '@/features/layout/ui/Header';
 import Footer from '@/features/layout/ui/Footer';
+import Header from '@/features/layout/ui/Header';
 
-export default function ConditionalLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
+export default function ConditionalLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
     // Hide navbar and footer on login page
@@ -16,6 +12,18 @@ export default function ConditionalLayout({
 
     if (isLoginPage) {
         return <>{children}</>;
+    }
+
+    // Only footer on register page
+    const isRegisterPage = pathname === '/register';
+
+    if (isRegisterPage) {
+        return (
+            <>
+                {children}
+                <Footer />
+            </>
+        );
     }
 
     return (
@@ -26,4 +34,3 @@ export default function ConditionalLayout({
         </>
     );
 }
-
