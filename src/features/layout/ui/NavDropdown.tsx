@@ -8,9 +8,16 @@ interface NavDropdownProps {
     items: NavDropdownItem[];
     isOpen: boolean;
     onClose: () => void;
+    disableClickOutside?: boolean;
 }
 
-export function NavDropdown({ label, items, isOpen, onClose }: NavDropdownProps) {
+export function NavDropdown({
+    label,
+    items,
+    isOpen,
+    onClose,
+    disableClickOutside = false,
+}: NavDropdownProps) {
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [isAnimating, setIsAnimating] = useState(false);
     const [shouldRender, setShouldRender] = useState(false);
@@ -28,7 +35,10 @@ export function NavDropdown({ label, items, isOpen, onClose }: NavDropdownProps)
             requestAnimationFrame(() => {
                 setIsAnimating(true);
             });
-            document.addEventListener('mousedown', handleClickOutside);
+            // Only add click outside listener if not disabled
+            if (!disableClickOutside) {
+                document.addEventListener('mousedown', handleClickOutside);
+            }
         } else {
             setIsAnimating(false);
             // Delay unmounting to allow exit animation
@@ -39,9 +49,11 @@ export function NavDropdown({ label, items, isOpen, onClose }: NavDropdownProps)
         }
 
         return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
+            if (!disableClickOutside) {
+                document.removeEventListener('mousedown', handleClickOutside);
+            }
         };
-    }, [isOpen, onClose]);
+    }, [isOpen, onClose, disableClickOutside]);
 
     if (!shouldRender) return null;
 
