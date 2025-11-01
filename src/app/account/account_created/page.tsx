@@ -27,10 +27,10 @@ export default function AccountCreatedPage({ searchParams }: Props) {
                             Verify and setup your account
                         </a>
                         <a
-                            href="/job-seekers/account/login"
+                            href="/account"
                             className="block w-full rounded-2xl border border-red-200 bg-white px-4 py-3 text-center font-bold text-red-600 transition-colors hover:bg-red-50"
                         >
-                            Sign in as Job Seeker
+                            Sign in
                         </a>
                     </div>
 

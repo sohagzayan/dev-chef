@@ -4,6 +4,7 @@ import '../styles/globals.css';
 import Footer from '@/features/layout/ui/Footer';
 import Header from '@/features/layout/ui/Header';
 import { Providers } from '@/shared/providers';
+import ConditionalLayout from './ConditionalLayout';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -32,9 +33,7 @@ export default function RootLayout({
                 suppressHydrationWarning={true}
             >
                 <Providers>
-                    <Header />
-                    {children}
-                    <Footer />
+                    <ConditionalLayout>{children}</ConditionalLayout>
                 </Providers>
             </body>
         </html>

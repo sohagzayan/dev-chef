@@ -114,13 +114,7 @@ export default function SignInSelector({ className = '' }: SignInSelectorProps) 
                     <m.button
                         type="button"
                         whileTap={{ scale: 0.98 }}
-                        onClick={() =>
-                            router.push(
-                                role === 'jobseeker'
-                                    ? '/job-seekers/account/login'
-                                    : '/employers/account/login',
-                            )
-                        }
+                        onClick={() => router.push('/account')}
                         className="w-full rounded-xl bg-red-600 py-3 text-base font-bold text-white transition-colors hover:bg-red-700"
                     >
                         Continue

@@ -14,8 +14,8 @@ export default function Header() {
 
     const isAuthPage = Boolean(
         pathname &&
-            (pathname.startsWith('/signin') ||
-                pathname.startsWith('/account') ||
+            (pathname.startsWith('/account') ||
+                pathname.startsWith('/login') ||
                 pathname.startsWith('/job-seekers') ||
                 pathname.startsWith('/employers')),
     );
@@ -108,7 +108,7 @@ export default function Header() {
                                 Post a job (FREE)
                             </Link>
                             <Link
-                                href="/signin"
+                                href="/login"
                                 className="text-base font-medium text-blue-600 hover:text-blue-700"
                             >
                                 Sign in
@@ -294,7 +294,7 @@ export default function Header() {
                                             Post a job (FREE)
                                         </Link>
                                         <Link
-                                            href="/signin"
+                                            href="/login"
                                             onClick={() => setIsMobileMenuOpen(false)}
                                             className="block rounded-lg border border-blue-600 px-4 py-3 text-center text-sm font-semibold text-blue-600 transition-colors hover:bg-blue-50"
                                         >
