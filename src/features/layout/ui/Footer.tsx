@@ -45,6 +45,12 @@ export default function Footer() {
                     <div className="flex flex-col items-start justify-between gap-6 py-6 md:flex-row md:items-center">
                         <p className="text-sm">© {new Date().getFullYear()} Hirely</p>
                         <nav className="flex flex-wrap items-center gap-4 text-sm">
+                            <Link href="/how-it-works" className="hover:text-white">
+                                How it works
+                            </Link>
+                            <Link href="/services/resume-review" className="hover:text-white">
+                                Career Services
+                            </Link>
                             <Link href="#" className="hover:text-white">
                                 Contact Support
                             </Link>

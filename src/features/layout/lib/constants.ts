@@ -46,52 +46,6 @@ export const navigationItems: NavItem[] = [
         ],
     },
     {
-        id: 'community',
-        label: 'Community',
-        hasDropdown: true,
-        items: [
-            { id: 'blog', label: 'Blog', href: '/blog' },
-            { id: 'podcast', label: 'Podcast', href: '/podcast' },
-            {
-                id: 'trends',
-                label: 'Remote Work Trends',
-                href: '/trends',
-            },
-            { id: 'separator-1', label: '', href: '' },
-            {
-                id: 'remote-community',
-                label: 'Remote Work Community',
-                href: '/community',
-                badge: { text: 'NEW!', variant: 'new' },
-            },
-            { id: 'separator-2', label: '', href: '' },
-            {
-                id: 'twitter',
-                label: 'Twitter',
-                href: '/social/twitter',
-                icon: 'twitter',
-            },
-            {
-                id: 'instagram',
-                label: 'Instagram',
-                href: '/social/instagram',
-                icon: 'instagram',
-            },
-            {
-                id: 'linkedin',
-                label: 'LinkedIn',
-                href: '/social/linkedin',
-                icon: 'linkedin',
-            },
-            {
-                id: 'facebook',
-                label: 'Facebook',
-                href: '/social/facebook',
-                icon: 'facebook',
-            },
-        ],
-    },
-    {
         id: 'find-work',
         label: 'Find work',
         hasDropdown: true,
@@ -131,25 +85,6 @@ export const navigationItems: NavItem[] = [
                 id: 'resources',
                 label: 'Remote Work Resources',
                 href: '/resources',
-            },
-        ],
-    },
-    {
-        id: 'career-services',
-        label: 'Career Services',
-        hasDropdown: true,
-        items: [
-            {
-                id: 'resume-review',
-                label: 'Resume Review Service',
-                href: '/services/resume-review',
-                badge: { text: 'NEW!', variant: 'new' },
-            },
-            {
-                id: 'automate-search',
-                label: 'Automate your Job Search',
-                href: '/services/automate',
-                badge: { text: 'NEW!', variant: 'new' },
             },
         ],
     },

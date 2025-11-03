@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Search } from 'lucide-react';
 import { navigationItems } from '../lib/constants';
 import { NavDropdown } from './NavDropdown';
 
@@ -11,6 +11,7 @@ export default function Header() {
     const pathname = usePathname();
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
 
     const isAuthPage = Boolean(
         pathname &&
@@ -42,77 +43,105 @@ export default function Header() {
             <nav className="border-b border-gray-200 shadow-sm">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 items-center justify-between">
-                        {/* Logo */}
-                        <div className="flex items-center">
-                            <Link href="/" className="flex-shrink-0">
-                                <span className="text-2xl font-bold text-gray-900 uppercase">
-                                    Hirely
-                                </span>
-                            </Link>
-                        </div>
+                        {/* Left Side: Logo and Navigation */}
+                        <div className="flex flex-1 items-center space-x-8">
+                            {/* Logo */}
+                            <div className="flex items-center">
+                                <Link href="/" className="flex-shrink-0">
+                                    <span className="text-2xl font-bold text-gray-900 uppercase">
+                                        Hirely
+                                    </span>
+                                </Link>
+                            </div>
 
-                        {/* Desktop Navigation */}
-                        <div className="hidden lg:flex lg:items-center lg:space-x-8">
-                            {/* Navigation Items */}
-                            {navigationItems.map((item) => (
-                                <div
-                                    key={item.id}
-                                    className="relative"
-                                    onMouseEnter={() =>
-                                        item.hasDropdown && setOpenDropdown(item.id)
-                                    }
-                                    onMouseLeave={() => setOpenDropdown(null)}
-                                >
-                                    {item.hasDropdown && item.items ? (
-                                        <>
-                                            <button className="flex items-center space-x-1 text-base font-medium text-gray-700 hover:text-gray-900">
-                                                <span>{item.label}</span>
-                                                <ChevronDown
-                                                    className={`h-4 w-4 transition-transform ${
-                                                        openDropdown === item.id ? 'rotate-180' : ''
-                                                    }`}
+                            {/* Desktop Navigation - Left Aligned */}
+                            <div className="hidden lg:flex lg:items-center lg:space-x-8">
+                                {/* Navigation Items */}
+                                {navigationItems.map((item) => (
+                                    <div
+                                        key={item.id}
+                                        className="relative"
+                                        onMouseEnter={() =>
+                                            item.hasDropdown && setOpenDropdown(item.id)
+                                        }
+                                        onMouseLeave={() => setOpenDropdown(null)}
+                                    >
+                                        {item.hasDropdown && item.items ? (
+                                            <>
+                                                <button className="flex items-center space-x-1 text-base font-medium text-gray-700 hover:text-gray-900">
+                                                    <span>{item.label}</span>
+                                                    <ChevronDown
+                                                        className={`h-4 w-4 transition-transform ${
+                                                            openDropdown === item.id
+                                                                ? 'rotate-180'
+                                                                : ''
+                                                        }`}
+                                                    />
+                                                </button>
+                                                <NavDropdown
+                                                    label={item.label}
+                                                    items={item.items}
+                                                    isOpen={openDropdown === item.id}
+                                                    onClose={() => setOpenDropdown(null)}
+                                                    disableClickOutside={true}
                                                 />
-                                            </button>
-                                            <NavDropdown
-                                                label={item.label}
-                                                items={item.items}
-                                                isOpen={openDropdown === item.id}
-                                                onClose={() => setOpenDropdown(null)}
-                                                disableClickOutside={true}
-                                            />
-                                        </>
-                                    ) : (
-                                        <Link
-                                            href={item.href || '#'}
-                                            className="text-base font-medium text-gray-700 hover:text-gray-900"
-                                        >
-                                            {item.label}
-                                        </Link>
-                                    )}
-                                </div>
-                            ))}
+                                            </>
+                                        ) : (
+                                            <Link
+                                                href={item.href || '#'}
+                                                className="text-base font-medium text-gray-700 hover:text-gray-900"
+                                            >
+                                                {item.label}
+                                            </Link>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
-                        {/* Right Side Actions */}
-                        <div className="hidden lg:flex lg:items-center lg:space-x-4">
-                            <Link
-                                href="/how-it-works"
-                                className="text-base font-medium text-gray-700 hover:text-gray-900"
+                        {/* Right Side: Search Bar and Actions */}
+                        <div className="hidden lg:flex lg:min-w-0 lg:items-center lg:justify-end lg:gap-4">
+                            {/* Search Bar */}
+                            <div
+                                className={`flex items-center rounded-lg border bg-gray-50 transition-[width,max-width,border-color,box-shadow] duration-300 ease-in-out ${
+                                    isSearchFocused
+                                        ? 'w-96 max-w-[calc(100vw-600px)] border-blue-400 shadow-lg shadow-blue-100'
+                                        : 'w-64 max-w-none border-blue-200'
+                                }`}
                             >
-                                How it works
-                            </Link>
-                            <Link
-                                href="/jobs/new"
-                                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-                            >
-                                Post a job (FREE)
-                            </Link>
-                            <Link
-                                href="/login"
-                                className="text-base font-medium text-blue-600 hover:text-blue-700"
-                            >
-                                Sign in
-                            </Link>
+                                <div className="flex flex-shrink-0 items-center pl-3">
+                                    <Search
+                                        className={`h-4 w-4 transition-colors duration-300 ease-in-out ${
+                                            isSearchFocused ? 'text-blue-500' : 'text-gray-400'
+                                        }`}
+                                    />
+                                    <ChevronDown className="ml-1.5 h-3 w-3 text-blue-600 transition-colors duration-300 ease-in-out" />
+                                </div>
+                                <input
+                                    type="text"
+                                    placeholder="Search profiles"
+                                    className="h-9 min-w-0 flex-1 rounded-lg border-0 bg-transparent pr-3 pl-2 text-sm text-gray-900 placeholder:text-gray-400 focus:ring-0 focus:outline-none"
+                                    aria-label="Search profiles"
+                                    onFocus={() => setIsSearchFocused(true)}
+                                    onBlur={() => setIsSearchFocused(false)}
+                                />
+                            </div>
+
+                            {/* Buttons - Always visible with flex-shrink-0 */}
+                            <div className="flex flex-shrink-0 items-center gap-4">
+                                <Link
+                                    href="/jobs/new"
+                                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold whitespace-nowrap text-white hover:bg-blue-700"
+                                >
+                                    Post a job (FREE)
+                                </Link>
+                                <Link
+                                    href="/login"
+                                    className="text-base font-medium whitespace-nowrap text-blue-600 hover:text-blue-700"
+                                >
+                                    Sign in
+                                </Link>
+                            </div>
                         </div>
 
                         {/* Mobile Menu Button */}
@@ -279,13 +308,6 @@ export default function Header() {
 
                                     {/* Action Links */}
                                     <div className="space-y-3 border-t border-gray-200 pt-6">
-                                        <Link
-                                            href="/how-it-works"
-                                            onClick={() => setIsMobileMenuOpen(false)}
-                                            className="block text-center text-base font-medium text-gray-700 transition-colors hover:text-gray-900"
-                                        >
-                                            How it works
-                                        </Link>
                                         <Link
                                             href="/jobs/new"
                                             onClick={() => setIsMobileMenuOpen(false)}
