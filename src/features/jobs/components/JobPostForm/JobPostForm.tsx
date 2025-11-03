@@ -233,7 +233,7 @@ export function JobPostForm() {
     return (
         <form onSubmit={handleSubmit} className="space-y-8">
             {/* Section 1: Tell us about your job */}
-            <div className="p-6">
+            <div className="">
                 <h2 className="mb-4 text-lg font-semibold text-gray-900">
                     TELL US ABOUT YOUR JOB:
                 </h2>
@@ -281,7 +281,7 @@ export function JobPostForm() {
             </div>
 
             {/* Section 2: Job Requirements */}
-            <div className="p-6">
+            <div className="">
                 <h2 className="mb-4 text-lg font-semibold text-gray-900">
                     WHAT ARE THE JOB REQUIREMENTS?
                 </h2>
@@ -497,7 +497,7 @@ export function JobPostForm() {
             </div>
 
             {/* Section 3: Pay */}
-            <div className="p-6">
+            <div className="">
                 <h2 className="mb-4 text-lg font-semibold text-gray-900">
                     WHAT DOES THIS JOB PAY?
                 </h2>
@@ -546,7 +546,7 @@ export function JobPostForm() {
             </div>
 
             {/* Section 4: Candidate Questions */}
-            <div className="p-6">
+            <div className="">
                 <h2 className="mb-4 text-lg font-semibold text-gray-900">
                     WHAT QUESTIONS DO YOU WANT TO ASK CANDIDATES?
                 </h2>
@@ -629,7 +629,7 @@ export function JobPostForm() {
             </div>
 
             {/* Section 5: Company Information */}
-            <div className="p-6">
+            <div className="">
                 <h2 className="mb-4 text-lg font-semibold text-gray-900">
                     TELL US A LITTLE ABOUT YOUR COMPANY:
                 </h2>
@@ -801,7 +801,7 @@ export function JobPostForm() {
             </div>
 
             {/* Section 6: Job Visibility */}
-            <div className="p-6">
+            <div className="">
                 <h2 className="mb-4 text-lg font-semibold text-gray-900">JOB VISIBILITY:</h2>
                 <div className="flex gap-6">
                     {['Everyone', 'Only invited users', 'Only me'].map((option) => (
@@ -823,7 +823,7 @@ export function JobPostForm() {
             </div>
 
             {/* Section 7: Create Account */}
-            <div className="p-6">
+            <div className="">
                 <h2 className="mb-4 text-lg font-semibold text-gray-900">CREATE A FREE ACCOUNT:</h2>
                 <p className="mb-4 text-sm text-gray-600">
                     There are no fees. Your account is used to notify you of applications and for
