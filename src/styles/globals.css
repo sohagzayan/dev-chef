@@ -98,3 +98,197 @@
 .ProseMirror em {
     font-style: italic;
 }
+
+/* Dual Range Slider Styles */
+.dual-range-container {
+    position: relative;
+    width: 100%;
+    height: 30px;
+    margin-top: -15px;
+}
+
+.dual-range-track {
+    width: 100%;
+    height: 5px;
+    position: absolute;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    border-radius: 5px;
+    transition: background 0.2s ease;
+}
+
+.dual-range-input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 100%;
+    outline: none;
+    position: absolute;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    background-color: transparent;
+    pointer-events: none;
+    height: 5px;
+    transition: all 0.2s ease;
+}
+
+.dual-range-input::-webkit-slider-runnable-track {
+    -webkit-appearance: none;
+    height: 5px;
+}
+
+.dual-range-input::-moz-range-track {
+    -moz-appearance: none;
+    height: 5px;
+    background: transparent;
+}
+
+.dual-range-input::-ms-track {
+    appearance: none;
+    height: 5px;
+}
+
+.dual-range-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 1.7em;
+    width: 1.7em;
+    background-color: #22c55e;
+    cursor: pointer;
+    margin-top: -9px;
+    pointer-events: auto;
+    border-radius: 50%;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.dual-range-input::-moz-range-thumb {
+    -webkit-appearance: none;
+    height: 1.7em;
+    width: 1.7em;
+    cursor: pointer;
+    border-radius: 50%;
+    background-color: #22c55e;
+    pointer-events: auto;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.dual-range-input::-ms-thumb {
+    appearance: none;
+    height: 1.7em;
+    width: 1.7em;
+    cursor: pointer;
+    border-radius: 50%;
+    background-color: #22c55e;
+    pointer-events: auto;
+}
+
+.dual-range-input:active::-webkit-slider-thumb {
+    background-color: #ffffff;
+    border: 1px solid #22c55e;
+}
+
+.dual-range-input:active::-moz-range-thumb {
+    background-color: #ffffff;
+    border: 1px solid #22c55e;
+}
+
+/* Custom slider thumb styling for noUi-like appearance */
+input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid rgb(16, 185, 129);
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    pointer-events: auto;
+}
+
+input[type='range']::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid rgb(16, 185, 129);
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    pointer-events: auto;
+}
+
+input[type='range']::-moz-range-track {
+    background: transparent;
+    border: none;
+}
+
+/* noUiSlider Custom Styles */
+.noUi-target {
+    background: #e5e7eb;
+    border-radius: 4px;
+    border: none;
+    box-shadow: none;
+}
+
+.noUi-base {
+    background: #e5e7eb;
+    border-radius: 4px;
+}
+
+.noUi-connect {
+    background: #22c55e;
+    border-radius: 4px;
+}
+
+.noUi-handle {
+    background: white;
+    border: 2px solid white;
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    width: 18px;
+    height: 18px;
+    top: -8px;
+}
+
+.noUi-handle:before,
+.noUi-handle:after {
+    display: none;
+}
+
+.noUi-handle:focus {
+    outline: none;
+    box-shadow:
+        0 0 0 4px rgba(34, 197, 94, 0.2),
+        0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.noUi-handle:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.noUi-pips {
+    height: 30px;
+    padding: 0;
+}
+
+.noUi-marker {
+    background: #d1d5db;
+}
+
+.noUi-marker-large {
+    height: 4px;
+}
+
+.noUi-value {
+    color: #6b7280;
+    font-size: 11px;
+    padding-top: 4px;
+}
+
+.noUi-value-large {
+    font-size: 11px;
+}

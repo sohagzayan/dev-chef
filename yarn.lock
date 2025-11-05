@@ -1373,6 +1373,13 @@
   dependencies:
     "@types/node" "*"
 
+"@types/nouislider@^9.0.10":
+  version "9.0.10"
+  resolved "https://registry.npmjs.org/@types/nouislider/-/nouislider-9.0.10.tgz"
+  integrity sha512-aQ7U5oQ/h/joc93kwJvpGpGOkWGRg6doDvFyU9Do+K2JwwQnhAAcfnT9mMN1fgHAlnKLlyWTWRGs90B6FL0l4w==
+  dependencies:
+    "@types/wnumb" "*"
+
 "@types/react-dom@^19":
   version "19.1.6"
   resolved "https://registry.npmjs.org/@types/react-dom/-/react-dom-19.1.6.tgz"
@@ -1389,6 +1396,11 @@
   version "0.0.6"
   resolved "https://registry.npmjs.org/@types/use-sync-external-store/-/use-sync-external-store-0.0.6.tgz"
   integrity sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg==
+
+"@types/wnumb@*":
+  version "1.2.3"
+  resolved "https://registry.npmjs.org/@types/wnumb/-/wnumb-1.2.3.tgz"
+  integrity sha512-lrjqtKxZuZAx5f+Ulee3Rh6wWmM02fQVJFiDPgVwcC5LomNIaYD1ZmDGrzUbPg1LuORD72qeBajU5jN66Jjtag==
 
 "@typescript-eslint/eslint-plugin@^5.4.2 || ^6.0.0 || ^7.0.0 || ^8.0.0":
   version "8.34.0"
@@ -3390,6 +3402,11 @@ nodemailer@^7.0.5:
   version "7.0.5"
   resolved "https://registry.npmjs.org/nodemailer/-/nodemailer-7.0.5.tgz"
   integrity sha512-nsrh2lO3j4GkLLXoeEksAMgAOqxOv6QumNRVQTJwKH4nuiww6iC2y7GyANs9kRAxCexg3+lTWM3PZ91iLlVjfg==
+
+nouislider@^15.8.1:
+  version "15.8.1"
+  resolved "https://registry.npmjs.org/nouislider/-/nouislider-15.8.1.tgz"
+  integrity sha512-93TweAi8kqntHJSPiSWQ1o/uZ29VWOmal9YKb6KKGGlCkugaNfAupT7o1qTHqdJvNQ7S0su5rO6qRFCjP8fxtw==
 
 oauth4webapi@^3.3.0:
   version "3.6.0"

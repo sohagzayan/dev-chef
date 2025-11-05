@@ -337,50 +337,26 @@ export default function Header() {
                         <ul className="flex space-x-6 text-xs">
                             <li>
                                 <Link
-                                    href="/jobs"
+                                    href="/search/jobs"
                                     className="font-medium text-gray-600 hover:text-gray-900"
                                 >
-                                    All Jobs
+                                    Browse jobs
                                 </Link>
                             </li>
                             <li>
                                 <Link
-                                    href="/companies"
+                                    href="/job-seekers"
                                     className="font-medium text-gray-600 hover:text-gray-900"
                                 >
-                                    Top Companies
+                                    Looking for work
                                 </Link>
                             </li>
                             <li>
                                 <Link
-                                    href="/blog"
+                                    href="/employers"
                                     className="font-medium text-gray-600 hover:text-gray-900"
                                 >
-                                    Blog
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href="/faq/job-seekers"
-                                    className="font-medium text-gray-600 hover:text-gray-900"
-                                >
-                                    FAQs
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href="/resources"
-                                    className="font-medium text-gray-600 hover:text-gray-900"
-                                >
-                                    Resources
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href="/support"
-                                    className="font-medium text-gray-600 hover:text-gray-900"
-                                >
-                                    Support
+                                    Looking to hire
                                 </Link>
                             </li>
                         </ul>
