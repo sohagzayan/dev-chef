@@ -80,6 +80,7 @@ export default function JobSearchPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [sortBy, setSortBy] = useState('relevance');
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
 
     // Initialize from URL params
     useEffect(() => {
@@ -466,36 +467,50 @@ export default function JobSearchPage() {
         <div className="min-h-screen bg-gray-50">
             <div className="container mx-auto px-4 pt-2 pb-6 lg:px-8">
                 {/* Search Section Bar */}
-                <div className="animate-fadeIn">
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
-                        <div className="flex-1">
-                            <input
-                                type="text"
-                                value={keywords}
-                                onChange={(e) => setKeywords(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        e.preventDefault();
-                                        updateURL();
-                                    }
-                                }}
-                                placeholder="Search jobs by title or keywords"
-                                className="w-full rounded-md border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all duration-300 ease-in-out hover:border-gray-400 focus:border-blue-500 focus:shadow-md focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                            />
-                        </div>
-                        <button
-                            onClick={() => {
-                                updateURL();
-                            }}
-                            className="rounded-md bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 ease-in-out hover:scale-105 hover:bg-blue-700 hover:shadow-md focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none active:scale-95"
+                <div className="animate-fadeIn mb-8 pt-6">
+                    <div className="flex w-full flex-col items-stretch sm:flex-row sm:items-center sm:justify-center">
+                        <div
+                            className={`flex w-full transition-all duration-300 sm:mx-auto ${
+                                isSearchFocused ? 'sm:max-w-4xl' : 'sm:max-w-xl'
+                            }`}
                         >
-                            Search jobs
-                        </button>
+                            <div
+                                className={`flex w-full overflow-hidden rounded-full border border-gray-200 bg-white shadow-sm transition-all duration-300 ease-in-out ${
+                                    isSearchFocused
+                                        ? 'scale-[1.02] shadow-lg ring-2 ring-blue-500 ring-offset-0'
+                                        : ''
+                                }`}
+                            >
+                                <input
+                                    type="text"
+                                    value={keywords}
+                                    onChange={(e) => setKeywords(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            updateURL();
+                                        }
+                                    }}
+                                    placeholder="Search jobs by title or keywords"
+                                    onFocus={() => setIsSearchFocused(true)}
+                                    onBlur={() => setIsSearchFocused(false)}
+                                    className="flex-1 border-0 bg-transparent px-4 py-2 text-sm text-gray-900 placeholder-gray-500 transition-colors duration-300 focus:outline-none sm:px-5 sm:py-2.5"
+                                />
+                                <button
+                                    onClick={() => {
+                                        updateURL();
+                                    }}
+                                    className="flex-shrink-0 rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition-colors duration-300 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 sm:px-6 sm:py-2.5"
+                                >
+                                    Search jobs
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 {/* Mobile Layout Container */}
-                <div className="relative flex overflow-hidden lg:block">
+                <div className="relative flex lg:block">
                     {/* Mobile Filter Sidebar */}
                     <aside
                         className={`absolute top-0 left-0 z-40 h-screen w-[60%] transform overflow-y-auto bg-white transition-transform duration-300 ease-in-out lg:hidden ${
@@ -1038,10 +1053,10 @@ export default function JobSearchPage() {
                         </button>
 
                         {/* Grid Container for Desktop */}
-                        <div className="grid grid-cols-1 gap-6 lg:mt-0 lg:grid-cols-12 lg:gap-x-4 lg:gap-y-0">
+                        <div className="grid grid-cols-1 gap-6 lg:mt-0 lg:grid-cols-12 lg:items-start lg:gap-x-4 lg:gap-y-0">
                             {/* Left Sidebar - Filters (Desktop) */}
-                            <aside className="hidden lg:col-span-3 lg:block">
-                                <div className="sticky top-28 max-h-[calc(100vh-140px)] overflow-y-auto rounded-lg px-6 pt-0 pb-4">
+                            <aside className="hidden lg:sticky lg:top-28 lg:col-span-3 lg:block">
+                                <div className="rounded-lg px-6 pt-0 pb-4 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
                                     <div className="mb-4 flex items-center justify-between lg:mb-0">
                                         <h2 className="text-sm font-bold tracking-wide text-gray-900 uppercase">
                                             FILTERS
