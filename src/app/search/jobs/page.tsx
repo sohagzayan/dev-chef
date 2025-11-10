@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
+    ArrowLeft,
     Building2,
     Calendar,
     Clock,
@@ -514,7 +515,7 @@ export default function JobSearchPage() {
                     {/* Mobile Filter Sidebar */}
                     <aside
                         className={`absolute top-0 left-0 z-40 h-screen w-[60%] transform overflow-y-auto bg-white transition-transform duration-300 ease-in-out lg:hidden ${
-                            isMobileFilterOpen ? 'translate-x-0' : '-translate-x-full'
+                            isMobileFilterOpen ? 'translate-x-0' : '-translate-x-[120%]'
                         }`}
                     >
                         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
@@ -1045,11 +1046,30 @@ export default function JobSearchPage() {
                     >
                         {/* Mobile Filter Button */}
                         <button
-                            onClick={() => setIsMobileFilterOpen(true)}
-                            className="mb-4 flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 lg:hidden"
+                            onClick={() => setIsMobileFilterOpen((prev) => !prev)}
+                            aria-pressed={isMobileFilterOpen}
+                            className={`mb-4 flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 lg:hidden ${
+                                isMobileFilterOpen
+                                    ? 'bg-blue-600 text-white shadow-md'
+                                    : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                            }`}
                         >
-                            <Filter className="h-4 w-4" />
-                            Filters
+                            <span
+                                className={`flex h-7 w-7 items-center justify-center rounded-full transition-colors duration-300 ${
+                                    isMobileFilterOpen
+                                        ? 'bg-white/20 text-white'
+                                        : 'bg-gray-100 text-gray-600'
+                                }`}
+                            >
+                                {isMobileFilterOpen ? (
+                                    <ArrowLeft className="h-4 w-4" />
+                                ) : (
+                                    <Filter className="h-4 w-4" />
+                                )}
+                            </span>
+                            <span className="transition-colors duration-300">
+                                {isMobileFilterOpen ? 'Close filters' : 'Filters'}
+                            </span>
                         </button>
 
                         {/* Grid Container for Desktop */}
@@ -1603,21 +1623,25 @@ export default function JobSearchPage() {
 
                             {/* Main Content - Job Listings */}
                             <main className="lg:col-span-6">
-                                <div className="mb-4 flex items-center justify-between lg:mb-0">
-                                    <p className="text-sm font-medium text-gray-700">
-                                        DISPLAYING ({startRange}-{endRange}) OF {totalResults}{' '}
-                                        RESULTS
+                                <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <p className="text-sm font-medium text-gray-600 capitalize">
+                                        Displaying {startRange}–{endRange} of {totalResults} results
                                     </p>
-                                    <select
-                                        value={sortBy}
-                                        onChange={(e) => setSortBy(e.target.value)}
-                                        className="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                                    >
-                                        <option value="relevance">Sort by Relevance</option>
-                                        <option value="newest">Newest First</option>
-                                        <option value="oldest">Oldest First</option>
-                                        <option value="payrate">Highest Pay Rate</option>
-                                    </select>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm text-gray-500 capitalize">
+                                            Sort
+                                        </span>
+                                        <select
+                                            value={sortBy}
+                                            onChange={(e) => setSortBy(e.target.value)}
+                                            className="h-10 rounded-md border border-gray-300 bg-white px-3 pr-8 text-sm text-gray-700 transition-colors duration-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                                        >
+                                            <option value="relevance">Relevance</option>
+                                            <option value="newest">Newest First</option>
+                                            <option value="oldest">Oldest First</option>
+                                            <option value="payrate">Highest Pay Rate</option>
+                                        </select>
+                                    </div>
                                 </div>
 
                                 <div className="space-y-4">
